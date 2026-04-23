@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=3">
+<link rel="stylesheet" href="style.css?v=8">
 </head>
 <body>
 <main>
@@ -61,8 +61,7 @@
     el.innerHTML = list.map(a => {
       const display = typeof a === 'string' ? a : a.display;
       const query   = typeof a === 'string' ? a : a.query;
-      const clean   = display.replace(/,/g, '').replace(/\./g, '');
-      return `<a href="https://music.apple.com/ca/search?term=${encodeURIComponent(query)}" target="_blank" rel="noopener">${clean}</a>`;
+      return `<a href="https://music.apple.com/ca/search?term=${encodeURIComponent(query)}" target="_blank" rel="noopener">${display}</a>`;
     }).join('');
   }
   renderArtists('artists-en', artistsEn);
