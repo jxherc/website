@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>music — jxherc</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<main>
+  <a class="home" href="index.html">jxherc</a>
+
+  <section>
+    <div class="label">recent</div>
+    <ul class="tracks" id="tracks">
+      <li class="track"><span class="main" style="color:var(--muted)">loading…</span></li>
+    </ul>
+    <button class="more-btn" id="more-btn" hidden>show more</button>
+  </section>
+
+  <section>
+    <div class="label">artists</div>
+    <div class="two-col" id="artists-en"></div>
+  </section>
+
+  <section>
+    <div class="label">artists &nbsp;/&nbsp; cn</div>
+    <div class="two-col" id="artists-cn"></div>
+  </section>
+
+  <section>
+    <div class="label">albums on repeat</div>
+    <div class="albums-grid" id="albums"></div>
+  </section>
+
+  <section class="note">
+    don't ask me why there's so much music stuff here, i just like my music :)
+  </section>
+</main>
+
+<script>
+  /* ---------- Artists ---------- */
+  const artistsEn = [
+    "joji", "kendrick lamar", "the weeknd", "tyler, the creator",
+    "kanye west", "j. cole", "clara la san", "central cee",
+    "lana del rey", "sza", "laufey", "21 savage", "daniel caesar"
+  ];
+  const artistsCn = [
+    { display: "ronghao li", query: "李荣浩" },
+    { display: "gareth.t",    query: "gareth t" },
+    { display: "runze zheng", query: "郑润泽" },
+    { display: "jay chou",    query: "周杰伦" }
+  ];
+
+  function renderArtists(containerId, list) {
+    const el = document.getElementById(containerId);
+    el.innerHTML = list.map(a => {
+      const display = typeof a === 'string' ? a : a.display;
+      const query   = typeof a === 'string' ? a : a.query;
+      const clean   = display.replace(/,/g, '').replace(/\./g, '');
+      return `<a href="https://music.apple.com/ca/search?term=${encodeURIComponent(query)}" target="_blank" rel="noopener">${clean}</a>`;
+    }).join('');
+  }
+  renderArtists('artists-en', artistsEn);
+  renderArtists('artists-cn', artistsCn);
+
+  /* ---------- Albums (local images) ---------- */
+  const albums = [
+    { title: "my beautiful dark twisted fantasy", file: "mbdtf.jpg",               search: "kanye west my beautiful dark twisted fantasy" },
+    { title: "smithereens",                        file: "smithereens.jpg",         search: "joji smithereens" },
+    { title: "piss in the wind",                   file: "piss-in-the-wind.jpg",    search: "piss in the wind" },
+    { title: "gnx",                                file: "gnx.jpg",                 search: "kendrick lamar gnx" },
+    { title: "damn.",                              file: "damn.jpg",                search: "kendrick lamar damn" },
+    { title: "dawn fm",                            file: "dawn-fm.jpg",             search: "the weeknd dawn fm" },
+    { title: "starboy",                            file: "starboy.jpg",             search: "the weeknd starboy" },
+    { title: "after hours",                        file: "after-hours.jpg",         search: "the weeknd after hours" },
+    { title: "chromakopia",                        file: "chromakopia.jpg",         search: "tyler the creator chromakopia" },
+    { title: "sos",                                file: "sos.jpg",                 search: "sza sos" },
+    { title: "4 your eyez only",                   file: "4-your-eyez-only.jpg",    search: "j cole 4 your eyez only" },
+    { title: "can't rush greatness",               file: "cant-rush-greatness.jpg", search: "central cee can't rush greatness" }
+  ];
+
+  document.getElementById('albums').innerHTML = albums.map(a => `
+    <a class="album"
+       href="https://music.apple.com/ca/search?term=${encodeURIComponent(a.search)}"
+       target="_blank" rel="noopener">
+      <div class="cover">
+        <div class="fallback">${a.title}</div>
+        <img src="images/${a.file}" alt="${a.title}" loading="lazy"
+             onload="this.classList.add('loaded'); this.previousElementSibling.style.display='none';"
+             onerror="this.style.display='none';" />
+      </div>
+      <div class="title">${a.title}</div>
+    </a>
+  `).join('');
+
+  /* ---------- Recent tracks (stats.fm) ---------- */
+  function timeAgo(endTime) {
+    if (!endTime) return '';
+    const diff = Math.max(0, Date.now() - new Date(endTime).getTime());
+    const mins = Math.floor(diff / 60000);
+    if (mins < 1)         return 'now';
+    if (mins < 60)        return `${mins}m`;
+    if (mins < 60 * 24)   return `${Math.floor(mins / 60)}h`;
+    return `${Math.floor(mins / (60 * 24))}d`;
+  }
+
+  function escapeHtml(s) {
+    return String(s || '').replace(/[&<>"']/g, c => ({
+      '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+    }[c]));
+  }
+
+  async function loadRecent() {
+    const tracksEl = document.getElementById('tracks');
+    const moreBtn  = document.getElementById('more-btn');
+    try {
+      const res = await fetch('https://api.stats.fm/api/v1/users/jxherc/streams/recent?limit=20');
+      if (!res.ok) throw new Error('nope');
+      const data  = await res.json();
+      const items = Array.isArray(data.items) ? data.items : (Array.isArray(data) ? data : []);
+      if (!items.length) throw new Error('empty');
+
+      tracksEl.innerHTML = items.slice(0, 20).map((item, i) => {
+        const track     = escapeHtml(item.track?.name || item.name || '');
+        const artist    = escapeHtml(item.track?.artists?.[0]?.name || item.artists?.[0]?.name || '');
+        const spotifyId = item.track?.externalIds?.spotify?.[0]
+                       || item.track?.spotifyIds?.[0]
+                       || item.externalIds?.spotify?.[0];
+        const url = spotifyId ? `https://open.spotify.com/track/${spotifyId}` : 'https://stats.fm/jxherc';
+        const ago = timeAgo(item.endTime);
+        if (!track) return '';
+        return `<li class="track ${i >= 5 ? 'hidden' : ''}">
+          <span class="main">
+            <a class="title-link" href="${url}" target="_blank" rel="noopener">${track}</a>
+            ${artist ? `<span class="artist"> — ${artist}</span>` : ''}
+          </span>
+          ${ago ? `<span class="time">${ago}</span>` : ''}
+        </li>`;
+      }).join('');
+
+      if (items.length > 5) {
+        moreBtn.hidden = false;
+        let expanded = false;
+        moreBtn.addEventListener('click', () => {
+          expanded = !expanded;
+          document.querySelectorAll('.track').forEach((el, i) => {
+            if (i >= 5) el.classList.toggle('hidden', !expanded);
+          });
+          moreBtn.textContent = expanded ? 'show less' : 'show more';
+        });
+      }
+    } catch (e) {
+      tracksEl.innerHTML = '<li class="track"><span class="main" style="color:var(--muted)">nothing to show here</span></li>';
+    }
+  }
+  loadRecent();
+</script>
+</body>
+</html>

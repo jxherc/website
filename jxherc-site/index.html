@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>jxherc</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<main>
+
+  <header>
+    <span class="brand">jxherc<span class="alias">/ jxh</span></span>
+  </header>
+
+  <section class="intro-block">
+    <div class="intro">
+      i'm a student interested in computer science and designing.
+      <span class="location">based in <s>shenzhen</s><span class="here">toronto</span>.</span>
+    </div>
+    <div class="portrait">
+      <div class="fallback">—</div>
+      <img src="images/me.jpg" alt=""
+           onload="this.classList.add('loaded'); this.previousElementSibling.style.display='none';"
+           onerror="this.style.display='none';" />
+    </div>
+  </section>
+
+  <section>
+    <div class="label">about</div>
+    <div class="kv-list">
+      <div class="kv-row"><span class="k">age</span><span class="v" id="age">—</span></div>
+      <div class="kv-row"><span class="k">languages</span><span class="v">english &nbsp;·&nbsp; mandarin</span></div>
+    </div>
+  </section>
+
+  <section>
+    <a class="music-teaser" href="music.html">
+      <span class="label" style="margin:0">music</span>
+      <span class="sub">recent, artists, albums</span>
+      <span class="arrow">→</span>
+    </a>
+  </section>
+
+  <section>
+    <div class="label">setup</div>
+    <div class="two-col">
+      <div class="item">macbook air<span class="spec">m1</span></div>
+      <div class="item">zenbook duo<span class="spec">asus · 2024</span></div>
+      <div class="item">ipad pro<span class="spec">m4 · 11"</span></div>
+      <div class="item">iphone 16 pro</div>
+      <div class="item">apple watch<span class="spec">series 11 · 45mm</span></div>
+      <div class="item">airpods pro<span class="spec">2nd gen · lightning</span></div>
+      <div class="item">sony wh-1000xm4</div>
+    </div>
+  </section>
+
+  <section>
+    <div class="label">elsewhere</div>
+    <div class="kv-list">
+      <a class="kv-row" href="https://jxherc.com/gbp" target="_blank" rel="noopener">
+        <span class="k">discord</span><span class="v">gbp</span><span class="arrow">↗</span>
+      </a>
+      <a class="kv-row" href="https://instagram.com/aqfinity" target="_blank" rel="noopener">
+        <span class="k">instagram</span><span class="v">@aqfinity</span><span class="arrow">↗</span>
+      </a>
+      <a class="kv-row" href="https://twitter.com/cvawkd" target="_blank" rel="noopener">
+        <span class="k">twitter</span><span class="v">@cvawkd</span><span class="arrow">↗</span>
+      </a>
+      <a class="kv-row" href="https://youtube.com/@jxherc" target="_blank" rel="noopener">
+        <span class="k">youtube</span><span class="v">@jxherc</span><span class="arrow">↗</span>
+      </a>
+      <a class="kv-row" href="https://music.apple.com/profile/jxherc" target="_blank" rel="noopener">
+        <span class="k">apple music</span><span class="v">jxherc</span><span class="arrow">↗</span>
+      </a>
+      <a class="kv-row" href="https://stats.fm/jxherc" target="_blank" rel="noopener">
+        <span class="k">music stat</span><span class="v">jxherc</span><span class="arrow">↗</span>
+      </a>
+    </div>
+  </section>
+
+</main>
+
+<script>
+  // Born Jan 3 2010, 19:30 CST (UTC+8) = Jan 3 2010, 11:30 UTC
+  const BIRTH = new Date('2010-01-03T11:30:00Z');
+  const ageEl = document.getElementById('age');
+  function updateAge() {
+    const years = (new Date() - BIRTH) / (1000 * 60 * 60 * 24 * 365.25);
+    ageEl.textContent = years.toFixed(8) + ' years';
+  }
+  updateAge();
+  setInterval(updateAge, 40);
+</script>
+</body>
+</html>
