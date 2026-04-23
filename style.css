@@ -165,27 +165,22 @@ a.portrait:hover { transform: translateY(-2px); }
   color: var(--faint);
 }
 
-/* Music teaser — creative card treatment */
+/* Music teaser — single row card with contrast */
 .music-card {
-  display: block;
+  display: flex;
+  align-items: baseline;
+  gap: 0.7rem;
   text-decoration: none;
   color: var(--text);
-  padding: 1.1rem 1.25rem;
+  padding: 1rem 1.25rem;
   border: 1px solid var(--faint);
   border-radius: 3px;
   transition: border-color 0.3s ease, background 0.3s ease;
-  position: relative;
-  overflow: hidden;
+  width: fit-content;
 }
 .music-card:hover {
   border-color: var(--muted);
   background: #0e0e0e;
-}
-.music-card .row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
 }
 .music-card .title {
   font-size: 0.95rem;
@@ -193,43 +188,18 @@ a.portrait:hover { transform: translateY(-2px); }
   letter-spacing: -0.01em;
 }
 .music-card .enter {
-  font-size: 0.7rem;
-  color: var(--muted);
+  font-size: 0.72rem;
+  color: var(--faint);
   letter-spacing: 0.04em;
   transition: color 0.25s ease, transform 0.25s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
 }
 .music-card:hover .enter {
-  color: var(--text);
+  color: var(--muted);
   transform: translateX(3px);
 }
-.music-card .now-playing {
-  display: flex;
-  align-items: center;
-  gap: 0.55rem;
-  margin-top: 0.65rem;
-  font-size: 0.72rem;
-  color: var(--muted);
-  min-height: 1.1em;
-  line-height: 1.4;
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-}
-.music-card .pulse {
-  width: 5px;
-  height: 5px;
-  border-radius: 50%;
-  background: var(--muted);
-  flex-shrink: 0;
-  animation: pulse 2s ease-in-out infinite;
-}
-.music-card:hover .pulse { background: var(--text); }
-@keyframes pulse {
-  0%, 100% { opacity: 0.3; }
-  50% { opacity: 1; }
-}
-.music-card .track-name { color: var(--text); }
-.music-card .track-sep { color: var(--faint); margin: 0 0.4em; }
 
 /* Key/value rows (about + elsewhere + recent-tracks-lite) */
 .kv-list {

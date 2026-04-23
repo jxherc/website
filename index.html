@@ -40,14 +40,8 @@
 
   <section>
     <a class="music-card" href="music.html">
-      <div class="row">
-        <span class="title">music</span>
-        <span class="enter">enter →</span>
-      </div>
-      <div class="now-playing" id="np">
-        <span class="pulse"></span>
-        <span id="np-text" style="opacity:0.6">hover to peek</span>
-      </div>
+      <span class="title">music</span>
+      <span class="enter">enter →</span>
     </a>
   </section>
 
@@ -100,24 +94,6 @@
   }
   updateAge();
   setInterval(updateAge, 40);
-
-  // Peek at most recent track for music card
-  (async function peekRecent() {
-    try {
-      const res = await fetch('https://api.stats.fm/api/v1/users/jxherc/streams/recent?limit=1');
-      if (!res.ok) return;
-      const data = await res.json();
-      const items = Array.isArray(data.items) ? data.items : (Array.isArray(data) ? data : []);
-      const item = items[0];
-      if (!item) return;
-      const track  = item.track?.name || item.name;
-      const artist = item.track?.artists?.[0]?.name || item.artists?.[0]?.name;
-      if (!track) return;
-      const npText = document.getElementById('np-text');
-      npText.style.opacity = '1';
-      npText.innerHTML = `last played <span class="track-name">${track}</span>${artist ? `<span class="track-sep">—</span><span>${artist}</span>` : ''}`;
-    } catch (e) {}
-  })();
 </script>
 </body>
 </html>
