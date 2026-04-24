@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=13">
+<link rel="stylesheet" href="style.css?v=15">
 <meta property="og:title" content="music — jxherc">
 <meta property="og:description" content="my music, live.">
 <meta property="og:image" content="og-image.png">
@@ -20,7 +20,7 @@
 
   <!-- RECENT -->
   <section>
-    <div class="label">recent</div>
+    <div class="label">recent <span class="live-stamp" data-stamp="recent">—</span></div>
     <ul class="tracks" id="tracks">
       <li class="track"><span class="main" style="color:var(--muted)">loading…</span></li>
     </ul>
@@ -29,7 +29,7 @@
 
   <!-- ALL-TIME -->
   <section>
-    <div class="label">all-time top</div>
+    <div class="label">all-time top <span class="live-stamp" data-stamp="alltime">—</span></div>
     <div class="stat-line" id="stat-alltime"><span class="stat-dim">loading…</span></div>
 
     <div class="top-category" id="top-songs-alltime">
@@ -48,7 +48,7 @@
 
   <!-- PAST 4 WEEKS -->
   <section>
-    <div class="label">past 4 weeks</div>
+    <div class="label">past 4 weeks <span class="live-stamp" data-stamp="weeks">—</span></div>
     <div class="stat-line" id="stat-weeks"><span class="stat-dim">loading…</span></div>
 
     <div class="top-category" id="top-songs-weeks">
@@ -67,7 +67,7 @@
 
   <!-- 2025 vs 2026 -->
   <section>
-    <div class="label">2025 vs 2026</div>
+    <div class="label">2025 vs 2026 <span class="live-stamp" data-stamp="compare">—</span></div>
 
     <div class="toggle-row">
       <button class="toggle-btn active" data-metric="streams">streams</button>
@@ -182,15 +182,15 @@
 </main>
 
 <script>
-/* ============ CONFIG ============ */
+/* config */
 const API = 'https://api.stats.fm/api/v1';
 const USERS = { old: 'jxherc01', new: 'jxherc' };
 
-/* FROZEN TOTALS (from pasted JSON) */
-const F_2025 = { streams: 15319, minutes: 54766 }; // all year
-const F_2026_JANFEB = { streams: 1509, minutes: 5133 }; // spotify jan 1 - feb 23
+/* historical totals */
+const F_2025 = { streams: 15319, minutes: 54766 };
+const F_2026_JANFEB = { streams: 1509, minutes: 5133 };
 
-/* FROZEN TOP ITEMS */
+/* historical top items */
 const F_2025_TOP = {
   song:  { name: "luther (with sza)", artist: "kendrick lamar",
            img: "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/54/28/14/54281424-eece-0935-299d-fdd2ab403f92/24UM1IM28978.rgb.jpg/200x200bb.jpg" },
@@ -205,12 +205,12 @@ const F_2026_JANFEB_TOP = {
 };
 
 /* 2026 live fetch bounds */
-const Y2026_AFTER = 1767225600000;   // jan 1 2026 UTC
-const Y2026_BEFORE = 1798761600000;  // dec 31 2026 UTC
+const Y2026_AFTER = 1767225600000;
+const Y2026_BEFORE = 1798761600000;
 
 const REFRESH_MS = 5 * 60 * 1000;
 
-/* ============ HELPERS ============ */
+/* helpers */
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const fmtNum = n => Number(n || 0).toLocaleString('en-US');
 function timeAgoTiny(ms) {
@@ -268,7 +268,7 @@ function mergeTops(a, b, kind) {
     .slice(0, 3);
 }
 
-/* ============ RENDER TOP ROWS ============ */
+/* render top rows */
 function renderTopRows(containerId, items, kind) {
   const el = document.getElementById(containerId);
   const list = document.createElement('div');
@@ -336,7 +336,7 @@ async function loadStats(range, containerId) {
   writeStatLine(containerId, streams, minutes);
 }
 
-/* ============ RECENT ============ */
+/* recent */
 async function loadRecent() {
   const tracksEl = document.getElementById('tracks');
   const moreBtn  = document.getElementById('more-btn');
@@ -376,7 +376,7 @@ async function loadRecent() {
   }
 }
 
-/* ============ 2025 vs 2026 COMPARISON ============ */
+/* 2025 vs 2026 */
 let compareData = {
   y2025: { ...F_2025 },
   y2026: null,            // filled in after live fetch
@@ -385,7 +385,6 @@ let compareData = {
 let compareMetric = 'streams';
 
 async function load2026() {
-  // 2026 Apple Music live stats (full-year bounded)
   const liveStats = await safeFetch(`${API}/users/${USERS.new}/streams/stats?after=${Y2026_AFTER}&before=${Y2026_BEFORE}`);
   const live = liveStats?.items || {};
   const liveStreams = live.count || 0;
@@ -396,19 +395,16 @@ async function load2026() {
     minutes: liveMinutes + F_2026_JANFEB.minutes,
   };
 
-  // 2026 Apple Music live top items (year-bounded)
   const [tData, alData, arData] = await Promise.all([
     safeFetch(`${API}/users/${USERS.new}/top/tracks?after=${Y2026_AFTER}&before=${Y2026_BEFORE}&limit=5`),
     safeFetch(`${API}/users/${USERS.new}/top/albums?after=${Y2026_AFTER}&before=${Y2026_BEFORE}&limit=5`),
     safeFetch(`${API}/users/${USERS.new}/top/artists?after=${Y2026_AFTER}&before=${Y2026_BEFORE}&limit=5`),
   ]);
 
-  // merge with frozen jan-feb top items
   const liveTrack  = extract(tData).map(x => parseTop(x, 'track'));
   const liveAlbum  = extract(alData).map(x => parseTop(x, 'album'));
   const liveArtist = extract(arData).map(x => parseTop(x, 'artist'));
 
-  // Inject jan-feb frozen items into the live arrays, then re-sort by summed streams
   function combine(liveList, frozen) {
     const map = new Map();
     const key = x => `${x.name.toLowerCase()}::${(x.artistName||'').toLowerCase()}`;
@@ -485,7 +481,6 @@ function renderCompare() {
     renderYTRow('y2026-artist', compareData.top2026.artist, 'artist');
   }
 
-  // pace note
   const now = new Date();
   const noteEl = document.getElementById('compare-note');
   if (now.getFullYear() === 2026) {
@@ -510,7 +505,7 @@ document.querySelectorAll('.toggle-btn').forEach(btn => {
   });
 });
 
-/* ============ STATIC LISTS ============ */
+/* static lists */
 const artistsEn = [
   "joji","kendrick lamar","the weeknd","tyler, the creator","kanye west","j. cole",
   "clara la san","central cee","sza","laufey","21 savage","daniel caesar"
@@ -554,19 +549,57 @@ document.getElementById('albums').innerHTML = albums.map(a => `
   </a>
 `).join('');
 
-/* ============ LOAD ALL ============ */
+/* live stamps */
+const stamps = { recent: 0, alltime: 0, weeks: 0, compare: 0 };
+
+function timeAgo(ms) {
+  const diff = Math.max(0, Date.now() - ms);
+  const s = Math.floor(diff / 1000);
+  if (s < 10)          return 'just now';
+  if (s < 60)          return `${s}s ago`;
+  const m = Math.floor(s / 60);
+  if (m < 60)          return m === 1 ? '1m ago' : `${m}m ago`;
+  const h = Math.floor(m / 60);
+  if (h < 24)          return h === 1 ? '1h ago' : `${h}h ago`;
+  return `${Math.floor(h/24)}d ago`;
+}
+
+function refreshStamps() {
+  document.querySelectorAll('.live-stamp').forEach(el => {
+    const k = el.dataset.stamp;
+    if (!stamps[k]) { el.textContent = ''; return; }
+    el.textContent = `updated ${timeAgo(stamps[k])}`;
+  });
+}
+
+setInterval(refreshStamps, 1000);
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible') refreshStamps();
+});
+window.addEventListener('focus', refreshStamps);
+window.addEventListener('pageshow', refreshStamps);
+
+/* load all */
 async function loadAll() {
   await Promise.all([
-    loadRecent(),
-    loadStats('lifetime', 'stat-alltime'),
-    loadTopFor('lifetime', 'alltime'),
-    loadStats('weeks', 'stat-weeks'),
-    loadTopFor('weeks', 'weeks'),
-    load2026(),
+    loadRecent().then(() => { stamps.recent = Date.now(); }),
+    (async () => {
+      await Promise.all([ loadStats('lifetime', 'stat-alltime'), loadTopFor('lifetime', 'alltime') ]);
+      stamps.alltime = Date.now();
+    })(),
+    (async () => {
+      await Promise.all([ loadStats('weeks', 'stat-weeks'), loadTopFor('weeks', 'weeks') ]);
+      stamps.weeks = Date.now();
+    })(),
+    load2026().then(() => { stamps.compare = Date.now(); }),
   ]);
+  refreshStamps();
 }
 loadAll();
 setInterval(loadAll, REFRESH_MS);
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible') loadAll();
+});
 </script>
 </body>
 </html>
