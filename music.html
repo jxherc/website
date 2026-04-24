@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>music — jxherc</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css?v=13">
+<meta property="og:title" content="music — jxherc">
+<meta property="og:description" content="my music, live.">
+<meta property="og:image" content="og-image.png">
+<meta name="twitter:card" content="summary_large_image">
+</head>
+<body>
+<main>
+  <a class="home" href="index.html">jxherc</a>
+
+  <!-- RECENT -->
+  <section>
+    <div class="label">recent</div>
+    <ul class="tracks" id="tracks">
+      <li class="track"><span class="main" style="color:var(--muted)">loading…</span></li>
+    </ul>
+    <button class="more-btn" id="more-btn" hidden>show more</button>
+  </section>
+
+  <!-- ALL-TIME -->
+  <section>
+    <div class="label">all-time top</div>
+    <div class="stat-line" id="stat-alltime"><span class="stat-dim">loading…</span></div>
+
+    <div class="top-category" id="top-songs-alltime">
+      <div class="cat-label">songs</div>
+      <div class="top-list loading"><div class="top-row-skel"></div><div class="top-row-skel"></div><div class="top-row-skel"></div></div>
+    </div>
+    <div class="top-category" id="top-albums-alltime">
+      <div class="cat-label">albums</div>
+      <div class="top-list loading"><div class="top-row-skel"></div><div class="top-row-skel"></div><div class="top-row-skel"></div></div>
+    </div>
+    <div class="top-category" id="top-artists-alltime">
+      <div class="cat-label">artists</div>
+      <div class="top-list loading"><div class="top-row-skel"></div><div class="top-row-skel"></div><div class="top-row-skel"></div></div>
+    </div>
+  </section>
+
+  <!-- PAST 4 WEEKS -->
+  <section>
+    <div class="label">past 4 weeks</div>
+    <div class="stat-line" id="stat-weeks"><span class="stat-dim">loading…</span></div>
+
+    <div class="top-category" id="top-songs-weeks">
+      <div class="cat-label">songs</div>
+      <div class="top-list loading"><div class="top-row-skel"></div><div class="top-row-skel"></div><div class="top-row-skel"></div></div>
+    </div>
+    <div class="top-category" id="top-albums-weeks">
+      <div class="cat-label">albums</div>
+      <div class="top-list loading"><div class="top-row-skel"></div><div class="top-row-skel"></div><div class="top-row-skel"></div></div>
+    </div>
+    <div class="top-category" id="top-artists-weeks">
+      <div class="cat-label">artists</div>
+      <div class="top-list loading"><div class="top-row-skel"></div><div class="top-row-skel"></div><div class="top-row-skel"></div></div>
+    </div>
+  </section>
+
+  <!-- 2025 vs 2026 -->
+  <section>
+    <div class="label">2025 vs 2026</div>
+
+    <div class="toggle-row">
+      <button class="toggle-btn active" data-metric="streams">streams</button>
+      <button class="toggle-btn" data-metric="minutes">minutes</button>
+    </div>
+
+    <div class="year-cards">
+      <!-- 2025 -->
+      <div class="year-card" id="year-2025">
+        <div class="year-header">
+          <span class="year-name">2025</span>
+          <span class="year-note">closed</span>
+        </div>
+        <div class="year-bar-wrap"><div class="year-bar" style="width:0%"></div></div>
+        <div class="year-num">—</div>
+        <div class="year-unit">streams</div>
+
+        <div class="year-top">
+          <div class="yt-row">
+            <span class="yt-k">song</span>
+            <img class="yt-thumb thumb-sq" alt="luther" src="https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/54/28/14/54281424-eece-0935-299d-fdd2ab403f92/24UM1IM28978.rgb.jpg/200x200bb.jpg">
+            <span class="yt-name">luther (with sza) <span class="yt-sub">· kendrick lamar</span></span>
+          </div>
+          <div class="yt-row">
+            <span class="yt-k">album</span>
+            <img class="yt-thumb thumb-sq" alt="gnx" src="https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/54/28/14/54281424-eece-0935-299d-fdd2ab403f92/24UM1IM28978.rgb.jpg/200x200bb.jpg">
+            <span class="yt-name">gnx <span class="yt-sub">· kendrick lamar</span></span>
+          </div>
+          <div class="yt-row">
+            <span class="yt-k">artist</span>
+            <img class="yt-thumb thumb-round" alt="kendrick" src="https://i.scdn.co/image/ab6761610000517439ba6dcd4355c03de0b50918">
+            <span class="yt-name">kendrick lamar</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 2026 -->
+      <div class="year-card" id="year-2026">
+        <div class="year-header">
+          <span class="year-name">2026</span>
+          <span class="year-note live-dot-wrap"><span class="live-dot"></span>live</span>
+        </div>
+        <div class="year-bar-wrap"><div class="year-bar" style="width:0%"></div></div>
+        <div class="year-num">—</div>
+        <div class="year-unit">streams</div>
+
+        <div class="year-top">
+          <div class="yt-row" id="y2026-song">
+            <span class="yt-k">song</span>
+            <div class="yt-thumb thumb-sq thumb-empty"></div>
+            <span class="yt-name" style="color:var(--muted)">loading…</span>
+          </div>
+          <div class="yt-row" id="y2026-album">
+            <span class="yt-k">album</span>
+            <div class="yt-thumb thumb-sq thumb-empty"></div>
+            <span class="yt-name" style="color:var(--muted)">loading…</span>
+          </div>
+          <div class="yt-row" id="y2026-artist">
+            <span class="yt-k">artist</span>
+            <div class="yt-thumb thumb-round thumb-empty"></div>
+            <span class="yt-name" style="color:var(--muted)">loading…</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="compare-note" id="compare-note"></div>
+  </section>
+
+  <!-- GENRES -->
+  <section>
+    <div class="label">genres</div>
+    <div class="genre-list">
+      <div class="genre-row">
+        <span class="genre-name">rap / hiphop</span>
+        <span class="genre-bar-wrap"><span class="genre-bar" style="width:45%"></span></span>
+        <span class="genre-pct">45%</span>
+      </div>
+      <div class="genre-row">
+        <span class="genre-name">r&b / blues</span>
+        <span class="genre-bar-wrap"><span class="genre-bar" style="width:40%"></span></span>
+        <span class="genre-pct">40%</span>
+      </div>
+      <div class="genre-row">
+        <span class="genre-name">pop</span>
+        <span class="genre-bar-wrap"><span class="genre-bar" style="width:15%"></span></span>
+        <span class="genre-pct">15%</span>
+      </div>
+    </div>
+    <div class="genre-note">(lowkey r&b/blues is my favorite but i listen to way more rap, and pop's just too big to escape)</div>
+  </section>
+
+  <!-- STATIC ARTIST / ALBUM LISTS -->
+  <section>
+    <div class="label">artists</div>
+    <div class="two-col" id="artists-en"></div>
+  </section>
+  <section>
+    <div class="label">artists &nbsp;/&nbsp; cn</div>
+    <div class="two-col" id="artists-cn"></div>
+  </section>
+  <section>
+    <div class="label">albums on repeat</div>
+    <div class="albums-grid" id="albums"></div>
+  </section>
+
+  <section class="note">
+    i like my music :) apple music est feb 2026, switched from spotify for better aesthetics and cheaper prices
+  </section>
+
+  <section class="page-edit-stamp">page last edited apr 24, 2026</section>
+</main>
+
+<script>
+/* ============ CONFIG ============ */
+const API = 'https://api.stats.fm/api/v1';
+const USERS = { old: 'jxherc01', new: 'jxherc' };
+
+/* FROZEN TOTALS (from pasted JSON) */
+const F_2025 = { streams: 15319, minutes: 54766 }; // all year
+const F_2026_JANFEB = { streams: 1509, minutes: 5133 }; // spotify jan 1 - feb 23
+
+/* FROZEN TOP ITEMS */
+const F_2025_TOP = {
+  song:  { name: "luther (with sza)", artist: "kendrick lamar",
+           img: "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/54/28/14/54281424-eece-0935-299d-fdd2ab403f92/24UM1IM28978.rgb.jpg/200x200bb.jpg" },
+  album: { name: "gnx", artist: "kendrick lamar",
+           img: "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/54/28/14/54281424-eece-0935-299d-fdd2ab403f92/24UM1IM28978.rgb.jpg/200x200bb.jpg" },
+  artist:{ name: "kendrick lamar", img: "https://i.scdn.co/image/ab6761610000517439ba6dcd4355c03de0b50918" }
+};
+const F_2026_JANFEB_TOP = {
+  song: { name: "gimme! gimme! gimme! (a man after midnight)", artist: "abba", streams: 9, minutes: 42, img: "" },
+  album:{ name: "ori and the will of the wisps (ost)", artist: "gareth coker", streams: 38, minutes: 114, img: "" },
+  artist:{ name: "the weeknd", streams: 40, minutes: 144, img: "" }
+};
+
+/* 2026 live fetch bounds */
+const Y2026_AFTER = 1767225600000;   // jan 1 2026 UTC
+const Y2026_BEFORE = 1798761600000;  // dec 31 2026 UTC
+
+const REFRESH_MS = 5 * 60 * 1000;
+
+/* ============ HELPERS ============ */
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fmtNum = n => Number(n || 0).toLocaleString('en-US');
+function timeAgoTiny(ms) {
+  if (!ms) return '';
+  const diff = Math.max(0, Date.now() - ms);
+  const m = Math.floor(diff / 60000);
+  if (m < 1) return 'now';
+  if (m < 60) return `${m}m`;
+  if (m < 60*24) return `${Math.floor(m/60)}h`;
+  return `${Math.floor(m/(60*24))}d`;
+}
+async function safeFetch(url) {
+  try { const r = await fetch(url); if (!r.ok) return null; return await r.json(); }
+  catch (e) { return null; }
+}
+const extract = d => !d ? [] : (Array.isArray(d.items) ? d.items : (Array.isArray(d.data) ? d.data : (Array.isArray(d) ? d : [])));
+
+function parseTop(item, kind) {
+  const sub = item[kind] || item;
+  const name = sub?.name || '';
+  const artistName = (kind === 'track' || kind === 'album')
+    ? (sub?.artists?.[0]?.name || '')
+    : '';
+  let imgUrl = '';
+  if (kind === 'album') {
+    imgUrl = sub?.image || '';
+  } else if (kind === 'track') {
+    imgUrl = sub?.albums?.[0]?.image || '';
+  } else if (kind === 'artist') {
+    imgUrl = sub?.image || '';
+  }
+  const streams = item.streams ?? item.count ?? 0;
+  const minutes = item.playedMs ? Math.round(item.playedMs / 60000) : (item.minutes ?? 0);
+  return { name, artistName, imgUrl, streams, minutes };
+}
+
+function mergeTops(a, b, kind) {
+  const map = new Map();
+  const key = x => `${x.name.toLowerCase()}::${x.artistName.toLowerCase()}`;
+  [...a, ...b].forEach(raw => {
+    const it = parseTop(raw, kind);
+    if (!it.name) return;
+    const k = key(it);
+    const prev = map.get(k);
+    if (prev) {
+      prev.streams += it.streams;
+      prev.minutes += it.minutes;
+      if (!prev.imgUrl && it.imgUrl) prev.imgUrl = it.imgUrl;
+    } else {
+      map.set(k, { ...it });
+    }
+  });
+  return Array.from(map.values())
+    .sort((x, y) => (y.minutes || y.streams) - (x.minutes || x.streams))
+    .slice(0, 3);
+}
+
+/* ============ RENDER TOP ROWS ============ */
+function renderTopRows(containerId, items, kind) {
+  const el = document.getElementById(containerId);
+  const list = document.createElement('div');
+  list.className = 'top-list';
+  if (!items.length) {
+    list.innerHTML = '<div class="top-row-empty">no data</div>';
+    el.querySelector('.top-list').replaceWith(list);
+    return;
+  }
+  const max = items[0].minutes || items[0].streams || 1;
+  list.innerHTML = items.map((it, i) => {
+    const pct = Math.max(8, Math.round((it.minutes || it.streams) / max * 100));
+    const shape = kind === 'artist' ? 'thumb-round' : 'thumb-sq';
+    const thumb = it.imgUrl
+      ? `<img class="thumb ${shape}" src="${esc(it.imgUrl)}" alt="" loading="lazy" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';"><div class="thumb ${shape} thumb-empty" style="display:none"></div>`
+      : `<div class="thumb ${shape} thumb-empty"></div>`;
+    const sub = it.artistName ? ` <span class="top-sub">· ${esc(it.artistName)}</span>` : '';
+    const metaText = it.minutes ? `${fmtNum(it.minutes)} min` : (it.streams ? `${fmtNum(it.streams)} str` : '');
+    return `
+      <div class="top-row">
+        <span class="rank">${i + 1}</span>
+        <span class="bar-wrap"><span class="bar" style="width:${pct}%"></span></span>
+        ${thumb}
+        <span class="top-label">${esc(it.name)}${sub}</span>
+        <span class="top-meta">${metaText}</span>
+      </div>`;
+  }).join('');
+  el.querySelector('.top-list').replaceWith(list);
+}
+
+async function loadTopFor(range, prefix) {
+  const [tA, tB, alA, alB, arA, arB] = await Promise.all([
+    safeFetch(`${API}/users/${USERS.old}/top/tracks?range=${range}&limit=50`),
+    safeFetch(`${API}/users/${USERS.new}/top/tracks?range=${range}&limit=50`),
+    safeFetch(`${API}/users/${USERS.old}/top/albums?range=${range}&limit=50`),
+    safeFetch(`${API}/users/${USERS.new}/top/albums?range=${range}&limit=50`),
+    safeFetch(`${API}/users/${USERS.old}/top/artists?range=${range}&limit=50`),
+    safeFetch(`${API}/users/${USERS.new}/top/artists?range=${range}&limit=50`),
+  ]);
+  renderTopRows(`top-songs-${prefix}`,   mergeTops(extract(tA),  extract(tB),  'track'),  'track');
+  renderTopRows(`top-albums-${prefix}`,  mergeTops(extract(alA), extract(alB), 'album'),  'album');
+  renderTopRows(`top-artists-${prefix}`, mergeTops(extract(arA), extract(arB), 'artist'), 'artist');
+}
+
+function writeStatLine(containerId, streams, minutes) {
+  const hrs = Math.round(minutes / 60);
+  document.getElementById(containerId).innerHTML = `
+    <span class="stat-num">${fmtNum(streams)}</span><span class="stat-unit"> streams</span>
+    <span class="stat-dot">·</span>
+    <span class="stat-num">${fmtNum(hrs)}</span><span class="stat-unit"> hr</span>
+    <span class="stat-dot">·</span>
+    <span class="stat-num">${fmtNum(minutes)}</span><span class="stat-unit"> min</span>
+  `;
+}
+
+async function loadStats(range, containerId) {
+  const [a, b] = await Promise.all([
+    safeFetch(`${API}/users/${USERS.old}/streams/stats?range=${range}`),
+    safeFetch(`${API}/users/${USERS.new}/streams/stats?range=${range}`),
+  ]);
+  const sa = a?.items || a || {};
+  const sb = b?.items || b || {};
+  const streams = (sa.count || 0) + (sb.count || 0);
+  const minutes = Math.round(((sa.durationMs || 0) + (sb.durationMs || 0)) / 60000);
+  writeStatLine(containerId, streams, minutes);
+}
+
+/* ============ RECENT ============ */
+async function loadRecent() {
+  const tracksEl = document.getElementById('tracks');
+  const moreBtn  = document.getElementById('more-btn');
+  try {
+    const res = await fetch(`${API}/users/${USERS.new}/streams/recent?limit=25`);
+    if (!res.ok) throw 0;
+    const data = await res.json();
+    const items = extract(data);
+    if (!items.length) throw 0;
+    tracksEl.innerHTML = items.slice(0, 25).map((item, i) => {
+      const track  = esc(item.track?.name || item.name || '');
+      const artist = esc(item.track?.artists?.[0]?.name || item.artists?.[0]?.name || '');
+      const sid = item.track?.externalIds?.spotify?.[0] || item.track?.spotifyIds?.[0] || item.externalIds?.spotify?.[0];
+      const url = sid ? `https://open.spotify.com/track/${sid}` : 'https://stats.fm/jxherc';
+      const ago = item.endTime ? timeAgoTiny(new Date(item.endTime).getTime()) : '';
+      return `<li class="track ${i >= 5 ? 'hidden' : ''}">
+        <span class="main">
+          <a class="title-link" href="${url}" target="_blank" rel="noopener">${track}</a>
+          ${artist ? `<span class="artist"> — ${artist}</span>` : ''}
+        </span>
+        ${ago ? `<span class="time">${ago}</span>` : ''}
+      </li>`;
+    }).join('');
+    if (items.length > 5) {
+      moreBtn.hidden = false;
+      let exp = false;
+      moreBtn.onclick = () => {
+        exp = !exp;
+        document.querySelectorAll('.track').forEach((el, i) => {
+          if (i >= 5) el.classList.toggle('hidden', !exp);
+        });
+        moreBtn.textContent = exp ? 'show less' : 'show more';
+      };
+    }
+  } catch (e) {
+    tracksEl.innerHTML = '<li class="track"><span class="main" style="color:var(--muted)">nothing to show here</span></li>';
+  }
+}
+
+/* ============ 2025 vs 2026 COMPARISON ============ */
+let compareData = {
+  y2025: { ...F_2025 },
+  y2026: null,            // filled in after live fetch
+  top2026: null,
+};
+let compareMetric = 'streams';
+
+async function load2026() {
+  // 2026 Apple Music live stats (full-year bounded)
+  const liveStats = await safeFetch(`${API}/users/${USERS.new}/streams/stats?after=${Y2026_AFTER}&before=${Y2026_BEFORE}`);
+  const live = liveStats?.items || {};
+  const liveStreams = live.count || 0;
+  const liveMinutes = Math.round((live.durationMs || 0) / 60000);
+
+  compareData.y2026 = {
+    streams: liveStreams + F_2026_JANFEB.streams,
+    minutes: liveMinutes + F_2026_JANFEB.minutes,
+  };
+
+  // 2026 Apple Music live top items (year-bounded)
+  const [tData, alData, arData] = await Promise.all([
+    safeFetch(`${API}/users/${USERS.new}/top/tracks?after=${Y2026_AFTER}&before=${Y2026_BEFORE}&limit=5`),
+    safeFetch(`${API}/users/${USERS.new}/top/albums?after=${Y2026_AFTER}&before=${Y2026_BEFORE}&limit=5`),
+    safeFetch(`${API}/users/${USERS.new}/top/artists?after=${Y2026_AFTER}&before=${Y2026_BEFORE}&limit=5`),
+  ]);
+
+  // merge with frozen jan-feb top items
+  const liveTrack  = extract(tData).map(x => parseTop(x, 'track'));
+  const liveAlbum  = extract(alData).map(x => parseTop(x, 'album'));
+  const liveArtist = extract(arData).map(x => parseTop(x, 'artist'));
+
+  // Inject jan-feb frozen items into the live arrays, then re-sort by summed streams
+  function combine(liveList, frozen) {
+    const map = new Map();
+    const key = x => `${x.name.toLowerCase()}::${(x.artistName||'').toLowerCase()}`;
+    liveList.forEach(it => map.set(key(it), { ...it }));
+    const fk = key({ name: frozen.name, artistName: frozen.artist || '' });
+    const prev = map.get(fk);
+    const frozenItem = {
+      name: frozen.name,
+      artistName: frozen.artist || '',
+      streams: frozen.streams || 0,
+      minutes: frozen.minutes || 0,
+      imgUrl: frozen.img || ''
+    };
+    if (prev) {
+      prev.streams += frozenItem.streams;
+      prev.minutes += frozenItem.minutes;
+    } else {
+      map.set(fk, frozenItem);
+    }
+    return Array.from(map.values())
+      .sort((a,b) => (b.streams || b.minutes) - (a.streams || a.minutes));
+  }
+
+  const topSong   = combine(liveTrack,  F_2026_JANFEB_TOP.song  )[0];
+  const topAlbum  = combine(liveAlbum,  F_2026_JANFEB_TOP.album )[0];
+  const topArtist = combine(liveArtist, F_2026_JANFEB_TOP.artist)[0];
+
+  compareData.top2026 = { song: topSong, album: topAlbum, artist: topArtist };
+  renderCompare();
+}
+
+function renderYTRow(rowId, item, kind) {
+  if (!item) return;
+  const el = document.getElementById(rowId);
+  if (!el) return;
+  const shape = kind === 'artist' ? 'thumb-round' : 'thumb-sq';
+  const thumbHtml = item.imgUrl
+    ? `<img class="yt-thumb ${shape}" alt="" src="${esc(item.imgUrl)}" onerror="this.outerHTML='<div class=&quot;yt-thumb ${shape} thumb-empty&quot;></div>';">`
+    : `<div class="yt-thumb ${shape} thumb-empty"></div>`;
+  const sub = item.artistName ? ` <span class="yt-sub">· ${esc(item.artistName)}</span>` : '';
+  el.innerHTML = `
+    <span class="yt-k">${kind}</span>
+    ${thumbHtml}
+    <span class="yt-name">${esc(item.name)}${sub}</span>
+  `;
+}
+
+function renderCompare() {
+  if (!compareData.y2026) return;
+  const m = compareMetric;
+  const v25 = compareData.y2025[m];
+  const v26 = compareData.y2026[m];
+  const max = Math.max(v25, v26, 1);
+  const w25 = Math.max(6, Math.round(v25 / max * 100));
+  const w26 = Math.max(6, Math.round(v26 / max * 100));
+
+  const card25 = document.getElementById('year-2025');
+  const card26 = document.getElementById('year-2026');
+
+  card25.querySelector('.year-bar').style.width = w25 + '%';
+  card26.querySelector('.year-bar').style.width = w26 + '%';
+  card25.querySelector('.year-num').textContent = fmtNum(v25);
+  card26.querySelector('.year-num').textContent = fmtNum(v26);
+  card25.querySelector('.year-unit').textContent = m;
+  card26.querySelector('.year-unit').textContent = m;
+
+  card25.classList.toggle('winner', v25 >= v26);
+  card26.classList.toggle('winner', v26 >  v25);
+
+  // 2026 top items
+  if (compareData.top2026) {
+    renderYTRow('y2026-song',   compareData.top2026.song,   'song');
+    renderYTRow('y2026-album',  compareData.top2026.album,  'album');
+    renderYTRow('y2026-artist', compareData.top2026.artist, 'artist');
+  }
+
+  // pace note
+  const now = new Date();
+  const noteEl = document.getElementById('compare-note');
+  if (now.getFullYear() === 2026) {
+    const startY = new Date(Date.UTC(2026, 0, 1));
+    const endY   = new Date(Date.UTC(2026, 11, 31, 23, 59, 59));
+    const pct = Math.min(1, (now - startY) / (endY - startY));
+    const projected = pct > 0 ? Math.round(v26 / pct) : 0;
+    if (projected > v25) {
+      noteEl.innerHTML = `<span class="pace-arrow">↑</span> on track to pass 2025 · projected <span class="pace-num">${fmtNum(projected)}</span> ${m}`;
+    } else if (projected > 0) {
+      noteEl.innerHTML = `<span class="pace-arrow pace-down">↓</span> projected <span class="pace-num">${fmtNum(projected)}</span> ${m}, below 2025`;
+    }
+  } else noteEl.textContent = '';
+}
+
+document.querySelectorAll('.toggle-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    compareMetric = btn.dataset.metric;
+    renderCompare();
+  });
+});
+
+/* ============ STATIC LISTS ============ */
+const artistsEn = [
+  "joji","kendrick lamar","the weeknd","tyler, the creator","kanye west","j. cole",
+  "clara la san","central cee","sza","laufey","21 savage","daniel caesar"
+];
+const artistsCn = [
+  { display: "ronghao li", query: "李荣浩" },
+  { display: "gareth.t",    query: "gareth t" },
+  { display: "runze zheng", query: "郑润泽" },
+  { display: "jay chou",    query: "周杰伦" }
+];
+document.getElementById('artists-en').innerHTML = artistsEn.map(a =>
+  `<a href="https://music.apple.com/ca/search?term=${encodeURIComponent(a)}" target="_blank" rel="noopener">${a}</a>`
+).join('');
+document.getElementById('artists-cn').innerHTML = artistsCn.map(a =>
+  `<a href="https://music.apple.com/ca/search?term=${encodeURIComponent(a.query)}" target="_blank" rel="noopener">${a.display}</a>`
+).join('');
+
+const albums = [
+  { title: "my beautiful dark twisted fantasy", file: "mbdtf.jpg",               search: "kanye west my beautiful dark twisted fantasy" },
+  { title: "smithereens",                        file: "smithereens.jpg",         search: "joji smithereens" },
+  { title: "piss in the wind",                   file: "piss-in-the-wind.jpg",    search: "piss in the wind" },
+  { title: "gnx",                                file: "gnx.jpg",                 search: "kendrick lamar gnx" },
+  { title: "damn.",                              file: "damn.jpg",                search: "kendrick lamar damn" },
+  { title: "starboy",                            file: "starboy.jpg",             search: "the weeknd starboy" },
+  { title: "after hours",                        file: "after-hours.jpg",         search: "the weeknd after hours" },
+  { title: "chromakopia",                        file: "chromakopia.jpg",         search: "tyler the creator chromakopia" },
+  { title: "don't tap the glass",                file: "dttg.jpg",                search: "tyler the creator don't tap the glass" },
+  { title: "sos",                                file: "sos.jpg",                 search: "sza sos" },
+  { title: "4 your eyez only",                   file: "4-your-eyez-only.jpg",    search: "j cole 4 your eyez only" },
+  { title: "can't rush greatness",               file: "cant-rush-greatness.jpg", search: "central cee can't rush greatness" }
+];
+document.getElementById('albums').innerHTML = albums.map(a => `
+  <a class="album" href="https://music.apple.com/ca/search?term=${encodeURIComponent(a.search)}" target="_blank" rel="noopener">
+    <div class="cover">
+      <div class="fallback">${a.title}</div>
+      <img src="images/${a.file}" alt="${a.title}" loading="lazy"
+           onload="this.classList.add('loaded'); this.previousElementSibling.style.display='none';"
+           onerror="this.style.display='none';" />
+    </div>
+    <div class="title">${a.title}</div>
+  </a>
+`).join('');
+
+/* ============ LOAD ALL ============ */
+async function loadAll() {
+  await Promise.all([
+    loadRecent(),
+    loadStats('lifetime', 'stat-alltime'),
+    loadTopFor('lifetime', 'alltime'),
+    loadStats('weeks', 'stat-weeks'),
+    loadTopFor('weeks', 'weeks'),
+    load2026(),
+  ]);
+}
+loadAll();
+setInterval(loadAll, REFRESH_MS);
+</script>
+</body>
+</html>
