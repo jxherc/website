@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=15">
+<link rel="stylesheet" href="style.css?v=16">
 <meta property="og:title" content="music — jxherc">
 <meta property="og:description" content="my music, live.">
 <meta property="og:image" content="og-image.png">
@@ -315,13 +315,25 @@ async function loadTopFor(range, prefix) {
 
 function writeStatLine(containerId, streams, minutes) {
   const hrs = Math.round(minutes / 60);
-  document.getElementById(containerId).innerHTML = `
-    <span class="stat-num">${fmtNum(streams)}</span><span class="stat-unit"> streams</span>
+  const el = document.getElementById(containerId);
+  const existing = el.querySelectorAll('.stat-num');
+  if (existing.length === 3) {
+    tickTo(existing[0], streams);
+    tickTo(existing[1], hrs);
+    tickTo(existing[2], minutes);
+    return;
+  }
+  el.innerHTML = `
+    <span class="stat-num">0</span><span class="stat-unit"> streams</span>
     <span class="stat-dot">·</span>
-    <span class="stat-num">${fmtNum(hrs)}</span><span class="stat-unit"> hr</span>
+    <span class="stat-num">0</span><span class="stat-unit"> hr</span>
     <span class="stat-dot">·</span>
-    <span class="stat-num">${fmtNum(minutes)}</span><span class="stat-unit"> min</span>
+    <span class="stat-num">0</span><span class="stat-unit"> min</span>
   `;
+  const fresh = el.querySelectorAll('.stat-num');
+  tickTo(fresh[0], streams);
+  tickTo(fresh[1], hrs);
+  tickTo(fresh[2], minutes);
 }
 
 async function loadStats(range, containerId) {
@@ -452,6 +464,24 @@ function renderYTRow(rowId, item, kind) {
   `;
 }
 
+function tickTo(el, target, duration = 900) {
+  if (!el) return;
+  const start = parseInt((el.textContent || '0').replace(/[^\d-]/g, ''), 10) || 0;
+  const delta = target - start;
+  if (delta === 0) { el.textContent = fmtNum(target); return; }
+  const t0 = performance.now();
+  if (el._tickRaf) cancelAnimationFrame(el._tickRaf);
+  function step(now) {
+    const p = Math.min(1, (now - t0) / duration);
+    const eased = 1 - Math.pow(1 - p, 3);
+    const val = Math.round(start + delta * eased);
+    el.textContent = fmtNum(val);
+    if (p < 1) el._tickRaf = requestAnimationFrame(step);
+    else       el._tickRaf = null;
+  }
+  el._tickRaf = requestAnimationFrame(step);
+}
+
 function renderCompare() {
   if (!compareData.y2026) return;
   const m = compareMetric;
@@ -466,8 +496,8 @@ function renderCompare() {
 
   card25.querySelector('.year-bar').style.width = w25 + '%';
   card26.querySelector('.year-bar').style.width = w26 + '%';
-  card25.querySelector('.year-num').textContent = fmtNum(v25);
-  card26.querySelector('.year-num').textContent = fmtNum(v26);
+  tickTo(card25.querySelector('.year-num'), v25);
+  tickTo(card26.querySelector('.year-num'), v26);
   card25.querySelector('.year-unit').textContent = m;
   card26.querySelector('.year-unit').textContent = m;
 
@@ -488,11 +518,13 @@ function renderCompare() {
     const endY   = new Date(Date.UTC(2026, 11, 31, 23, 59, 59));
     const pct = Math.min(1, (now - startY) / (endY - startY));
     const projected = pct > 0 ? Math.round(v26 / pct) : 0;
-    if (projected > v25) {
-      noteEl.innerHTML = `<span class="pace-arrow">↑</span> on track to pass 2025 · projected <span class="pace-num">${fmtNum(projected)}</span> ${m}`;
-    } else if (projected > 0) {
-      noteEl.innerHTML = `<span class="pace-arrow pace-down">↓</span> projected <span class="pace-num">${fmtNum(projected)}</span> ${m}, below 2025`;
-    }
+    const arrowClass = projected > v25 ? 'pace-arrow' : 'pace-arrow pace-down';
+    const tail = projected > v25 ? 'on track to pass 2025 · projected' : 'projected';
+    const suffix = projected > v25 ? m : `${m}, below 2025`;
+    if (projected > 0) {
+      noteEl.innerHTML = `<span class="${arrowClass}">${projected > v25 ? '↑' : '↓'}</span> ${tail} <span class="pace-num">0</span> ${suffix}`;
+      tickTo(noteEl.querySelector('.pace-num'), projected);
+    } else noteEl.textContent = '';
   } else noteEl.textContent = '';
 }
 
