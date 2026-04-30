@@ -21,7 +21,7 @@ html, body {
   min-height: 100vh;
 }
 
-body { padding: 6rem 2rem 5rem; text-transform: lowercase; }
+body { padding: 6rem 2rem 5rem; }
 main { max-width: 560px; margin: 0 auto; display: flex; flex-direction: column; gap: 3rem; }
 
 /* Home link */
