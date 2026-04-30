@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>now status — admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<main>
+  <header style="display:flex;align-items:baseline;justify-content:space-between;">
+    <a href="index.html" style="font-size:0.72rem;color:var(--muted);">← admin</a>
+    <div class="brand" style="font-size:0.78rem;">now status</div>
+  </header>
+
+  <section>
+    <div class="label">currently playing</div>
+    <div id="now-playing" style="font-size:0.82rem;color:var(--muted);font-style:italic;">loading from stats.fm…</div>
+  </section>
+
+  <section>
+    <div class="label">edit status</div>
+    <div style="display:flex;flex-direction:column;gap:0.75rem;">
+      <div class="field">
+        <label>working on</label>
+        <input type="text" id="working-on" placeholder="e.g. redesigning jxherc.com" />
+      </div>
+      <div class="field">
+        <label>vibe / mood</label>
+        <input type="text" id="vibe" placeholder="e.g. sleepy but productive" />
+      </div>
+      <div style="display:flex;gap:0.75rem;align-items:center;">
+        <button class="btn primary" id="save-btn">save</button>
+        <div id="save-msg"></div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="label">preview</div>
+    <div id="preview" style="border:1px solid var(--faint);border-radius:3px;padding:1rem;font-size:0.82rem;color:var(--muted);"></div>
+  </section>
+</main>
+
+<script type="module">
+  import { requireLogin, apiFetch, msg } from './admin.js';
+  requireLogin();
+
+  const STATS_API = 'https://api.stats.fm/api/v1';
+
+  async function loadNowPlaying() {
+    const el = document.getElementById('now-playing');
+    try {
+      const res  = await fetch(`${STATS_API}/users/jxherc/streams/recent?limit=1`);
+      const data = await res.json();
+      const item = (data.items || data)[0];
+      if (!item) { el.textContent = 'nothing recently'; return; }
+      const track  = item.track?.name || item.name || '—';
+      const artist = item.track?.artists?.[0]?.name || '';
+      el.innerHTML = `<span style="color:var(--text)">${track}</span>${artist ? ` <span style="color:var(--muted)">— ${artist}</span>` : ''}`;
+    } catch { el.textContent = 'could not fetch'; }
+  }
+
+  async function loadStatus() {
+    const res    = await apiFetch('/status');
+    const status = await res.json();
+    document.getElementById('working-on').value = status.workingOn || '';
+    document.getElementById('vibe').value        = status.vibe      || '';
+    updatePreview(status);
+  }
+
+  function updatePreview(status) {
+    const el = document.getElementById('preview');
+    const rows = [];
+    if (status.workingOn) rows.push(`working on · ${status.workingOn}`);
+    if (status.vibe)      rows.push(`vibe · ${status.vibe}`);
+    if (!rows.length)     rows.push('(empty — fill in the fields above)');
+    el.innerHTML = rows.map(r => `<div style="margin-bottom:0.35rem">${r}</div>`).join('');
+  }
+
+  ['working-on', 'vibe'].forEach(id => {
+    document.getElementById(id).addEventListener('input', () => updatePreview({
+      workingOn: document.getElementById('working-on').value,
+      vibe:      document.getElementById('vibe').value,
+    }));
+  });
+
+  document.getElementById('save-btn').addEventListener('click', async () => {
+    const btn = document.getElementById('save-btn');
+    btn.disabled = true;
+    const res = await apiFetch('/status', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        workingOn: document.getElementById('working-on').value.trim(),
+        vibe:      document.getElementById('vibe').value.trim(),
+      })
+    });
+    btn.disabled = false;
+    const msgEl = document.getElementById('save-msg');
+    if (res.ok) msg(msgEl, 'saved');
+    else        msg(msgEl, 'save failed', 'err');
+  });
+
+  loadNowPlaying();
+  loadStatus();
+</script>
+</body>
+</html>

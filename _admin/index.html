@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>admin — jxherc</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<main>
+  <header style="display:flex;align-items:baseline;justify-content:space-between;">
+    <div class="brand">jxherc <span class="sub">/ admin</span></div>
+    <button class="btn" id="logout-btn">logout</button>
+  </header>
+
+  <section>
+    <div class="label">overview</div>
+    <div class="stats-row">
+      <div class="stat-card"><div class="num" id="posts-count">—</div><div class="unit">posts</div></div>
+      <div class="stat-card"><div class="num" id="photos-count">—</div><div class="unit">photos</div></div>
+      <div class="stat-card"><div class="num" id="bm-count">—</div><div class="unit">bookmarks</div></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="label">manage</div>
+    <div class="section-cards">
+      <a class="section-card" href="posts.html"><span>posts</span><span class="arrow">→</span></a>
+      <a class="section-card" href="status.html"><span>now status</span><span class="arrow">→</span></a>
+      <a class="section-card" href="bookmarks.html"><span>bookmarks</span><span class="arrow">→</span></a>
+      <a class="section-card" href="photos.html"><span>photos</span><span class="arrow">→</span></a>
+    </div>
+  </section>
+</main>
+
+<script type="module">
+  import { requireLogin, apiFetch } from './admin.js';
+  requireLogin();
+
+  document.getElementById('logout-btn').addEventListener('click', () => {
+    localStorage.removeItem('admin_token');
+    location.href = 'login.html';
+  });
+
+  async function loadCounts() {
+    const [posts, photos, bm] = await Promise.all([
+      apiFetch('/posts').then(r => r.json()).catch(() => []),
+      apiFetch('/photos').then(r => r.json()).catch(() => []),
+      apiFetch('/bookmarks').then(r => r.json()).catch(() => []),
+    ]);
+    document.getElementById('posts-count').textContent  = posts.length;
+    document.getElementById('photos-count').textContent = photos.length;
+    document.getElementById('bm-count').textContent     = bm.length;
+  }
+  loadCounts();
+</script>
+</body>
+</html>

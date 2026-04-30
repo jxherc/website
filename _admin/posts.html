@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>posts — admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<main>
+  <header style="display:flex;align-items:baseline;justify-content:space-between;">
+    <a href="index.html" style="font-size:0.72rem;color:var(--muted);">← admin</a>
+    <div class="brand" style="font-size:0.78rem;">posts</div>
+  </header>
+
+  <section>
+    <div class="label">new post</div>
+    <div style="display:flex;flex-direction:column;gap:0.75rem;">
+      <div class="field">
+        <label>title <span style="color:var(--faint)">(optional)</span></label>
+        <input type="text" id="new-title" placeholder="leave blank for shitpost vibes" />
+      </div>
+      <div class="field">
+        <label>body</label>
+        <textarea id="new-body" placeholder="what's on your mind"></textarea>
+      </div>
+      <div style="display:flex;gap:0.75rem;align-items:center;">
+        <button class="btn primary" id="post-btn">post</button>
+        <div id="post-msg"></div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="label">all posts</div>
+    <div class="item-list" id="posts-list">
+      <div style="color:var(--muted);font-size:0.8rem;font-style:italic;">loading…</div>
+    </div>
+  </section>
+</main>
+
+<script type="module">
+  import { requireLogin, apiFetch, fmt, msg } from './admin.js';
+  requireLogin();
+
+  async function loadPosts() {
+    const res   = await apiFetch('/posts');
+    const posts = await res.json();
+    const list  = document.getElementById('posts-list');
+    if (!posts.length) {
+      list.innerHTML = '<div style="color:var(--muted);font-size:0.8rem;font-style:italic;">no posts yet</div>';
+      return;
+    }
+    list.innerHTML = posts.map(p => `
+      <div class="item-row" data-id="${p.id}">
+        <div class="item-body">
+          ${p.title ? `<div class="item-title">${esc(p.title)}</div>` : ''}
+          <div class="item-title" style="${p.title ? 'color:var(--muted);font-size:0.82rem;' : ''}">${esc(p.body)}</div>
+          <div class="item-meta">${fmt(p.date)}${p.via ? ' · via ' + p.via : ''}</div>
+        </div>
+        <div class="item-actions">
+          <button class="btn danger del-btn" data-id="${p.id}">delete</button>
+        </div>
+      </div>
+    `).join('');
+
+    list.querySelectorAll('.del-btn').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        if (!confirm('delete this post?')) return;
+        await apiFetch(`/posts/${btn.dataset.id}`, { method: 'DELETE' });
+        loadPosts();
+      });
+    });
+  }
+
+  document.getElementById('post-btn').addEventListener('click', async () => {
+    const body  = document.getElementById('new-body').value.trim();
+    const title = document.getElementById('new-title').value.trim();
+    const msgEl = document.getElementById('post-msg');
+    if (!body) { msg(msgEl, 'body is empty lol', 'err'); return; }
+
+    const btn = document.getElementById('post-btn');
+    btn.disabled = true;
+    const res = await apiFetch('/posts', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ body, title })
+    });
+    btn.disabled = false;
+
+    if (res.ok) {
+      document.getElementById('new-body').value  = '';
+      document.getElementById('new-title').value = '';
+      msg(msgEl, 'posted');
+      loadPosts();
+    } else {
+      msg(msgEl, 'something broke', 'err');
+    }
+  });
+
+  const esc = s => String(s).replace(/[&<>"']/g, c =>
+    ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+  loadPosts();
+</script>
+</body>
+</html>
