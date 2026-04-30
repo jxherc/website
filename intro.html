@@ -8,13 +8,25 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=13">
+<link rel="stylesheet" href="style.css?v=17">
+<script>const t=localStorage.getItem('theme');if(t)document.documentElement.dataset.theme=t;</script>
 <meta property="og:title" content="intro — jxherc">
 <meta property="og:description" content="some intro">
 <meta property="og:image" content="og-image.png">
 <meta name="twitter:card" content="summary_large_image">
 </head>
 <body>
+<button class="theme-toggle" id="theme-toggle" aria-label="toggle light mode">◐</button>
+
+<div class="meme-overlay" id="meme-overlay">
+  <div class="meme-box">
+    <img class="meme-img" src="images/spongebob-eyes.jpg" alt="spongebob my eyes meme" />
+    <p class="meme-text">are you absolutely motherfucking sure you wanna switch to light mode</p>
+    <button class="meme-confirm" id="meme-confirm">yes i am sure</button>
+    <button class="meme-cancel" id="meme-cancel">nevermind</button>
+  </div>
+</div>
+
 <main>
   <a class="home" href="index.html">jxherc</a>
 
@@ -36,5 +48,15 @@
 
   <section class="page-edit-stamp">page last edited apr 24, 2026</section>
 </main>
+<script>
+  fetch('https://api.github.com/repos/jxherc/website/commits?per_page=1')
+    .then(r => r.json()).then(data => {
+      const d = new Date(data[0]?.commit?.committer?.date || data[0]?.commit?.author?.date);
+      if (isNaN(d)) return;
+      const stamp = d.toLocaleDateString('en-CA', { month: 'short', day: 'numeric', year: 'numeric' }).toLowerCase();
+      document.querySelector('.page-edit-stamp').textContent = 'page last edited ' + stamp;
+    }).catch(() => {});
+</script>
+<script src="theme.js"></script>
 </body>
 </html>
