@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>admin — jxherc</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="login-wrap">
+  <div class="login-box">
+    <div class="brand">jxherc <span class="sub">/ admin</span></div>
+    <div class="field">
+      <input type="password" id="pw" placeholder="password" autocomplete="current-password" />
+    </div>
+    <button class="btn primary" id="submit-btn">enter</button>
+    <div id="msg"></div>
+  </div>
+</div>
+
+<script>
+  const API = 'https://api.jxherc.com';
+
+  if (localStorage.getItem('admin_token')) location.href = 'index.html';
+
+  const pw  = document.getElementById('pw');
+  const btn = document.getElementById('submit-btn');
+  const msg = document.getElementById('msg');
+
+  async function login() {
+    btn.disabled = true;
+    msg.textContent = '';
+    try {
+      const res  = await fetch(`${API}/auth`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password: pw.value })
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'wrong password');
+      localStorage.setItem('admin_token', data.token);
+      location.href = 'index.html';
+    } catch (e) {
+      pw.classList.add('shake');
+      setTimeout(() => pw.classList.remove('shake'), 400);
+      msg.innerHTML = `<div class="msg err">${e.message}</div>`;
+    } finally { btn.disabled = false; }
+  }
+
+  btn.addEventListener('click', login);
+  pw.addEventListener('keydown', e => { if (e.key === 'Enter') login(); });
+  pw.focus();
+</script>
+</body>
+</html>
