@@ -1,0 +1,26 @@
+name = "jxherc-api"
+main = "src/index.js"
+compatibility_date = "2024-01-01"
+
+[[kv_namespaces]]
+binding = "POSTS_KV"
+id = "REPLACE_WITH_POSTS_KV_ID"
+
+[[kv_namespaces]]
+binding = "STATUS_KV"
+id = "REPLACE_WITH_STATUS_KV_ID"
+
+[[kv_namespaces]]
+binding = "BOOKMARKS_KV"
+id = "REPLACE_WITH_BOOKMARKS_KV_ID"
+
+[[kv_namespaces]]
+binding = "PHOTOS_KV"
+id = "REPLACE_WITH_PHOTOS_KV_ID"
+
+[[r2_buckets]]
+binding = "PHOTOS_R2"
+bucket_name = "jxherc-photos"
+
+[vars]
+ALLOWED_ORIGINS = "https://jxherc.com,https://admin.jxherc.com"

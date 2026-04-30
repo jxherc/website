@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>bookmarks — admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<main>
+  <header style="display:flex;align-items:baseline;justify-content:space-between;">
+    <a href="index.html" style="font-size:0.72rem;color:var(--muted);">← admin</a>
+    <div class="brand" style="font-size:0.78rem;">bookmarks</div>
+  </header>
+
+  <section>
+    <div class="label">add bookmark</div>
+    <div style="display:flex;flex-direction:column;gap:0.75rem;">
+      <div class="field">
+        <label>url</label>
+        <input type="url" id="new-url" placeholder="https://…" />
+      </div>
+      <div class="form-row">
+        <div class="field">
+          <label>label</label>
+          <input type="text" id="new-label" placeholder="auto-filled for youtube" />
+        </div>
+        <div class="field" style="max-width:140px;">
+          <label>category</label>
+          <select id="new-cat">
+            <option value="video">video</option>
+            <option value="account">account</option>
+            <option value="article">article</option>
+            <option value="link">link</option>
+          </select>
+        </div>
+      </div>
+      <div style="display:flex;gap:0.75rem;align-items:center;">
+        <button class="btn primary" id="add-btn">add</button>
+        <div id="add-msg"></div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="label">all bookmarks</div>
+    <div class="item-list" id="bm-list">
+      <div style="color:var(--muted);font-size:0.8rem;font-style:italic;">loading…</div>
+    </div>
+  </section>
+</main>
+
+<script type="module">
+  import { requireLogin, apiFetch, fmt, msg } from './admin.js';
+  requireLogin();
+
+  const urlInput   = document.getElementById('new-url');
+  const labelInput = document.getElementById('new-label');
+  const catInput   = document.getElementById('new-cat');
+
+  urlInput.addEventListener('blur', async () => {
+    const url = urlInput.value.trim();
+    if (!url || labelInput.value.trim()) return;
+    const ytMatch = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&?/]+)/);
+    if (!ytMatch) return;
+    try {
+      const res  = await fetch(`https://www.youtube.com/oembed?url=${encodeURIComponent(url)}&format=json`);
+      const data = await res.json();
+      if (data.title) { labelInput.value = data.title; catInput.value = 'video'; }
+    } catch { /* ignore */ }
+  });
+
+  async function loadBookmarks() {
+    const res   = await apiFetch('/bookmarks');
+    const items = await res.json();
+    const list  = document.getElementById('bm-list');
+    if (!items.length) {
+      list.innerHTML = '<div style="color:var(--muted);font-size:0.8rem;font-style:italic;">no bookmarks yet</div>';
+      return;
+    }
+    list.innerHTML = items.map(b => `
+      <div class="item-row">
+        <div class="item-body">
+          <div class="item-title">${esc(b.label || b.url)}</div>
+          <div class="item-meta">${esc(b.url)} · ${b.category} · ${fmt(b.date)}</div>
+        </div>
+        <div class="item-actions">
+          <button class="btn danger del-btn" data-id="${b.id}">delete</button>
+        </div>
+      </div>
+    `).join('');
+
+    list.querySelectorAll('.del-btn').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        if (!confirm('delete?')) return;
+        await apiFetch(`/bookmarks/${btn.dataset.id}`, { method: 'DELETE' });
+        loadBookmarks();
+      });
+    });
+  }
+
+  document.getElementById('add-btn').addEventListener('click', async () => {
+    const url   = urlInput.value.trim();
+    const label = labelInput.value.trim();
+    const msgEl = document.getElementById('add-msg');
+    if (!url) { msg(msgEl, 'url is empty', 'err'); return; }
+
+    const btn = document.getElementById('add-btn');
+    btn.disabled = true;
+    const res = await apiFetch('/bookmarks', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ url, label, category: catInput.value })
+    });
+    btn.disabled = false;
+
+    if (res.ok) {
+      urlInput.value = labelInput.value = '';
+      msg(msgEl, 'added');
+      loadBookmarks();
+    } else {
+      msg(msgEl, 'failed', 'err');
+    }
+  });
+
+  const esc = s => String(s).replace(/[&<>"']/g, c =>
+    ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+  loadBookmarks();
+</script>
+</body>
+</html>
