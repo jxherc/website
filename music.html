@@ -648,12 +648,15 @@ document.addEventListener('visibilitychange', () => {
 </script>
     <!-- fuck formatting -->
 <script>
-  fetch('https://api.github.com/repos/jxherc/website/commits?per_page=1')
+  fetch('https://api.github.com/repos/jxherc/website/commits?path=music.html&per_page=1')
     .then(r => r.json()).then(data => {
-      const d = new Date(data[0]?.commit?.committer?.date || data[0]?.commit?.author?.date);
+      const c = data[0]?.commit;
+      if (!c) return;
+      const d = new Date(c.committer?.date || c.author?.date);
       if (isNaN(d)) return;
-      const stamp = d.toLocaleDateString('en-CA', { month: 'short', day: 'numeric', year: 'numeric' }).toLowerCase();
-      document.querySelector('.page-edit-stamp').textContent = 'page last edited ' + stamp;
+      const date = d.toLocaleDateString('en-CA', { month: 'short', day: 'numeric', year: 'numeric' }).toLowerCase();
+      const msg  = (c.message || '').split('\n')[0].replace(/\s*https?:\/\/\S+/g, '').trim();
+      document.querySelector('.page-edit-stamp').textContent = 'page last edited ' + date + (msg ? ' · ' + msg : '');
     }).catch(() => {});
 </script>
 <script src="theme.js"></script>
