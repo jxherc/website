@@ -199,7 +199,7 @@
     i like my music :) apple music est feb 2026, switched from spotify for better aesthetics and cheaper prices
   </section>
 
-  <section class="page-edit-stamp" id="data-stamp"></section>
+  <section class="page-edit-stamp" id="edit-stamp"></section>
 </main>
 
 <script>
@@ -638,7 +638,7 @@ window.addEventListener('pageshow', refreshStamps);
 /* load all */
 async function loadAll() {
   await Promise.all([
-    loadRecent(), // stamps.recent set inside loadRecent() from actual track endTime
+    loadRecent(),
     Promise.all([ loadStats('lifetime', 'stat-alltime'), loadTopFor('lifetime', 'alltime') ]),
     Promise.all([ loadStats('weeks', 'stat-weeks'), loadTopFor('weeks', 'weeks') ]),
     load2026(),
@@ -658,7 +658,7 @@ function updatePageStamp() {
   if (!vals.length) return;
   const t = Math.min(...vals);
   if (!isFinite(t)) return;
-  document.getElementById('data-stamp').textContent = 'stats.fm · ' + timeAgo(t);
+  document.getElementById('edit-stamp').textContent = 'stats.fm · ' + timeAgo(t);
 }
 setInterval(updatePageStamp, 10000);
 

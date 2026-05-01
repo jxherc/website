@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>now</title>
+<title>now — jxherc</title>
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -46,10 +46,14 @@ async function loadStatus() {
     const s = data.status || data;
     document.getElementById('working').textContent = s.workingOn || '—';
     document.getElementById('vibe').textContent = s.vibe || '—';
-    if (s.updatedAt) { const d=new Date(s.updatedAt); const diff=Math.round((Date.now()-d)/60000); const rel=diff<1?'just now':diff<60?diff+'m ago':diff<1440?Math.round(diff/60)+'h ago':Math.round(diff/1440)+'d ago'; document.getElementById('updated').textContent=rel; }
-    
-    
-    
+    if (s.updatedAt) {
+      const diff = Math.round((Date.now() - new Date(s.updatedAt)) / 60000);
+      const rel = diff < 1 ? 'just now'
+        : diff < 60 ? diff + 'm ago'
+        : diff < 1440 ? Math.round(diff / 60) + 'h ago'
+        : Math.round(diff / 1440) + 'd ago';
+      document.getElementById('updated').textContent = rel;
+    }
   } catch { document.getElementById('working').textContent = 'failed to load.'; }
 }
 loadStatus();
