@@ -3,15 +3,15 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>now</title>
+<title>shitpost — jxherc</title>
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css?v=18">
 <script>const t=localStorage.getItem('theme');if(t)document.documentElement.dataset.theme=t;</script>
-<meta property="og:title" content="now — jxherc">
-<meta property="og:description" content="what i'm up to">
+<meta property="og:title" content="shitpost — jxherc">
+<meta property="og:description" content="shitposts">
 <meta property="og:image" content="og-image.png">
 <meta name="twitter:card" content="summary_large_image">
 </head>
@@ -28,32 +28,32 @@
 <main>
   <a class="home" href="index.html">jxherc</a>
   <section>
-    <div class="label">now</div>
-    <div class="kv-list">
-      <div class="kv-row"><span class="k">working on</span><span class="v" style="color:var(--muted)" id="working">loading…</span></div>
-      <div class="kv-row"><span class="k">vibe</span><span class="v" style="color:var(--muted)" id="vibe">—</span></div>
-      <div class="kv-row"><span class="k">updated</span><span class="v" style="color:var(--muted)" id="updated">—</span></div>
-    </div>
+    <div class="label">shitpost</div>
+    <div id="posts-list"><div style="color:var(--muted)">loading…</div></div>
   </section>
   <section class="page-edit-stamp" id="edit-stamp">—</section>
 </main>
 <script>
 const API = 'https://api.jxherc.com';
-async function loadStatus() {
+async function loadPosts() {
+  const el = document.getElementById('posts-list');
   try {
-    const res = await fetch(API + '/status');
+    const res = await fetch(API + '/posts');
     const data = await res.json();
-    const s = data.status || data;
-    document.getElementById('working').textContent = s.workingOn || '—';
-    document.getElementById('vibe').textContent = s.vibe || '—';
-    if (s.updatedAt) { const d=new Date(s.updatedAt); const diff=Math.round((Date.now()-d)/60000); const rel=diff<1?'just now':diff<60?diff+'m ago':diff<1440?Math.round(diff/60)+'h ago':Math.round(diff/1440)+'d ago'; document.getElementById('updated').textContent=rel; }
-    
-    
-    
-  } catch { document.getElementById('working').textContent = 'failed to load.'; }
+    const posts = data.posts || data || [];
+    if (!posts.length) { el.innerHTML = '<div style="color:var(--muted)">no posts yet.</div>'; return; }
+    el.innerHTML = posts.map(p => {
+      const date = new Date(p.date).toLocaleDateString('en-CA', { year: 'numeric', month: 'short', day: 'numeric' }).toLowerCase();
+      const via = p.via ? `<span style="color:var(--muted);font-size:0.78rem"> · via ${p.via}</span>` : '';
+      const title = p.title ? `<div style="font-weight:500;margin-bottom:0.2rem">${p.title}</div>` : '';
+      const img = p.image ? `<img src="${p.image}" alt="" style="max-width:100%;border-radius:6px;margin-top:0.5rem;display:block" loading="lazy">` : '';
+      const body = p.body ? `<div style="white-space:pre-wrap;line-height:1.6">${p.body}</div>` : '';
+      return `<div style="padding:0.85rem 0;border-bottom:1px solid var(--faint)">${title}${body}${img}<div style="color:var(--muted);font-size:0.78rem;margin-top:0.35rem">${date}${via}</div></div>`;
+    }).join('');
+  } catch { el.innerHTML = '<div style="color:var(--muted)">failed to load posts.</div>'; }
 }
-loadStatus();
-fetch('https://api.github.com/repos/jxherc/website/commits?path=now.html&per_page=1')
+loadPosts();
+fetch('https://api.github.com/repos/jxherc/website/commits?path=shitpost.html&per_page=1')
   .then(r=>r.json()).then(data=>{const c=data[0]?.commit;if(!c)return;const d=new Date(c.committer?.date||c.author?.date);if(isNaN(d))return;const date=d.toLocaleDateString('en-CA',{month:'short',day:'numeric',year:'numeric'}).toLowerCase();const msg=(c.message||'').split('\n')[0].replace(/\s*https?:\/\/\S+/g,'').trim();document.getElementById('edit-stamp').textContent='page last edited '+date+(msg?' · '+msg:'');}).catch(()=>{});
 </script>
 <script src="theme.js"></script>

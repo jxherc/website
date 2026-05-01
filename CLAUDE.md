@@ -16,7 +16,7 @@
 index.html       homepage
 music.html       music stats (stats.fm api)
 intro.html       self-intro (placeholder text, user will fill in)
-style.css        shared styles (currently v17)
+style.css        shared styles (currently v18)
 theme.js         shared light/dark mode logic, used by all pages
 _api/            cloudflare worker api (NOT deployed yet — see phase 2)
 _admin/          admin panel source (NOT deployed yet — see phase 3)
@@ -28,7 +28,7 @@ images/          photos + album art
 - font: inter (google fonts, 300/400/500/600)
 - bg: #0a0a0a, text: #e8e6e3, muted: #6e6e6e, faint: #2e2e2e, accent: #00ff2a
 - NO text-transform (user writes lowercase manually)
-- css version bump in ALL html files when style.css changes (currently v17)
+- css version bump in ALL html files when style.css changes (currently v18)
 - enter animations: translateY(6px) rise, staggered per child
 
 ## what's done (phase 1 ✅)
