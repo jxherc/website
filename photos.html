@@ -57,17 +57,18 @@ async function loadPhotos() {
     const grid = document.createElement('div');
     grid.className = 'photo-grid';
     grid.innerHTML = photos.map(p => {
-      const taken = p.taken ? new Date(p.taken).toLocaleDateString('en-CA',{month:'short',day:'numeric',year:'numeric'}).toLowerCase() : '';
-      const loc = p.location || '';
-      const meta = [taken, loc].filter(Boolean).join(' · ');
-      return `<div class="photo-item" data-url="${p.url||''}"><img src="${p.url||''}" alt="${p.filename||''}" loading="lazy" onload="this.classList.add('loaded')" onerror="this.parentElement.style.display='none'">${meta?`<div class="meta">${meta}</div>`:''}</div>`;
+      const url = (p.url||'').startsWith('http') ? p.url : API + (p.url||'');
+      const taken = p.exif?.takenAt ? new Date(p.exif.takenAt).toLocaleDateString('en-CA',{month:'short',day:'numeric',year:'numeric'}).toLowerCase() : '';
+      const device = p.exif?.device || '';
+      const meta = [taken, device].filter(Boolean).join(' · ');
+      return `<div class="photo-item" data-url="${url}"><img src="${url}" alt="${p.caption||''}" loading="lazy" onload="this.classList.add('loaded')" onerror="this.parentElement.style.display='none'">${meta?`<div class="meta">${meta}</div>`:''}</div>`;
     }).join('');
     wrap.innerHTML = '';
     wrap.appendChild(grid);
     const lb = document.getElementById('lightbox');
     const lbImg = document.getElementById('lightbox-img');
     grid.querySelectorAll('.photo-item').forEach(item => {
-      item.addEventListener('click', () => { lbImg.src = item.dataset.url; lb.classList.add('open'); });
+      item.addEventListener('click', () => { lbImg.src = item.dataset.url; lb.classList.add('open'); lb.style.display='flex'; });
     });
     lb.addEventListener('click', () => lb.classList.remove('open'));
   } catch { wrap.innerHTML = '<div style="color:var(--muted)">failed to load photos.</div>'; }
