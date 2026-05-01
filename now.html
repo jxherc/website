@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>now — jxherc</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css?v=17">
+<script>const t=localStorage.getItem('theme');if(t)document.documentElement.dataset.theme=t;</script>
+<meta property="og:title" content="now — jxherc">
+<meta property="og:description" content="what i'm up to">
+<meta property="og:image" content="og-image.png">
+<meta name="twitter:card" content="summary_large_image">
+</head>
+<body>
+<button class="theme-toggle" id="theme-toggle" aria-label="toggle light mode">◐</button>
+<div class="meme-overlay" id="meme-overlay">
+  <div class="meme-box">
+    <img class="meme-img" src="images/spongebob-eyes.jpg" alt="spongebob my eyes meme" />
+    <p class="meme-text">are you absolutely motherfucking sure you wanna switch to light mode</p>
+    <button class="meme-confirm" id="meme-confirm">yes i am sure</button>
+    <button class="meme-cancel" id="meme-cancel">nevermind</button>
+  </div>
+</div>
+<main>
+  <a class="home" href="index.html">jxherc</a>
+  <section>
+    <div class="label">now</div>
+    <div class="kv-list">
+      <div class="kv-row"><span class="k">working on</span><span class="v" style="color:var(--muted)" id="working">loading…</span></div>
+      <div class="kv-row"><span class="k">vibe</span><span class="v" style="color:var(--muted)" id="vibe">—</span></div>
+      <div class="kv-row"><span class="k">updated</span><span class="v" style="color:var(--muted)" id="updated">—</span></div>
+    </div>
+  </section>
+  <section class="page-edit-stamp" id="edit-stamp">—</section>
+</main>
+<script>
+const API = 'https://api.jxherc.com';
+async function loadStatus() {
+  try {
+    const res = await fetch(API + '/status');
+    const data = await res.json();
+    const s = data.status || data;
+    if (s.working) document.getElementById('working').textContent = s.working;
+    if (s.vibe) document.getElementById('vibe').textContent = s.vibe;
+    if (s.updated) { const d=new Date(s.updated); document.getElementById('updated').textContent=d.toLocaleDateString('en-CA',{month:'short',day:'numeric',year:'numeric'}).toLowerCase(); }
+  } catch { document.getElementById('working').textContent = 'failed to load.'; }
+}
+loadStatus();
+fetch('https://api.github.com/repos/jxherc/website/commits?path=now.html&per_page=1')
+  .then(r=>r.json()).then(data=>{const c=data[0]?.commit;if(!c)return;const d=new Date(c.committer?.date||c.author?.date);if(isNaN(d))return;const date=d.toLocaleDateString('en-CA',{month:'short',day:'numeric',year:'numeric'}).toLowerCase();const msg=(c.message||'').split('\n')[0].replace(/\s*https?:\/\/\S+/g,'').trim();document.getElementById('edit-stamp').textContent='page last edited '+date+(msg?' · '+msg:'');}).catch(()=>{});
+</script>
+<script src="theme.js"></script>
+</body>
+</html>

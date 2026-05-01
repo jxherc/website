@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>photos — jxherc</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css?v=17">
+<script>const t=localStorage.getItem('theme');if(t)document.documentElement.dataset.theme=t;</script>
+<meta property="og:title" content="photos — jxherc">
+<meta property="og:description" content="some photos">
+<meta property="og:image" content="og-image.png">
+<meta name="twitter:card" content="summary_large_image">
+<style>
+.photo-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:.75rem;margin-top:.5rem}
+.photo-item{position:relative;aspect-ratio:1;overflow:hidden;border-radius:6px;background:var(--faint);cursor:pointer}
+.photo-item img{width:100%;height:100%;object-fit:cover;transition:opacity .2s;opacity:0}
+.photo-item img.loaded{opacity:1}
+.photo-item .meta{position:absolute;bottom:0;left:0;right:0;padding:.5rem .6rem;background:linear-gradient(transparent,rgba(0,0,0,.55));color:#fff;font-size:.75rem;opacity:0;transition:opacity .15s}
+.photo-item:hover .meta{opacity:1}
+.lightbox{display:none;position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:999;align-items:center;justify-content:center;cursor:zoom-out}
+.lightbox.open{display:flex}
+.lightbox img{max-width:92vw;max-height:92vh;object-fit:contain;border-radius:4px}
+</style>
+</head>
+<body>
+<button class="theme-toggle" id="theme-toggle" aria-label="toggle light mode">◐</button>
+<div class="meme-overlay" id="meme-overlay">
+  <div class="meme-box">
+    <img class="meme-img" src="images/spongebob-eyes.jpg" alt="spongebob my eyes meme" />
+    <p class="meme-text">are you absolutely motherfucking sure you wanna switch to light mode</p>
+    <button class="meme-confirm" id="meme-confirm">yes i am sure</button>
+    <button class="meme-cancel" id="meme-cancel">nevermind</button>
+  </div>
+</div>
+<div class="lightbox" id="lightbox"><img id="lightbox-img" src="" alt=""></div>
+<main>
+  <a class="home" href="index.html">jxherc</a>
+  <section>
+    <div class="label">photos</div>
+    <div id="photo-grid-wrap"><div style="color:var(--muted)">loading…</div></div>
+  </section>
+  <section class="page-edit-stamp" id="edit-stamp">—</section>
+</main>
+<script>
+const API = 'https://api.jxherc.com';
+async function loadPhotos() {
+  const wrap = document.getElementById('photo-grid-wrap');
+  try {
+    const res = await fetch(API + '/photos');
+    const data = await res.json();
+    const photos = data.photos || data || [];
+    if (!photos.length) { wrap.innerHTML = '<div style="color:var(--muted)">no photos yet.</div>'; return; }
+    const grid = document.createElement('div');
+    grid.className = 'photo-grid';
+    grid.innerHTML = photos.map(p => {
+      const taken = p.taken ? new Date(p.taken).toLocaleDateString('en-CA',{month:'short',day:'numeric',year:'numeric'}).toLowerCase() : '';
+      const loc = p.location || '';
+      const meta = [taken, loc].filter(Boolean).join(' · ');
+      return `<div class="photo-item" data-url="${p.url||''}"><img src="${p.url||''}" alt="${p.filename||''}" loading="lazy" onload="this.classList.add('loaded')" onerror="this.parentElement.style.display='none'">${meta?`<div class="meta">${meta}</div>`:''}</div>`;
+    }).join('');
+    wrap.innerHTML = '';
+    wrap.appendChild(grid);
+    const lb = document.getElementById('lightbox');
+    const lbImg = document.getElementById('lightbox-img');
+    grid.querySelectorAll('.photo-item').forEach(item => {
+      item.addEventListener('click', () => { lbImg.src = item.dataset.url; lb.classList.add('open'); });
+    });
+    lb.addEventListener('click', () => lb.classList.remove('open'));
+  } catch { wrap.innerHTML = '<div style="color:var(--muted)">failed to load photos.</div>'; }
+}
+loadPhotos();
+fetch('https://api.github.com/repos/jxherc/website/commits?path=photos.html&per_page=1')
+  .then(r=>r.json()).then(data=>{const c=data[0]?.commit;if(!c)return;const d=new Date(c.committer?.date||c.author?.date);if(isNaN(d))return;const date=d.toLocaleDateString('en-CA',{month:'short',day:'numeric',year:'numeric'}).toLowerCase();const msg=(c.message||'').split('\n')[0].replace(/\s*https?:\/\/\S+/g,'').trim();document.getElementById('edit-stamp').textContent='page last edited '+date+(msg?' · '+msg:'');}).catch(()=>{});
+</script>
+<script src="theme.js"></script>
+</body>
+</html>
