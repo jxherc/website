@@ -33,26 +33,126 @@
   </section>
   <section class="page-edit-stamp" id="edit-stamp">—</section>
 </main>
+<style>
+.img-grid { display:grid; gap:3px; margin-top:0.6rem; width:fit-content; }
+.img-grid img { display:block; object-fit:cover; cursor:zoom-in; background:#1a1a1a; border-radius:2px; }
+/* 1 image – natural ratio, wider */
+.img-grid.n1 { max-width:280px; }
+.img-grid.n1 img { width:100%; max-height:280px; object-fit:contain; }
+/* 2 images – 2 col */
+.img-grid.n2 { grid-template-columns:repeat(2,132px); }
+.img-grid.n2 img { width:132px; height:132px; }
+/* 3 images – 3 col */
+.img-grid.n3 { grid-template-columns:repeat(3,87px); }
+.img-grid.n3 img { width:87px; height:87px; }
+/* 4 images – 2×2 */
+.img-grid.n4 { grid-template-columns:repeat(2,132px); }
+.img-grid.n4 img { width:132px; height:132px; }
+/* 5–9 images – 3 col */
+.img-grid.n5,.img-grid.n6,.img-grid.n7,.img-grid.n8,.img-grid.n9 { grid-template-columns:repeat(3,87px); }
+.img-grid.n5 img,.img-grid.n6 img,.img-grid.n7 img,.img-grid.n8 img,.img-grid.n9 img { width:87px; height:87px; }
+
+/* Lightbox */
+#lb { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.92); z-index:9999;
+      align-items:center; justify-content:center; }
+#lb.open { display:flex; }
+#lb img { max-width:92vw; max-height:88vh; object-fit:contain; border-radius:4px; user-select:none; }
+#lb-close { position:fixed; top:1rem; right:1.2rem; font-size:1.5rem; color:#888;
+             cursor:pointer; line-height:1; background:none; border:none; }
+#lb-close:hover { color:#fff; }
+#lb-prev,#lb-next { position:fixed; top:50%; transform:translateY(-50%);
+                     font-size:1.8rem; color:#888; cursor:pointer; background:none; border:none;
+                     padding:0.5rem; user-select:none; }
+#lb-prev:hover,#lb-next:hover { color:#fff; }
+#lb-prev { left:1rem; }
+#lb-next { right:1rem; }
+#lb-counter { position:fixed; bottom:1.2rem; left:50%; transform:translateX(-50%);
+               font-size:0.72rem; color:#888; letter-spacing:0.06em; }
+</style>
+
+<!-- Lightbox -->
+<div id="lb">
+  <button id="lb-close">✕</button>
+  <button id="lb-prev">‹</button>
+  <img id="lb-img" src="" alt="" />
+  <button id="lb-next">›</button>
+  <div id="lb-counter"></div>
+</div>
+
 <script>
 const API = 'https://api.jxherc.com';
+
+// ── Lightbox ──────────────────────────────────────────────────────────────────
+let lbImages = [], lbIdx = 0;
+const lb      = document.getElementById('lb');
+const lbImg   = document.getElementById('lb-img');
+const lbCtr   = document.getElementById('lb-counter');
+
+function openLb(images, idx) {
+  lbImages = images; lbIdx = idx;
+  showLb();
+  lb.classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function showLb() {
+  lbImg.src = lbImages[lbIdx];
+  lbCtr.textContent = lbImages.length > 1 ? `${lbIdx + 1} / ${lbImages.length}` : '';
+}
+function closeLb() {
+  lb.classList.remove('open');
+  document.body.style.overflow = '';
+}
+document.getElementById('lb-close').onclick = closeLb;
+document.getElementById('lb-prev').onclick  = () => { lbIdx = (lbIdx - 1 + lbImages.length) % lbImages.length; showLb(); };
+document.getElementById('lb-next').onclick  = () => { lbIdx = (lbIdx + 1) % lbImages.length; showLb(); };
+lb.addEventListener('click', e => { if (e.target === lb) closeLb(); });
+document.addEventListener('keydown', e => {
+  if (!lb.classList.contains('open')) return;
+  if (e.key === 'Escape') closeLb();
+  if (e.key === 'ArrowLeft')  { lbIdx = (lbIdx - 1 + lbImages.length) % lbImages.length; showLb(); }
+  if (e.key === 'ArrowRight') { lbIdx = (lbIdx + 1) % lbImages.length; showLb(); }
+});
+
+// ── Image grid builder ────────────────────────────────────────────────────────
+function buildGrid(images) {
+  if (!images.length) return '';
+  const n = Math.min(images.length, 9);
+  const shown = images.slice(0, n);
+  const imgs = shown.map((url, i) =>
+    `<img src="${url}" loading="lazy" alt="" data-idx="${i}" />`
+  ).join('');
+  return `<div class="img-grid n${n}" data-images='${JSON.stringify(shown)}'>${imgs}</div>`;
+}
+
+// ── Load posts ────────────────────────────────────────────────────────────────
 async function loadPosts() {
   const el = document.getElementById('posts-list');
   try {
-    const res = await fetch(API + '/posts');
+    const res  = await fetch(API + '/posts');
     const data = await res.json();
     const posts = data.posts || data || [];
     if (!posts.length) { el.innerHTML = '<div style="color:var(--muted)">no posts yet.</div>'; return; }
     el.innerHTML = posts.map(p => {
-      const date = new Date(p.date).toLocaleDateString('en-CA', { year: 'numeric', month: 'short', day: 'numeric' }).toLowerCase();
-      const via = p.via ? `<span style="color:var(--muted);font-size:0.78rem"> · via ${p.via}</span>` : '';
+      const date  = new Date(p.date).toLocaleDateString('en-CA', { year:'numeric', month:'short', day:'numeric' }).toLowerCase();
+      const via   = p.via   ? `<span style="color:var(--muted);font-size:0.78rem"> · via ${p.via}</span>` : '';
       const title = p.title ? `<div style="font-weight:500;margin-bottom:0.2rem">${p.title}</div>` : '';
-      const img = p.image ? `<img src="${p.image}" alt="" style="max-width:100%;border-radius:6px;margin-top:0.5rem;display:block" loading="lazy">` : '';
-      const body = p.body ? `<div style="white-space:pre-wrap;line-height:1.6">${p.body}</div>` : '';
-      return `<div style="padding:0.85rem 0;border-bottom:1px solid var(--faint)">${title}${body}${img}<div style="color:var(--muted);font-size:0.78rem;margin-top:0.35rem">${date}${via}</div></div>`;
+      const body  = p.body  ? `<div style="white-space:pre-wrap;line-height:1.6">${p.body}</div>` : '';
+      const images = p.images || (p.image ? [p.image] : []);
+      const grid  = buildGrid(images);
+      return `<div style="padding:0.85rem 0;border-bottom:1px solid var(--faint)">${title}${body}${grid}<div style="color:var(--muted);font-size:0.78rem;margin-top:0.5rem">${date}${via}</div></div>`;
     }).join('');
-  } catch { el.innerHTML = '<div style="color:var(--muted)">failed to load posts.</div>'; }
+
+    // Attach lightbox listeners
+    el.querySelectorAll('.img-grid').forEach(grid => {
+      const images = JSON.parse(grid.dataset.images);
+      grid.querySelectorAll('img').forEach(img => {
+        img.addEventListener('click', () => openLb(images, +img.dataset.idx));
+      });
+    });
+  } catch(e) { el.innerHTML = '<div style="color:var(--muted)">failed to load posts.</div>'; }
 }
 loadPosts();
+
 fetch('https://api.github.com/repos/jxherc/website/commits?path=shitpost.html&per_page=1')
   .then(r=>r.json()).then(data=>{const c=data[0]?.commit;if(!c)return;const d=new Date(c.committer?.date||c.author?.date);if(isNaN(d))return;const date=d.toLocaleDateString('en-CA',{month:'short',day:'numeric',year:'numeric'}).toLowerCase();const msg=(c.message||'').split('\n')[0].replace(/\s*https?:\/\/\S+/g,'').trim();document.getElementById('edit-stamp').textContent='page last edited '+date+(msg?' · '+msg:'');}).catch(()=>{});
 </script>
