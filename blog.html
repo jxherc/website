@@ -46,7 +46,9 @@ async function loadPosts() {
       const date = new Date(p.date).toLocaleDateString('en-CA', { year: 'numeric', month: 'short', day: 'numeric' }).toLowerCase();
       const via = p.via ? `<span style="color:var(--muted);font-size:0.78rem"> · via ${p.via}</span>` : '';
       const title = p.title ? `<div style="font-weight:500;margin-bottom:0.2rem">${p.title}</div>` : '';
-      return `<div style="padding:0.85rem 0;border-bottom:1px solid var(--faint)">${title}<div style="white-space:pre-wrap;line-height:1.6">${p.body}</div><div style="color:var(--muted);font-size:0.78rem;margin-top:0.15rem">${date}${via}</div></div>`;
+      const img = p.image ? `<img src="${p.image}" alt="" style="max-width:100%;border-radius:6px;margin-top:0.5rem;display:block" loading="lazy">` : '';
+      const body = p.body ? `<div style="white-space:pre-wrap;line-height:1.6">${p.body}</div>` : '';
+      return `<div style="padding:0.85rem 0;border-bottom:1px solid var(--faint)">${title}${body}${img}<div style="color:var(--muted);font-size:0.78rem;margin-top:0.35rem">${date}${via}</div></div>`;
     }).join('');
   } catch { el.innerHTML = '<div style="color:var(--muted)">failed to load posts.</div>'; }
 }
