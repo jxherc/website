@@ -199,7 +199,7 @@
     i like my music :) apple music est feb 2026, switched from spotify for better aesthetics and cheaper prices
   </section>
 
-  <section class="page-edit-stamp">page last edited apr 24, 2026</section>
+  <section class="page-edit-stamp" id="data-stamp"></section>
 </main>
 
 <script>
@@ -647,6 +647,7 @@ async function loadAll() {
     load2026().then(() => { stamps.compare = Date.now(); }),
   ]);
   refreshStamps();
+  updatePageStamp();
 }
 loadAll();
 setInterval(loadAll, REFRESH_MS);
@@ -656,11 +657,13 @@ document.addEventListener('visibilitychange', () => {
 
 /* update page stamp to show stats.fm freshness */
 function updatePageStamp() {
-  const t = Math.min(...Object.values(stamps).filter(Boolean));
-  if (!t || !isFinite(t)) return;
-  document.querySelector('.page-edit-stamp').textContent = 'stats.fm data ' + timeAgo(t);
+  const vals = Object.values(stamps).filter(Boolean);
+  if (!vals.length) return;
+  const t = Math.min(...vals);
+  if (!isFinite(t)) return;
+  document.getElementById('data-stamp').textContent = 'stats.fm · ' + timeAgo(t);
 }
-setInterval(updatePageStamp, 5000);
+setInterval(updatePageStamp, 10000);
 
 /* now playing */
 async function loadNowPlaying() {
