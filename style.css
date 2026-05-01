@@ -91,7 +91,7 @@ a.portrait:hover img { filter: brightness(0.7); transform: scale(1.04); }
 
 /* Music teaser card */
 .music-card {
-  display: inline-flex; align-items: baseline; gap: 0.7rem;
+  display: flex; align-items: baseline; justify-content: space-between; gap: 0.7rem;
   text-decoration: none; color: var(--text);
   padding: 1rem 1.25rem;
   border: 1px solid var(--faint); border-radius: 3px;
@@ -100,7 +100,7 @@ a.portrait:hover img { filter: brightness(0.7); transform: scale(1.04); }
 }
 .music-card:hover { border-color: var(--muted); background: #0e0e0e; }
 .music-card .title { font-size: 0.95rem; color: var(--text); letter-spacing: -0.01em; line-height: 1; }
-.music-card .enter { font-size: 0.72rem; color: var(--faint); letter-spacing: 0.04em; line-height: 1; transition: color 0.25s ease, transform 0.25s ease; }
+.music-card .enter { font-size: 0.72rem; color: var(--faint); letter-spacing: 0.04em; line-height: 1; transition: color 0.25s ease, transform 0.25s ease; flex-shrink: 0; }
 .music-card:hover .enter { color: var(--muted); transform: translateX(3px); }
 
 /* Key/value rows */
