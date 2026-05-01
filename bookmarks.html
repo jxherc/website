@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>bookmarks — jxherc</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css?v=17">
+<script>const t=localStorage.getItem('theme');if(t)document.documentElement.dataset.theme=t;</script>
+<meta property="og:title" content="bookmarks — jxherc">
+<meta property="og:description" content="links i like">
+<meta property="og:image" content="og-image.png">
+<meta name="twitter:card" content="summary_large_image">
+</head>
+<body>
+<button class="theme-toggle" id="theme-toggle" aria-label="toggle light mode">◐</button>
+<div class="meme-overlay" id="meme-overlay">
+  <div class="meme-box">
+    <img class="meme-img" src="images/spongebob-eyes.jpg" alt="spongebob my eyes meme" />
+    <p class="meme-text">are you absolutely motherfucking sure you wanna switch to light mode</p>
+    <button class="meme-confirm" id="meme-confirm">yes i am sure</button>
+    <button class="meme-cancel" id="meme-cancel">nevermind</button>
+  </div>
+</div>
+<main>
+  <a class="home" href="index.html">jxherc</a>
+  <section>
+    <div class="label">bookmarks</div>
+    <div class="kv-list" id="bookmarks-list">
+      <div class="kv-row"><span class="v" style="color:var(--muted)">loading…</span></div>
+    </div>
+  </section>
+  <section class="page-edit-stamp" id="edit-stamp">—</section>
+</main>
+<script>
+const API = 'https://api.jxherc.com';
+async function loadBookmarks() {
+  const el = document.getElementById('bookmarks-list');
+  try {
+    const res = await fetch(API + '/bookmarks');
+    const data = await res.json();
+    const bookmarks = data.bookmarks || data || [];
+    if (!bookmarks.length) { el.innerHTML = '<div class="kv-row"><span class="v" style="color:var(--muted)">nothing saved yet.</span></div>'; return; }
+    el.innerHTML = bookmarks.map(b => {
+      const url = b.url || '#';
+      const title = b.title || url;
+      const note = b.note ? `<span style="color:var(--muted);font-size:0.85rem;margin-left:0.5rem">— ${b.note}</span>` : '';
+      return `<a class="kv-row" href="${url}" target="_blank" rel="noopener"><span class="k" style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${title}</span>${note}<span class="arrow">↗</span></a>`;
+    }).join('');
+  } catch { el.innerHTML = '<div class="kv-row"><span class="v" style="color:var(--muted)">failed to load.</span></div>'; }
+}
+loadBookmarks();
+fetch('https://api.github.com/repos/jxherc/website/commits?path=bookmarks.html&per_page=1')
+  .then(r=>r.json()).then(data=>{const c=data[0]?.commit;if(!c)return;const d=new Date(c.committer?.date||c.author?.date);if(isNaN(d))return;const date=d.toLocaleDateString('en-CA',{month:'short',day:'numeric',year:'numeric'}).toLowerCase();const msg=(c.message||'').split('\n')[0].replace(/\s*https?:\/\/\S+/g,'').trim();document.getElementById('edit-stamp').textContent='page last edited '+date+(msg?' · '+msg:'');}).catch(()=>{});
+</script>
+<script src="theme.js"></script>
+</body>
+</html>
