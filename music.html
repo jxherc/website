@@ -50,7 +50,7 @@
 
   <!-- ALL-TIME -->
   <section>
-    <div class="label">all-time top <span class="live-stamp" data-stamp="alltime">—</span></div>
+    <div class="label">all-time top</div>
     <div class="stat-line" id="stat-alltime"><span class="stat-dim">loading…</span></div>
 
     <div class="top-category" id="top-songs-alltime">
@@ -69,7 +69,7 @@
 
   <!-- PAST 4 WEEKS -->
   <section>
-    <div class="label">past 4 weeks <span class="live-stamp" data-stamp="weeks">—</span></div>
+    <div class="label">past 4 weeks</div>
     <div class="stat-line" id="stat-weeks"><span class="stat-dim">loading…</span></div>
 
     <div class="top-category" id="top-songs-weeks">
@@ -88,7 +88,7 @@
 
   <!-- 2025 vs 2026 -->
   <section>
-    <div class="label">2025 vs 2026 <span class="live-stamp" data-stamp="compare">—</span></div>
+    <div class="label">2025 vs 2026</div>
 
     <div class="toggle-row">
       <button class="toggle-btn active" data-metric="streams">streams</button>
@@ -379,6 +379,9 @@ async function loadRecent() {
     const data = await res.json();
     const items = extract(data);
     if (!items.length) throw 0;
+    // Use the endTime of the most recent track as the stamp — this is actual stats.fm data freshness
+    const lastPlayed = items[0]?.endTime ? new Date(items[0].endTime).getTime() : null;
+    if (lastPlayed) stamps.recent = lastPlayed;
     tracksEl.innerHTML = items.slice(0, 25).map((item, i) => {
       const track  = esc(item.track?.name || item.name || '');
       const artist = esc(item.track?.artists?.[0]?.name || item.artists?.[0]?.name || '');
@@ -602,8 +605,8 @@ document.getElementById('albums').innerHTML = albums.map(a => `
   </a>
 `).join('');
 
-/* live stamps */
-const stamps = { recent: 0, alltime: 0, weeks: 0, compare: 0 };
+/* live stamps — only recent has a meaningful data timestamp from stats.fm */
+const stamps = { recent: 0 };
 
 function timeAgo(ms) {
   const diff = Math.max(0, Date.now() - ms);
@@ -635,16 +638,10 @@ window.addEventListener('pageshow', refreshStamps);
 /* load all */
 async function loadAll() {
   await Promise.all([
-    loadRecent().then(() => { stamps.recent = Date.now(); }),
-    (async () => {
-      await Promise.all([ loadStats('lifetime', 'stat-alltime'), loadTopFor('lifetime', 'alltime') ]);
-      stamps.alltime = Date.now();
-    })(),
-    (async () => {
-      await Promise.all([ loadStats('weeks', 'stat-weeks'), loadTopFor('weeks', 'weeks') ]);
-      stamps.weeks = Date.now();
-    })(),
-    load2026().then(() => { stamps.compare = Date.now(); }),
+    loadRecent(), // stamps.recent set inside loadRecent() from actual track endTime
+    Promise.all([ loadStats('lifetime', 'stat-alltime'), loadTopFor('lifetime', 'alltime') ]),
+    Promise.all([ loadStats('weeks', 'stat-weeks'), loadTopFor('weeks', 'weeks') ]),
+    load2026(),
   ]);
   refreshStamps();
   updatePageStamp();
