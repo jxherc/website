@@ -29,8 +29,8 @@
   <a class="home" href="index.html">jxherc</a>
   <section>
     <div class="label">bookmarks</div>
-    <div class="kv-list" id="bookmarks-list">
-      <div class="kv-row"><span class="v" style="color:var(--muted)">loading…</span></div>
+    <div id="bookmarks-list">
+      <div style="color:var(--muted)">loading…</div>
     </div>
   </section>
   <section class="page-edit-stamp" id="edit-stamp">—</section>
@@ -43,12 +43,15 @@ async function loadBookmarks() {
     const res = await fetch(API + '/bookmarks');
     const data = await res.json();
     const bookmarks = data.bookmarks || data || [];
-    if (!bookmarks.length) { el.innerHTML = '<div class="kv-row"><span class="v" style="color:var(--muted)">nothing saved yet.</span></div>'; return; }
+    if (!bookmarks.length) { el.innerHTML = '<div style="color:var(--muted)">nothing saved yet.</div>'; return; }
     el.innerHTML = bookmarks.map(b => {
-      const url = b.url || '#';
-      const title = b.title || url;
-      const note = b.note ? `<span style="color:var(--muted);font-size:0.85rem;margin-left:0.5rem">— ${b.note}</span>` : '';
-      return `<a class="kv-row" href="${url}" target="_blank" rel="noopener"><span class="k" style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${title}</span>${note}<span class="arrow">↗</span></a>`;
+      const url   = b.url || '#';
+      const label = b.label || url;
+      const meta  = [b.url, b.category, b.date ? new Date(b.date).toLocaleDateString('en-CA', { month: 'short', day: 'numeric', year: 'numeric' }).toLowerCase() : ''].filter(Boolean).join(' · ');
+      return `<a href="${url}" target="_blank" rel="noopener" style="display:block;padding:0.7rem 0;border-bottom:1px solid var(--faint);text-decoration:none;">
+        <div style="color:var(--text);margin-bottom:0.2rem">${label}</div>
+        <div style="color:var(--muted);font-size:0.75rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${meta}</div>
+      </a>`;
     }).join('');
   } catch { el.innerHTML = '<div class="kv-row"><span class="v" style="color:var(--muted)">failed to load.</span></div>'; }
 }
