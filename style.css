@@ -418,18 +418,6 @@ a.kv-row:hover .arrow { transform: translate(3px, -3px); color: var(--muted); }
 .gb-submit:hover:not(:disabled) { border-color: var(--muted); color: var(--text); }
 .gb-submit:disabled { opacity: 0.5; cursor: default; }
 .gb-status { font-size: 0.72rem; color: var(--faint); }
-.gb-entries { display: flex; flex-direction: column; }
-.gb-entry {
-  display: flex; flex-direction: column; gap: 0.3rem;
-  padding: 0.85rem 0;
-  border-bottom: 1px solid var(--faint);
-}
-.gb-entry:first-child { border-top: 1px solid var(--faint); }
-.gb-entry-header { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; }
-.gb-name { font-size: 0.8rem; color: var(--text); font-weight: 500; }
-.gb-date { font-size: 0.65rem; color: var(--faint); letter-spacing: 0.04em; flex-shrink: 0; }
-.gb-message { font-size: 0.85rem; color: var(--muted); line-height: 1.55; }
-.gb-loading, .gb-empty { font-size: 0.8rem; color: var(--faint); font-style: italic; }
 
 /* Page edit stamp */
 .page-edit-stamp {

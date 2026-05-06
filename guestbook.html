@@ -49,91 +49,73 @@
 
   <section>
     <div class="label">entries <span class="live-stamp" id="entry-count"></span></div>
-    <div class="gb-entries" id="gb-entries">
-      <div class="gb-loading">loading…</div>
-    </div>
+    <div id="gb-entries"><div style="color:var(--muted)">loading…</div></div>
   </section>
 
-  <section class="page-edit-stamp">guestbook</section>
+  <section class="page-edit-stamp" id="edit-stamp">—</section>
 </main>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script>
-const SUPABASE_URL = 'YOUR_SUPABASE_URL';
-const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
-const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const API = 'https://api.jxherc.com';
 
-function esc(str) {
-  return String(str)
-    .replace(/&/g, '&amp;').replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+function esc(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
 async function loadEntries() {
-  const container = document.getElementById('gb-entries');
-  const { data, error } = await sb
-    .from('guestbook')
-    .select('name, message, created_at')
-    .eq('approved', true)
-    .order('created_at', { ascending: false });
-
-  if (error || !data) {
-    container.innerHTML = '<div class="gb-empty">failed to load entries.</div>';
-    return;
-  }
-
-  const count = document.getElementById('entry-count');
-  count.textContent = data.length + ' total';
-
-  if (data.length === 0) {
-    container.innerHTML = '<div class="gb-empty">no entries yet — be the first!</div>';
-    return;
-  }
-
-  container.innerHTML = data.map(e => {
-    const d = new Date(e.created_at);
-    const date = d.toLocaleDateString('en-CA', { month: 'short', day: 'numeric', year: 'numeric' }).toLowerCase();
-    return `<div class="gb-entry">
-      <div class="gb-entry-header">
-        <span class="gb-name">${esc(e.name)}</span>
-        <span class="gb-date">${date}</span>
-      </div>
-      <div class="gb-message">${esc(e.message)}</div>
-    </div>`;
-  }).join('');
+  const el = document.getElementById('gb-entries');
+  try {
+    const res = await fetch(API + '/guestbook');
+    const data = await res.json();
+    const entries = data.entries || data || [];
+    document.getElementById('entry-count').textContent = entries.length + ' total';
+    if (!entries.length) { el.innerHTML = '<div style="color:var(--muted)">no entries yet — be the first!</div>'; return; }
+    el.innerHTML = entries.map(e => {
+      const date = new Date(e.date).toLocaleDateString('en-CA', { month:'short', day:'numeric', year:'numeric' }).toLowerCase();
+      return `<div style="padding:0.85rem 0;border-bottom:1px solid var(--faint)">
+        <div style="display:flex;justify-content:space-between;align-items:baseline;gap:1rem;margin-bottom:0.3rem">
+          <span style="font-size:0.8rem;font-weight:500">${esc(e.name)}</span>
+          <span style="font-size:0.65rem;color:var(--faint);letter-spacing:0.04em;flex-shrink:0">${date}</span>
+        </div>
+        <div style="font-size:0.85rem;color:var(--muted);line-height:1.55">${esc(e.message)}</div>
+      </div>`;
+    }).join('');
+  } catch { el.innerHTML = '<div style="color:var(--muted)">failed to load entries.</div>'; }
 }
 
 document.getElementById('gb-form').addEventListener('submit', async ev => {
   ev.preventDefault();
-  const name = document.getElementById('gb-name').value.trim();
+  const name    = document.getElementById('gb-name').value.trim();
   const message = document.getElementById('gb-message').value.trim();
-  const btn = document.getElementById('gb-submit');
-  const status = document.getElementById('gb-status');
+  const btn     = document.getElementById('gb-submit');
+  const status  = document.getElementById('gb-status');
 
   btn.disabled = true;
   btn.textContent = 'sending…';
   status.textContent = '';
 
-  const { error } = await sb.from('guestbook').insert({ name, message });
-
-  if (error) {
-    status.textContent = 'something went wrong. try again.';
-    btn.disabled = false;
-    btn.textContent = 'leave a note →';
-  } else {
+  try {
+    const res = await fetch(API + '/guestbook', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, message }),
+    });
+    if (!res.ok) throw new Error();
     btn.textContent = 'sent!';
     status.textContent = 'pending approval — thanks!';
     document.getElementById('gb-name').value = '';
     document.getElementById('gb-message').value = '';
-    setTimeout(() => {
-      btn.disabled = false;
-      btn.textContent = 'leave a note →';
-      status.textContent = '';
-    }, 5000);
+    setTimeout(() => { btn.disabled = false; btn.textContent = 'leave a note →'; status.textContent = ''; }, 5000);
+  } catch {
+    status.textContent = 'something went wrong. try again.';
+    btn.disabled = false;
+    btn.textContent = 'leave a note →';
   }
 });
 
 loadEntries();
+fetch('https://api.github.com/repos/jxherc/website/commits?path=guestbook.html&per_page=1')
+  .then(r=>r.json()).then(data=>{const c=data[0]?.commit;if(!c)return;const d=new Date(c.committer?.date||c.author?.date);if(isNaN(d))return;const date=d.toLocaleDateString('en-CA',{month:'short',day:'numeric',year:'numeric'}).toLowerCase();const msg=(c.message||'').split('\n')[0].replace(/\s*https?:\/\/\S+/g,'').trim();document.getElementById('edit-stamp').textContent='page last edited '+date+(msg?' · '+msg:'');}).catch(()=>{});
 </script>
 <script src="theme.js"></script>
 </body>
