@@ -411,6 +411,7 @@ a.kv-row:hover .arrow { transform: translate(3px, -3px); color: var(--muted); }
 }
 .album:hover .cover { transform: translateY(-2px); }
 .album .title { font-size: 0.68rem; color: var(--text); line-height: 1.3; }
+.album .artist { font-size: 0.62rem; color: var(--muted); line-height: 1.2; margin-top: -0.2rem; }
 
 .note { font-size: 0.75rem; color: var(--muted); font-style: italic; line-height: 1.55; }
 
