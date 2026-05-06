@@ -14,6 +14,32 @@
 <meta property="og:description" content="leave a message">
 <meta property="og:image" content="og-image.png">
 <meta name="twitter:card" content="summary_large_image">
+<style>
+.gb-form{display:flex;flex-direction:column;gap:0.85rem}
+.gb-field{display:flex;flex-direction:column;gap:0.3rem}
+.gb-label{font-size:0.68rem;color:var(--muted);letter-spacing:0.04em}
+.gb-input{
+  -webkit-appearance:none;appearance:none;
+  background:none;border:1px solid var(--faint);border-radius:2px;
+  color:var(--text);font-family:inherit;font-size:0.875rem;
+  padding:0.6rem 0.75rem;outline:none;width:100%;
+  transition:border-color 0.2s ease;
+}
+.gb-input::placeholder{color:var(--faint)}
+.gb-input:focus{border-color:var(--muted)}
+.gb-textarea{resize:vertical;min-height:90px;line-height:1.55}
+.gb-row{display:flex;align-items:baseline;gap:1rem;margin-top:0.1rem}
+.gb-btn{
+  -webkit-appearance:none;appearance:none;
+  background:none;border:1px solid var(--faint);border-radius:2px;
+  color:var(--muted);font-family:inherit;font-size:0.72rem;
+  letter-spacing:0.04em;padding:0.5rem 1rem;cursor:pointer;
+  transition:border-color 0.2s ease,color 0.2s ease;
+}
+.gb-btn:hover:not([disabled]){border-color:var(--muted);color:var(--text)}
+.gb-btn[disabled]{opacity:0.45;cursor:default}
+.gb-note{font-size:0.72rem;color:var(--faint)}
+</style>
 </head>
 <body>
 <button class="theme-toggle" id="theme-toggle" aria-label="toggle light mode">◐</button>
@@ -31,7 +57,7 @@
 
   <section>
     <div class="label">leave a note</div>
-    <form class="gb-form" id="gb-form">
+    <form id="gb-form" class="gb-form">
       <div class="gb-field">
         <label class="gb-label" for="gb-name">name</label>
         <input class="gb-input" id="gb-name" type="text" placeholder="your name" maxlength="60" required autocomplete="off">
@@ -40,9 +66,9 @@
         <label class="gb-label" for="gb-message">message</label>
         <textarea class="gb-input gb-textarea" id="gb-message" placeholder="say something" maxlength="500" required></textarea>
       </div>
-      <div class="gb-actions">
-        <button class="gb-submit" type="submit" id="gb-submit">leave a note →</button>
-        <span class="gb-status" id="gb-status"></span>
+      <div class="gb-row">
+        <button class="gb-btn" type="submit" id="gb-submit">leave a note →</button>
+        <span class="gb-note" id="gb-status"></span>
       </div>
     </form>
   </section>
@@ -68,7 +94,7 @@ async function loadEntries() {
     const res = await fetch(API + '/guestbook');
     const data = await res.json();
     const entries = data.entries || data || [];
-    document.getElementById('entry-count').textContent = entries.length + ' total';
+    if (entries.length) document.getElementById('entry-count').textContent = entries.length + ' total';
     if (!entries.length) { el.innerHTML = '<div style="color:var(--muted)">no entries yet — be the first!</div>'; return; }
     el.innerHTML = entries.map(e => {
       const date = new Date(e.date).toLocaleDateString('en-CA', { month:'short', day:'numeric', year:'numeric' }).toLowerCase();
@@ -80,7 +106,7 @@ async function loadEntries() {
         <div style="font-size:0.85rem;color:var(--muted);line-height:1.55">${esc(e.message)}</div>
       </div>`;
     }).join('');
-  } catch { el.innerHTML = '<div style="color:var(--muted)">failed to load entries.</div>'; }
+  } catch { el.innerHTML = '<div style="color:var(--muted)">failed to load.</div>'; }
 }
 
 document.getElementById('gb-form').addEventListener('submit', async ev => {
