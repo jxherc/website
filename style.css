@@ -383,6 +383,42 @@ a.kv-row:hover .arrow { transform: translate(3px, -3px); color: var(--muted); }
   line-height: 1.55;
 }
 
+/* =================== GUESTBOOK =================== */
+.gb-form { display: flex; flex-direction: column; gap: 1rem; }
+.gb-field { display: flex; flex-direction: column; gap: 0.35rem; }
+.gb-label { font-size: 0.7rem; color: var(--muted); letter-spacing: 0.04em; font-weight: 500; }
+.gb-input {
+  background: none;
+  border: 1px solid var(--faint);
+  border-radius: 2px;
+  color: var(--text);
+  font-family: inherit;
+  font-size: 0.875rem;
+  padding: 0.6rem 0.75rem;
+  transition: border-color 0.2s ease;
+  outline: none;
+  width: 100%;
+}
+.gb-input::placeholder { color: var(--faint); }
+.gb-input:focus { border-color: var(--muted); }
+.gb-textarea { resize: vertical; min-height: 88px; line-height: 1.55; }
+.gb-actions { display: flex; align-items: baseline; gap: 1rem; flex-wrap: wrap; margin-top: 0.25rem; }
+.gb-submit {
+  background: none;
+  border: 1px solid var(--faint);
+  border-radius: 2px;
+  color: var(--muted);
+  font-family: inherit;
+  font-size: 0.72rem;
+  letter-spacing: 0.04em;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  transition: border-color 0.2s ease, color 0.2s ease;
+}
+.gb-submit:hover:not(:disabled) { border-color: var(--muted); color: var(--text); }
+.gb-submit:disabled { opacity: 0.5; cursor: default; }
+.gb-status { font-size: 0.72rem; color: var(--faint); }
+
 /* Page edit stamp */
 .page-edit-stamp {
   font-size: 0.62rem;
