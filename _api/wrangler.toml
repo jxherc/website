@@ -18,6 +18,10 @@ id = "REPLACE_WITH_BOOKMARKS_KV_ID"
 binding = "PHOTOS_KV"
 id = "REPLACE_WITH_PHOTOS_KV_ID"
 
+[[kv_namespaces]]
+binding = "GUESTBOOK_KV"
+id = "REPLACE_WITH_GUESTBOOK_KV_ID"
+
 [[r2_buckets]]
 binding = "PHOTOS_R2"
 bucket_name = "jxherc-photos"

@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>guestbook — admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<main>
+  <header style="display:flex;align-items:baseline;justify-content:space-between;">
+    <a href="index.html" style="font-size:0.72rem;color:var(--muted);">← admin</a>
+    <div class="brand" style="font-size:0.78rem;">guestbook</div>
+  </header>
+
+  <section>
+    <div class="label">pending <span id="pending-count" style="color:var(--faint);font-size:0.6rem;letter-spacing:0.05em"></span></div>
+    <div class="item-list" id="pending-list">
+      <div style="color:var(--muted);font-size:0.8rem;font-style:italic;">loading…</div>
+    </div>
+  </section>
+
+  <section>
+    <div class="label">approved <span id="approved-count" style="color:var(--faint);font-size:0.6rem;letter-spacing:0.05em"></span></div>
+    <div class="item-list" id="approved-list">
+      <div style="color:var(--muted);font-size:0.8rem;font-style:italic;">loading…</div>
+    </div>
+  </section>
+</main>
+
+<script type="module">
+  import { requireLogin, apiFetch, fmt, msg } from './admin.js';
+  requireLogin();
+
+  async function loadEntries() {
+    const res  = await apiFetch('/guestbook?all=1');
+    const data = await res.json();
+    const all  = data.entries || [];
+
+    const pending  = all.filter(e => !e.approved);
+    const approved = all.filter(e => e.approved);
+
+    document.getElementById('pending-count').textContent  = pending.length  + ' total';
+    document.getElementById('approved-count').textContent = approved.length + ' total';
+
+    renderList('pending-list',  pending,  false);
+    renderList('approved-list', approved, true);
+  }
+
+  function renderList(id, entries, isApproved) {
+    const el = document.getElementById(id);
+    if (!entries.length) {
+      el.innerHTML = `<div style="color:var(--muted);font-size:0.8rem;font-style:italic;">${isApproved ? 'none yet.' : 'nothing pending.'}</div>`;
+      return;
+    }
+    el.innerHTML = entries.map(e => `
+      <div class="item-row" id="row-${e.id}">
+        <div class="item-body">
+          <div class="item-title">${esc(e.name)}</div>
+          <div style="font-size:0.82rem;color:var(--muted);margin-top:0.2rem;line-height:1.55">${esc(e.message)}</div>
+          <div class="item-meta">${fmt(e.date)}</div>
+        </div>
+        <div class="item-actions">
+          ${!isApproved ? `<button class="btn primary" onclick="approve('${e.id}')">approve</button>` : ''}
+          <button class="btn danger" onclick="del('${e.id}')">delete</button>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  function esc(s) {
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  window.approve = async id => {
+    await apiFetch(`/guestbook/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ approved: true }) });
+    loadEntries();
+  };
+
+  window.del = async id => {
+    if (!confirm('delete this entry?')) return;
+    await apiFetch(`/guestbook/${id}`, { method: 'DELETE' });
+    document.getElementById(`row-${id}`)?.remove();
+  };
+
+  loadEntries();
+</script>
+</body>
+</html>
