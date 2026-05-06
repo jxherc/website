@@ -4,7 +4,6 @@ import { handleStatus }    from './routes/status.js';
 import { handleBookmarks } from './routes/bookmarks.js';
 import { handlePhotos }    from './routes/photos.js';
 import { handleDiscord }   from './routes/discord.js';
-import { handleGuestbook } from './routes/guestbook.js';
 import { cors, corsHeaders } from './lib/cors.js';
 
 export default {
@@ -28,8 +27,6 @@ export default {
       response = await handlePhotos(request, env, path);
     else if (path === '/discord' || path.startsWith('/discord/'))
       response = await handleDiscord(request, env);
-    else if (path === '/guestbook' || path.startsWith('/guestbook/'))
-      response = await handleGuestbook(request, env, path);
     else
       response = new Response('not found', { status: 404 });
 
