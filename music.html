@@ -603,6 +603,7 @@ const albums = [
   // kendrick lamar
   { artist: "kendrick lamar",    title: "damn.",                              file: "damn.jpg",                search: "kendrick lamar damn" },
   { artist: "kendrick lamar",    title: "gnx",                                file: "gnx.jpg",                 search: "kendrick lamar gnx" },
+  { artist: "kendrick lamar",    title: "mr. morale & the big steppers",      file: "mr-morale.jpg",           search: "kendrick lamar mr morale the big steppers" },
   // sza
   { artist: "sza",               title: "sos deluxe: lana",                   file: "sos.jpg",                 search: "sza sos deluxe: lana" },
   // the weeknd
@@ -615,6 +616,10 @@ const albums = [
   { artist: "tyler, the creator", title: "igor",                              file: "igor.jpg",                search: "tyler the creator igor" },
   { artist: "tyler, the creator", title: "chromakopia",                       file: "chromakopia.jpg",         search: "tyler the creator chromakopia" },
   { artist: "tyler, the creator", title: "don't tap the glass",               file: "dttg.jpg",                search: "tyler the creator don't tap the glass" },
+  // yoasobi
+  { artist: "yoasobi",           title: "the book",                           file: "yoasobi-the-book.jpg",    search: "yoasobi the book" },
+  { artist: "yoasobi",           title: "the book 2",                         file: "yoasobi-the-book-2.jpg",  search: "yoasobi the book 2" },
+  { artist: "yoasobi",           title: "the book 3",                         file: "yoasobi-the-book-3.jpg",  search: "yoasobi the book 3" },
 ];
 document.getElementById('albums').innerHTML = albums.map(a => `
   <a class="album" href="https://music.apple.com/ca/search?term=${encodeURIComponent(a.search)}" target="_blank" rel="noopener">
