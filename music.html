@@ -588,30 +588,30 @@ const albums = [
   // frank ocean
   { artist: "frank ocean",       title: "blonde",                             file: "blonde.jpg",              search: "frank ocean blonde" },
   // j. cole
-  { artist: "j. cole",           title: "4 your eyez only",                   file: "4-your-eyez-only.jpg",    search: "j cole 4 your eyez only" },
+  { artist: "j. cole",           title: "4 your eyez only",                   file: "4-your-eyez-only.jpg",    search: "j cole 4 your eyez only",            repeat: true },
   // joji
   { artist: "joji",              title: "in tongues",                         file: "in-tongues.jpg",          search: "joji in tongues" },
-  { artist: "joji",              title: "son of spergy",                      file: "son-of-spergy.jpg",       search: "joji son of spergy" },
+  { artist: "joji",              title: "son of spergy",                      file: "son-of-spergy.jpg",       search: "joji son of spergy",                 repeat: true },
   { artist: "joji",              title: "ballads 1",                          file: "ballads-1.jpg",           search: "joji ballads 1" },
-  { artist: "joji",              title: "smithereens",                        file: "smithereens.jpg",         search: "joji smithereens" },
-  { artist: "joji",              title: "piss in the wind",                   file: "piss-in-the-wind.jpg",    search: "piss in the wind" },
+  { artist: "joji",              title: "smithereens",                        file: "smithereens.jpg",         search: "joji smithereens",                   repeat: true },
+  { artist: "joji",              title: "piss in the wind",                   file: "piss-in-the-wind.jpg",    search: "piss in the wind",                   repeat: true },
   // kanye west
   { artist: "kanye west",        title: "the college dropout",                file: "college-dropout.jpg",     search: "kanye west the college dropout" },
   { artist: "kanye west",        title: "late registration",                  file: "late-registration.jpg",   search: "kanye west late registration" },
   { artist: "kanye west",        title: "graduation",                         file: "graduation.jpg",          search: "kanye west graduation" },
   { artist: "kanye west",        title: "808s & heartbreak",                  file: "808s-and-heartbreak.jpg", search: "kanye west 808s heartbreak" },
-  { artist: "kanye west",        title: "my beautiful dark twisted fantasy",  file: "mbdtf.jpg",               search: "kanye west my beautiful dark twisted fantasy" },
-  { artist: "kanye west",        title: "yeezus",                             file: "yeezus.jpg",              search: "kanye west yeezus" },
+  { artist: "kanye west",        title: "my beautiful dark twisted fantasy",  file: "mbdtf.jpg",               search: "kanye west my beautiful dark twisted fantasy", repeat: true },
+  { artist: "kanye west",        title: "yeezus",                             file: "yeezus.jpg",              search: "kanye west yeezus",                  repeat: true },
   { artist: "kanye west",        title: "the life of pablo",                  file: "life-of-pablo.jpg",       search: "kanye west the life of pablo" },
   // kendrick lamar
-  { artist: "kendrick lamar",    title: "damn.",                              file: "damn.jpg",                search: "kendrick lamar damn" },
-  { artist: "kendrick lamar",    title: "gnx",                                file: "gnx.jpg",                 search: "kendrick lamar gnx" },
+  { artist: "kendrick lamar",    title: "damn.",                              file: "damn.jpg",                search: "kendrick lamar damn",                repeat: true },
+  { artist: "kendrick lamar",    title: "gnx",                                file: "gnx.jpg",                 search: "kendrick lamar gnx",                 repeat: true },
   { artist: "kendrick lamar",    title: "mr. morale & the big steppers",      file: "mr-morale.jpg",           search: "kendrick lamar mr morale the big steppers" },
   // keshi
   { artist: "keshi",            title: "GABRIEL",                            file: "keshi-gabriel.jpg",       search: "keshi GABRIEL" },
   { artist: "keshi",            title: "requiem (bonus edition)",            file: "keshi-requiem.jpg",        search: "keshi requiem" },
   // sza
-  { artist: "sza",               title: "sos deluxe: lana",                   file: "sos.jpg",                 search: "sza sos deluxe: lana" },
+  { artist: "sza",               title: "sos deluxe: lana",                   file: "sos.jpg",                 search: "sza sos deluxe: lana",               repeat: true },
   // the weeknd
   { artist: "the weeknd",        title: "starboy",                            file: "starboy.jpg",             search: "the weeknd starboy" },
   { artist: "the weeknd",        title: "after hours",                        file: "after-hours.jpg",         search: "the weeknd after hours" },
@@ -620,8 +620,8 @@ const albums = [
   // tyler, the creator
   { artist: "tyler, the creator", title: "flower boy",                        file: "flower-boy.jpg",          search: "tyler the creator flower boy" },
   { artist: "tyler, the creator", title: "igor",                              file: "igor.jpg",                search: "tyler the creator igor" },
-  { artist: "tyler, the creator", title: "chromakopia",                       file: "chromakopia.jpg",         search: "tyler the creator chromakopia" },
-  { artist: "tyler, the creator", title: "don't tap the glass",               file: "dttg.jpg",                search: "tyler the creator don't tap the glass" },
+  { artist: "tyler, the creator", title: "chromakopia",                       file: "chromakopia.jpg",         search: "tyler the creator chromakopia",      repeat: true },
+  { artist: "tyler, the creator", title: "don't tap the glass",               file: "dttg.jpg",                search: "tyler the creator don't tap the glass", repeat: true },
   // yoasobi
   { artist: "yoasobi",           title: "the book",                           file: "yoasobi-the-book.jpg",    search: "yoasobi the book" },
   { artist: "yoasobi",           title: "the book 2",                         file: "yoasobi-the-book-2.jpg",  search: "yoasobi the book 2" },
@@ -635,7 +635,7 @@ document.getElementById('albums').innerHTML = albums.map(a => `
            onload="this.classList.add('loaded'); this.previousElementSibling.style.display='none';"
            onerror="this.style.display='none';" />
     </div>
-    <div class="title">${a.title}</div>
+    <div class="title">${a.title}${a.repeat ? '<span class="rpt"></span>' : ''}</div>
     <div class="artist">${a.artist}</div>
   </a>
 `).join('');
@@ -717,6 +717,9 @@ async function loadNowPlaying() {
 loadNowPlaying();
 setInterval(loadNowPlaying, 30000);
 </script>
+<style>
+.rpt { display:inline-block; width:4px; height:4px; border-radius:50%; background:var(--muted); margin-left:5px; vertical-align:middle; opacity:0.65; flex-shrink:0; }
+</style>
 <script src="theme.js"></script>
 </body>
 </html>
