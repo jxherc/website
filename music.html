@@ -203,11 +203,7 @@
   <!-- STATIC ARTIST / ALBUM LISTS -->
   <section>
     <div class="label">artists</div>
-    <div class="two-col" id="artists-en"></div>
-  </section>
-  <section>
-    <div class="label">artists &nbsp;/&nbsp; cn</div>
-    <div class="two-col" id="artists-cn"></div>
+    <div class="two-col" id="artists-list"></div>
   </section>
   <section>
     <div class="label">heavy rotation</div>
@@ -588,22 +584,17 @@ document.querySelectorAll('.toggle-btn').forEach(btn => {
 });
 
 /* static lists */
-const artistsEn = [
+const artists = [
   "joji","kendrick lamar","the weeknd","tyler, the creator","kanye west","j. cole",
-  "clara la san","central cee","sza","laufey","21 savage","daniel caesar","keshi"
-];
-const artistsCn = [
+  "clara la san","central cee","sza","laufey","21 savage","daniel caesar","keshi",
   { display: "ronghao li", query: "李荣浩" },
-  { display: "gareth.t",    query: "gareth t" },
-  { display: "runze zheng", query: "郑润泽" },
-  { display: "jay chou",    query: "周杰伦" }
+  { display: "gareth.t",   query: "gareth t" }
 ];
-document.getElementById('artists-en').innerHTML = artistsEn.map(a =>
-  `<a href="https://music.apple.com/ca/search?term=${encodeURIComponent(a)}" target="_blank" rel="noopener">${a}</a>`
-).join('');
-document.getElementById('artists-cn').innerHTML = artistsCn.map(a =>
-  `<a href="https://music.apple.com/ca/search?term=${encodeURIComponent(a.query)}" target="_blank" rel="noopener">${a.display}</a>`
-).join('');
+document.getElementById('artists-list').innerHTML = artists.map(a => {
+  const display = typeof a === 'string' ? a : a.display;
+  const query   = typeof a === 'string' ? a : a.query;
+  return `<a href="https://music.apple.com/ca/search?term=${encodeURIComponent(query)}" target="_blank" rel="noopener">${display}</a>`;
+}).join('');
 
 const albums = [
   // central cee
