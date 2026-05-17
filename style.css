@@ -212,7 +212,9 @@ a.kv-row:hover .arrow { transform: translate(3px, -3px); color: var(--muted); }
   white-space: nowrap;
   display: inline-flex; align-items: baseline; gap: 0.3rem;
 }
-.top-meta .v   { color: var(--faint); transition: color 0.35s ease; }
+.top-meta .v   { color: var(--faint); transition: color 0.35s ease; display: inline-block; text-align: right; }
+.top-meta .v-min     { min-width: 3.6rem; }
+.top-meta .v-streams { min-width: 4rem; }
 .top-meta .v.on { color: var(--text); }
 .top-meta .m-dot { color: var(--faint); }
 
