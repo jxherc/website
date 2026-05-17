@@ -50,14 +50,11 @@
 
   <!-- ALL-TIME -->
   <section>
-    <div class="label-row">
-          <div class="label">all-time top</div>
-          <div class="metric-toggle" data-section="alltime">
-            <button class="m-btn active" data-metric="streams">plays</button>
-            <span class="m-sep">·</span>
-            <button class="m-btn" data-metric="minutes">min</button>
-          </div>
-        </div>
+    <div class="label">all-time top</div>
+    <div class="toggle-row" data-section="alltime">
+      <button class="toggle-btn active" data-metric="streams">plays</button>
+      <button class="toggle-btn" data-metric="minutes">minutes</button>
+    </div>
     <div class="stat-line" id="stat-alltime"><span class="stat-dim">loading…</span></div>
 
     <div class="top-category" id="top-songs-alltime">
@@ -77,14 +74,11 @@
 
   <!-- 2026 -->
   <section>
-    <div class="label-row">
-          <div class="label">2026 top</div>
-          <div class="metric-toggle" data-section="y2026">
-            <button class="m-btn active" data-metric="streams">plays</button>
-            <span class="m-sep">·</span>
-            <button class="m-btn" data-metric="minutes">min</button>
-          </div>
-        </div>
+    <div class="label">2026 top</div>
+    <div class="toggle-row" data-section="y2026">
+      <button class="toggle-btn active" data-metric="streams">plays</button>
+      <button class="toggle-btn" data-metric="minutes">minutes</button>
+    </div>
     <div class="stat-line" id="stat-2026"><span class="stat-dim">loading…</span></div>
     <div class="top-category" id="top-songs-2026">
       <div class="cat-label">songs</div>
@@ -102,14 +96,11 @@
 
   <!-- PAST 4 WEEKS -->
   <section>
-    <div class="label-row">
-          <div class="label">past 4 weeks</div>
-          <div class="metric-toggle" data-section="weeks">
-            <button class="m-btn active" data-metric="streams">plays</button>
-            <span class="m-sep">·</span>
-            <button class="m-btn" data-metric="minutes">min</button>
-          </div>
-        </div>
+    <div class="label">past 4 weeks</div>
+    <div class="toggle-row" data-section="weeks">
+      <button class="toggle-btn active" data-metric="streams">plays</button>
+      <button class="toggle-btn" data-metric="minutes">minutes</button>
+    </div>
     <div class="stat-line" id="stat-weeks"><span class="stat-dim">loading…</span></div>
 
     <div class="top-category" id="top-songs-weeks">
@@ -130,7 +121,7 @@
   <section>
     <div class="label">2025 vs 2026</div>
 
-    <div class="toggle-row">
+    <div class="toggle-row" data-section="compare">
       <button class="toggle-btn active" data-metric="streams">streams</button>
       <button class="toggle-btn" data-metric="minutes">minutes</button>
     </div>
@@ -345,8 +336,7 @@ function renderTopRows(containerId, items, kind, metric) {
       : `<div class="thumb ${shape} thumb-empty"></div>`;
     const sub = it.artistName ? ` <span class="top-sub">· ${esc(it.artistName)}</span>` : '';
     const metaText = `${fmtNum(val(it))} ${unit}`;
-    const href = it.spotifyUrl || 'https://stats.fm/jxherc';
-    const label = `<a class="top-label" href="${href}" target="_blank" rel="noopener">${esc(it.name)}${sub}</a>`;
+    const label = `<span class="top-label">${esc(it.name)}${sub}</span>`;
     return `
       <div class="top-row">
         <span class="rank">${i + 1}</span>
@@ -618,12 +608,21 @@ function renderCompare() {
   } else noteEl.textContent = '';
 }
 
-document.querySelectorAll('.toggle-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    document.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    compareMetric = btn.dataset.metric;
-    renderCompare();
+document.querySelectorAll('.toggle-row[data-section]').forEach(row => {
+  const section = row.dataset.section;
+  row.querySelectorAll('.toggle-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const m = btn.dataset.metric;
+      row.querySelectorAll('.toggle-btn').forEach(b => b.classList.toggle('active', b === btn));
+      if (section === 'compare') {
+        compareMetric = m;
+        renderCompare();
+      } else {
+        if (topMetric[section] === m) return;
+        topMetric[section] = m;
+        renderSection(section);
+      }
+    });
   });
 });
 
@@ -746,20 +745,6 @@ loadAll();
 setInterval(loadAll, REFRESH_MS);
 document.addEventListener('visibilitychange', () => {
   if (document.visibilityState === 'visible') loadAll();
-});
-
-/* metric toggles */
-document.querySelectorAll('.metric-toggle').forEach(group => {
-  const section = group.dataset.section;
-  group.querySelectorAll('.m-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const m = btn.dataset.metric;
-      if (topMetric[section] === m) return;
-      topMetric[section] = m;
-      group.querySelectorAll('.m-btn').forEach(b => b.classList.toggle('active', b === btn));
-      renderSection(section);
-    });
-  });
 });
 
 /* update page stamp to show stats.fm freshness */
