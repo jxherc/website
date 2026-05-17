@@ -244,7 +244,14 @@ function timeAgoTiny(ms) {
   return `${Math.floor(m/(60*24))}d`;
 }
 async function safeFetch(url) {
-  try { const r = await fetch(url); if (!r.ok) return null; return await r.json(); }
+  try {
+    const ctrl = new AbortController();
+    const tid = setTimeout(() => ctrl.abort(), 8000);
+    const r = await fetch(url, { signal: ctrl.signal });
+    clearTimeout(tid);
+    if (!r.ok) return null;
+    return await r.json();
+  }
   catch (e) { return null; }
 }
 const extract = d => !d ? [] : (Array.isArray(d.items) ? d.items : (Array.isArray(d.data) ? d.data : (Array.isArray(d) ? d : [])));
@@ -663,12 +670,12 @@ function bumpStamps() {
   });
 }
 
-setInterval(refreshStamps, 1000);
+setInterval(bumpStamps, 1000);
 document.addEventListener('visibilitychange', () => {
   if (document.visibilityState === 'visible') bumpStamps();
 });
-window.addEventListener('focus', refreshStamps);
-window.addEventListener('pageshow', refreshStamps);
+window.addEventListener('focus', bumpStamps);
+window.addEventListener('pageshow', bumpStamps);
 
 /* load all */
 async function loadAll() {
