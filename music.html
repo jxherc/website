@@ -67,6 +67,25 @@
     </div>
   </section>
 
+
+  <!-- 2026 -->
+  <section>
+    <div class="label">2026 top</div>
+    <div class="stat-line" id="stat-2026"><span class="stat-dim">loading…</span></div>
+    <div class="top-category" id="top-songs-2026">
+      <div class="cat-label">songs</div>
+      <div class="top-list loading"><div class="top-row-skel"></div><div class="top-row-skel"></div><div class="top-row-skel"></div></div>
+    </div>
+    <div class="top-category" id="top-albums-2026">
+      <div class="cat-label">albums</div>
+      <div class="top-list loading"><div class="top-row-skel"></div><div class="top-row-skel"></div><div class="top-row-skel"></div></div>
+    </div>
+    <div class="top-category" id="top-artists-2026">
+      <div class="cat-label">artists</div>
+      <div class="top-list loading"><div class="top-row-skel"></div><div class="top-row-skel"></div><div class="top-row-skel"></div></div>
+    </div>
+  </section>
+
   <!-- PAST 4 WEEKS -->
   <section>
     <div class="label">past 4 weeks</div>
@@ -270,9 +289,15 @@ function parseTop(item, kind) {
   } else if (kind === 'artist') {
     imgUrl = sub?.image || '';
   }
+  let spotifyUrl = '';
+  const sid = sub?.externalIds?.spotify?.[0] || sub?.spotifyIds?.[0] || '';
+  if (sid) {
+    const type = kind === 'track' ? 'track' : kind === 'album' ? 'album' : 'artist';
+    spotifyUrl = 'https://open.spotify.com/' + type + '/' + sid;
+  }
   const streams = item.streams ?? item.count ?? 0;
   const minutes = item.playedMs ? Math.round(item.playedMs / 60000) : (item.minutes ?? 0);
-  return { name, artistName, imgUrl, streams, minutes };
+  return { name, artistName, imgUrl, streams, minutes, spotifyUrl };
 }
 
 function mergeTops(a, b, kind) {
@@ -320,7 +345,7 @@ function renderTopRows(containerId, items, kind) {
         <span class="rank">${i + 1}</span>
         <span class="bar-wrap"><span class="bar" style="width:${pct}%"></span></span>
         ${thumb}
-        <span class="top-label">${esc(it.name)}${sub}</span>
+        ${it.spotifyUrl ? `<a class="top-label" href="${it.spotifyUrl}" target="_blank" rel="noopener">${esc(it.name)}${sub}</a>` : `<span class="top-label">${esc(it.name)}${sub}</span>`}
         <span class="top-meta">${metaText}</span>
       </div>`;
   }).join('');
@@ -439,9 +464,9 @@ async function load2026() {
   };
 
   const [tData, alData, arData] = await Promise.all([
-    safeFetch(`${API}/users/${USERS.new}/top/tracks?after=${Y2026_AFTER}&before=${Y2026_BEFORE}&limit=5`),
-    safeFetch(`${API}/users/${USERS.new}/top/albums?after=${Y2026_AFTER}&before=${Y2026_BEFORE}&limit=5`),
-    safeFetch(`${API}/users/${USERS.new}/top/artists?after=${Y2026_AFTER}&before=${Y2026_BEFORE}&limit=5`),
+    safeFetch(`${API}/users/${USERS.new}/top/tracks?after=${Y2026_AFTER}&before=${Y2026_BEFORE}&limit=50`),
+    safeFetch(`${API}/users/${USERS.new}/top/albums?after=${Y2026_AFTER}&before=${Y2026_BEFORE}&limit=50`),
+    safeFetch(`${API}/users/${USERS.new}/top/artists?after=${Y2026_AFTER}&before=${Y2026_BEFORE}&limit=50`),
   ]);
 
   const liveTrack  = extract(tData).map(x => parseTop(x, 'track'));
@@ -477,6 +502,11 @@ async function load2026() {
 
   compareData.top2026 = { song: topSong, album: topAlbum, artist: topArtist };
   renderCompare();
+
+  renderTopRows('top-songs-2026',   combine(liveTrack,  F_2026_JANFEB_TOP.song  ).slice(0, 5), 'track');
+  renderTopRows('top-albums-2026',  combine(liveAlbum,  F_2026_JANFEB_TOP.album ).slice(0, 5), 'album');
+  renderTopRows('top-artists-2026', combine(liveArtist, F_2026_JANFEB_TOP.artist).slice(0, 5), 'artist');
+  if (compareData.y2026) writeStatLine('stat-2026', compareData.y2026.streams, compareData.y2026.minutes);
 }
 
 function renderYTRow(rowId, item, kind) {
