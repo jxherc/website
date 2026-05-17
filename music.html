@@ -278,23 +278,10 @@ const extract = d => !d ? [] : (Array.isArray(d.items) ? d.items : (Array.isArra
 function parseTop(item, kind) {
   const sub = item[kind] || item;
   const name = sub?.name || '';
-  const artistName = (kind === 'track' || kind === 'album')
-    ? (sub?.artists?.[0]?.name || '')
-    : '';
-  let imgUrl = '';
-  if (kind === 'album') {
-    imgUrl = sub?.image || '';
-  } else if (kind === 'track') {
-    imgUrl = sub?.albums?.[0]?.image || '';
-  } else if (kind === 'artist') {
-    imgUrl = sub?.image || '';
-  }
-  let spotifyUrl = '';
+  const artistName = kind === 'artist' ? '' : (sub?.artists?.[0]?.name || '');
+  const imgUrl = kind === 'track' ? (sub?.albums?.[0]?.image || '') : (sub?.image || '');
   const sid = sub?.externalIds?.spotify?.[0] || sub?.spotifyIds?.[0] || '';
-  if (sid) {
-    const type = kind === 'track' ? 'track' : kind === 'album' ? 'album' : 'artist';
-    spotifyUrl = 'https://open.spotify.com/' + type + '/' + sid;
-  }
+  const spotifyUrl = sid ? `https://open.spotify.com/${kind}/${sid}` : '';
   const streams = item.streams ?? item.count ?? 0;
   const minutes = item.playedMs ? Math.round(item.playedMs / 60000) : (item.minutes ?? 0);
   return { name, artistName, imgUrl, streams, minutes, spotifyUrl };
@@ -340,12 +327,16 @@ function renderTopRows(containerId, items, kind) {
       : `<div class="thumb ${shape} thumb-empty"></div>`;
     const sub = it.artistName ? ` <span class="top-sub">· ${esc(it.artistName)}</span>` : '';
     const metaText = it.minutes ? `${fmtNum(it.minutes)} min` : (it.streams ? `${fmtNum(it.streams)} str` : '');
+    const inner = `${esc(it.name)}${sub}`;
+    const label = it.spotifyUrl
+      ? `<a class="top-label" href="${it.spotifyUrl}" target="_blank" rel="noopener">${inner}</a>`
+      : `<span class="top-label">${inner}</span>`;
     return `
       <div class="top-row">
         <span class="rank">${i + 1}</span>
         <span class="bar-wrap"><span class="bar" style="width:${pct}%"></span></span>
         ${thumb}
-        ${it.spotifyUrl ? `<a class="top-label" href="${it.spotifyUrl}" target="_blank" rel="noopener">${esc(it.name)}${sub}</a>` : `<span class="top-label">${esc(it.name)}${sub}</span>`}
+        ${label}
         <span class="top-meta">${metaText}</span>
       </div>`;
   }).join('');
@@ -496,16 +487,16 @@ async function load2026() {
       .sort((a,b) => (b.streams || b.minutes) - (a.streams || a.minutes));
   }
 
-  const topSong   = combine(liveTrack,  F_2026_JANFEB_TOP.song  )[0];
-  const topAlbum  = combine(liveAlbum,  F_2026_JANFEB_TOP.album )[0];
-  const topArtist = combine(liveArtist, F_2026_JANFEB_TOP.artist)[0];
+  const songs   = combine(liveTrack,  F_2026_JANFEB_TOP.song);
+  const albums  = combine(liveAlbum,  F_2026_JANFEB_TOP.album);
+  const artists = combine(liveArtist, F_2026_JANFEB_TOP.artist);
 
-  compareData.top2026 = { song: topSong, album: topAlbum, artist: topArtist };
+  compareData.top2026 = { song: songs[0], album: albums[0], artist: artists[0] };
   renderCompare();
 
-  renderTopRows('top-songs-2026',   combine(liveTrack,  F_2026_JANFEB_TOP.song  ).slice(0, 5), 'track');
-  renderTopRows('top-albums-2026',  combine(liveAlbum,  F_2026_JANFEB_TOP.album ).slice(0, 5), 'album');
-  renderTopRows('top-artists-2026', combine(liveArtist, F_2026_JANFEB_TOP.artist).slice(0, 5), 'artist');
+  renderTopRows('top-songs-2026',   songs.slice(0, 5),   'track');
+  renderTopRows('top-albums-2026',  albums.slice(0, 5),  'album');
+  renderTopRows('top-artists-2026', artists.slice(0, 5), 'artist');
   if (compareData.y2026) writeStatLine('stat-2026', compareData.y2026.streams, compareData.y2026.minutes);
 }
 
