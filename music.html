@@ -396,48 +396,74 @@ function renderTopRows(containerId, items, kind, metric) {
     return;
   }
 
-  // === FLIP for re-renders ===
+  // === RE-RENDER — stable layout, no shoving content below ===
+
+  // Map in-flow rows (skip ones already mid-exit from a previous toggle)
   const existingMap = new Map();
-  list.querySelectorAll('.top-row').forEach(row => existingMap.set(row.dataset.key, row));
-
-  // Snapshot FIRST positions
-  const firstTop = new Map();
-  existingMap.forEach((row, key) => firstTop.set(key, row.getBoundingClientRect().top));
-
-  // Build new sequence — reuse existing rows where keys match
-  const newKeys = new Set();
-  const newRows = items.map((it, i) => {
-    const key = keyOf(it);
-    newKeys.add(key);
-    let row = existingMap.get(key);
-    if (row) updateRow(row, it, i);
-    else     row = buildRow(it, i, false);
-    return row;
+  list.querySelectorAll('.top-row:not(.exiting)').forEach(row => {
+    existingMap.set(row.dataset.key, row);
   });
 
-  // Rows leaving
+  // Snapshot FIRST viewport positions before any DOM changes
+  const firstView = new Map();
+  existingMap.forEach((row, key) => firstView.set(key, row.getBoundingClientRect().top));
+  const listTop = list.getBoundingClientRect().top;
+
+  // Figure out entries/exits
+  const newKeys = new Set();
+  items.forEach(it => newKeys.add(keyOf(it)));
   const exits = [];
   existingMap.forEach((row, key) => { if (!newKeys.has(key)) exits.push(row); });
 
-  // Reorder DOM
-  while (list.firstChild) list.removeChild(list.firstChild);
-  newRows.forEach(r => list.appendChild(r));
+  // Detach exits from layout flow — they stop affecting siblings below this list
+  if (exits.length > 0) {
+    if (getComputedStyle(list).position === 'static') list.style.position = 'relative';
+    exits.forEach(row => {
+      const offsetTop = firstView.get(row.dataset.key) - listTop;
+      row.classList.add('exiting');
+      row.style.position = 'absolute';
+      row.style.top = offsetTop + 'px';
+      row.style.left = '0';
+      row.style.right = '0';
+    });
+  }
 
-  // FLIP: disable transition, set inverse transform, force reflow, re-enable transition, animate to identity
-  // The textbook order matters — doing it any other way causes the glitch
-  newRows.forEach(row => {
-    const key = row.dataset.key;
-    const first = firstTop.get(key);
+  // Build new / update existing rows
+  const newRowsByKey = new Map();
+  items.forEach((it, i) => {
+    const key = keyOf(it);
+    let row = existingMap.get(key);
+    if (row) updateRow(row, it, i);
+    else     row = buildRow(it, i, false);
+    newRowsByKey.set(key, row);
+  });
+
+  // Reorder DOM via insertBefore — never empties the list, no flicker
+  let prev = null;
+  for (const it of items) {
+    const row = newRowsByKey.get(keyOf(it));
+    let refNode = prev ? prev.nextSibling : list.firstChild;
+    while (refNode && refNode.classList && refNode.classList.contains('exiting')) {
+      refNode = refNode.nextSibling;
+    }
+    if (row !== refNode) list.insertBefore(row, refNode);
+    prev = row;
+  }
+
+  // FLIP for moves, dash-up for new entries
+  newRowsByKey.forEach((row, key) => {
+    const first = firstView.get(key);
     const last = row.getBoundingClientRect().top;
     if (first === undefined) {
-      // Entering row — fade in
+      // New entry — dash up from below
       row.style.transition = 'none';
-      row.style.transform = '';
+      row.style.transform = 'translateY(18px)';
       row.style.opacity = '0';
       void row.offsetWidth;
-      row.style.transition = 'opacity 0.45s ease';
+      row.style.transition = 'transform 0.55s cubic-bezier(0.2,0.7,0.2,1), opacity 0.45s ease';
+      row.style.transform = '';
       row.style.opacity = '1';
-    } else if (first !== last) {
+    } else if (Math.abs(first - last) > 0.5) {
       const delta = first - last;
       row.style.transition = 'none';
       row.style.transform = `translateY(${delta}px)`;
@@ -445,18 +471,18 @@ function renderTopRows(containerId, items, kind, metric) {
       row.style.transition = 'transform 0.55s cubic-bezier(0.2,0.7,0.2,1)';
       row.style.transform = '';
     } else {
-      // No move — just clear any leftover transform/opacity from prior animation
       row.style.transform = '';
       row.style.opacity = '';
     }
   });
 
-  // Exits — fade out then remove
+  // Exits fade out + drift up; they're absolute so no layout shift
   exits.forEach(row => {
-    list.appendChild(row);
-    row.style.transition = 'opacity 0.3s ease';
+    void row.offsetWidth;
+    row.style.transition = 'opacity 0.35s ease, transform 0.35s ease';
     row.style.opacity = '0';
-    setTimeout(() => row.remove(), 320);
+    row.style.transform = 'translateY(-8px)';
+    setTimeout(() => row.remove(), 380);
   });
 }
 
