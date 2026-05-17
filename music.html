@@ -50,10 +50,13 @@
 
   <!-- ALL-TIME -->
   <section>
-    <div class="label">all-time top</div>
-    <div class="toggle-row" data-section="alltime">
-      <button class="toggle-btn active" data-metric="streams">plays</button>
-      <button class="toggle-btn" data-metric="minutes">minutes</button>
+    <div class="label-row">
+      <div class="label">all-time top</div>
+      <div class="metric-toggle" data-section="alltime">
+        <button class="m-btn active" data-metric="streams">plays</button>
+        <span class="m-sep">·</span>
+        <button class="m-btn" data-metric="minutes">min</button>
+      </div>
     </div>
     <div class="stat-line" id="stat-alltime"><span class="stat-dim">loading…</span></div>
 
@@ -74,10 +77,13 @@
 
   <!-- 2026 -->
   <section>
-    <div class="label">2026 top</div>
-    <div class="toggle-row" data-section="y2026">
-      <button class="toggle-btn active" data-metric="streams">plays</button>
-      <button class="toggle-btn" data-metric="minutes">minutes</button>
+    <div class="label-row">
+      <div class="label">2026 top</div>
+      <div class="metric-toggle" data-section="y2026">
+        <button class="m-btn active" data-metric="streams">plays</button>
+        <span class="m-sep">·</span>
+        <button class="m-btn" data-metric="minutes">min</button>
+      </div>
     </div>
     <div class="stat-line" id="stat-2026"><span class="stat-dim">loading…</span></div>
     <div class="top-category" id="top-songs-2026">
@@ -96,10 +102,13 @@
 
   <!-- PAST 4 WEEKS -->
   <section>
-    <div class="label">past 4 weeks</div>
-    <div class="toggle-row" data-section="weeks">
-      <button class="toggle-btn active" data-metric="streams">plays</button>
-      <button class="toggle-btn" data-metric="minutes">minutes</button>
+    <div class="label-row">
+      <div class="label">past 4 weeks</div>
+      <div class="metric-toggle" data-section="weeks">
+        <button class="m-btn active" data-metric="streams">plays</button>
+        <span class="m-sep">·</span>
+        <button class="m-btn" data-metric="minutes">min</button>
+      </div>
     </div>
     <div class="stat-line" id="stat-weeks"><span class="stat-dim">loading…</span></div>
 
@@ -315,12 +324,12 @@ function mergeTops(a, b, kind) {
   return Array.from(map.values());
 }
 
-/* render top rows — uses FLIP so rows rise/drop to new positions on metric switch */
+/* render top rows — FLIP for position swaps, both metrics shown side by side */
 function renderTopRows(containerId, items, kind, metric) {
   const el = document.getElementById(containerId);
   if (!el) return;
-  const val = it => Number(it[metric]) || 0;
-  const unit = metric === 'minutes' ? 'min' : 'plays';
+  const num = (it, m) => Number(it[m]) || 0;
+  const val = it => num(it, metric);
   const max = val(items[0]) || 1;
   const keyOf = it => `${it.name}::${it.artistName || ''}`;
 
@@ -339,14 +348,17 @@ function renderTopRows(containerId, items, kind, metric) {
     return;
   }
 
-  function buildRow(it, i, initialZero) {
+  function buildRow(it, i, startZero) {
     const shape = kind === 'artist' ? 'thumb-round' : 'thumb-sq';
     const thumbHtml = it.imgUrl
       ? `<img class="thumb ${shape}" src="${esc(it.imgUrl)}" alt="" loading="lazy" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';"><div class="thumb ${shape} thumb-empty" style="display:none"></div>`
       : `<div class="thumb ${shape} thumb-empty"></div>`;
     const sub = it.artistName ? ` <span class="top-sub">· ${esc(it.artistName)}</span>` : '';
-    const pct = initialZero ? 0 : Math.max(8, Math.round(val(it) / max * 100));
-    const metaTxt = initialZero ? `0 ${unit}` : `${fmtNum(val(it))} ${unit}`;
+    const pct = startZero ? 0 : Math.max(8, Math.round(val(it) / max * 100));
+    const minTxt = startZero ? '0 min'   : `${fmtNum(num(it, 'minutes'))} min`;
+    const strTxt = startZero ? '0 plays' : `${fmtNum(num(it, 'streams'))} plays`;
+    const minOn  = metric === 'minutes' ? ' on' : '';
+    const strOn  = metric === 'streams' ? ' on' : '';
     const row = document.createElement('div');
     row.className = 'top-row';
     row.dataset.key = keyOf(it);
@@ -355,79 +367,91 @@ function renderTopRows(containerId, items, kind, metric) {
       <span class="bar-wrap"><span class="bar" style="width:${pct}%"></span></span>
       ${thumbHtml}
       <span class="top-label">${esc(it.name)}${sub}</span>
-      <span class="top-meta">${metaTxt}</span>`;
+      <span class="top-meta">
+        <span class="v v-min${minOn}">${minTxt}</span>
+        <span class="m-dot">·</span>
+        <span class="v v-streams${strOn}">${strTxt}</span>
+      </span>`;
     return row;
   }
 
-  // First render: stamp rows in, then animate bars + numbers from 0
+  function updateRow(row, it, i) {
+    row.querySelector('.rank').textContent = i + 1;
+    const pct = Math.max(8, Math.round(val(it) / max * 100));
+    row.querySelector('.bar').style.width = pct + '%';
+    const minEl = row.querySelector('.v-min');
+    const strEl = row.querySelector('.v-streams');
+    tickTo(minEl, num(it, 'minutes'), 900, ' min');
+    tickTo(strEl, num(it, 'streams'), 900, ' plays');
+    minEl.classList.toggle('on', metric === 'minutes');
+    strEl.classList.toggle('on', metric === 'streams');
+  }
+
+  // First render: stamp rows, then animate from 0
   if (isFirstRender) {
     items.forEach((it, i) => list.appendChild(buildRow(it, i, true)));
     requestAnimationFrame(() => {
-      list.querySelectorAll('.top-row').forEach((row, i) => {
-        const it = items[i];
-        const pct = Math.max(8, Math.round(val(it) / max * 100));
-        row.querySelector('.bar').style.width = pct + '%';
-        tickTo(row.querySelector('.top-meta'), val(it), 900, ' ' + unit);
-      });
+      list.querySelectorAll('.top-row').forEach((row, i) => updateRow(row, items[i], i));
     });
     return;
   }
 
   // === FLIP for re-renders ===
-  // 1. Snapshot existing row positions (FIRST)
   const existingMap = new Map();
   list.querySelectorAll('.top-row').forEach(row => existingMap.set(row.dataset.key, row));
+
+  // Snapshot FIRST positions
   const firstTop = new Map();
   existingMap.forEach((row, key) => firstTop.set(key, row.getBoundingClientRect().top));
 
-  // 2. Build new ordered row list — reuse existing rows where possible
+  // Build new sequence — reuse existing rows where keys match
   const newKeys = new Set();
   const newRows = items.map((it, i) => {
     const key = keyOf(it);
     newKeys.add(key);
     let row = existingMap.get(key);
-    const pct = Math.max(8, Math.round(val(it) / max * 100));
-    if (row) {
-      row.querySelector('.rank').textContent = i + 1;
-      row.querySelector('.bar').style.width = pct + '%';
-      tickTo(row.querySelector('.top-meta'), val(it), 900, ' ' + unit);
-    } else {
-      row = buildRow(it, i, false);
-    }
+    if (row) updateRow(row, it, i);
+    else     row = buildRow(it, i, false);
     return row;
   });
 
-  // 3. Rows leaving: fade out and remove (after animation)
+  // Rows leaving
   const exits = [];
   existingMap.forEach((row, key) => { if (!newKeys.has(key)) exits.push(row); });
 
-  // 4. Reorder DOM — detach all then re-append in new sequence
+  // Reorder DOM
   while (list.firstChild) list.removeChild(list.firstChild);
   newRows.forEach(r => list.appendChild(r));
 
-  // 5. FLIP: measure LAST positions, apply inverse transform, then transition back
+  // FLIP: disable transition, set inverse transform, force reflow, re-enable transition, animate to identity
+  // The textbook order matters — doing it any other way causes the glitch
   newRows.forEach(row => {
     const key = row.dataset.key;
     const first = firstTop.get(key);
     const last = row.getBoundingClientRect().top;
     if (first === undefined) {
-      // New row entering — fade in
-      row.style.opacity = '0';
-      requestAnimationFrame(() => {
-        row.style.transition = 'opacity 0.45s ease';
-        row.style.opacity = '1';
-      });
-    } else if (first !== last) {
-      row.style.transform = `translateY(${first - last}px)`;
+      // Entering row — fade in
       row.style.transition = 'none';
-      requestAnimationFrame(() => {
-        row.style.transition = 'transform 0.7s cubic-bezier(0.2,0.7,0.2,1)';
-        row.style.transform = '';
-      });
+      row.style.transform = '';
+      row.style.opacity = '0';
+      void row.offsetWidth;
+      row.style.transition = 'opacity 0.45s ease';
+      row.style.opacity = '1';
+    } else if (first !== last) {
+      const delta = first - last;
+      row.style.transition = 'none';
+      row.style.transform = `translateY(${delta}px)`;
+      void row.offsetWidth;
+      row.style.transition = 'transform 0.55s cubic-bezier(0.2,0.7,0.2,1)';
+      row.style.transform = '';
+    } else {
+      // No move — just clear any leftover transform/opacity from prior animation
+      row.style.transform = '';
+      row.style.opacity = '';
     }
   });
 
-  // 6. Append exits at end so they fade out without affecting layout, then remove
+  // Exits — fade out then remove
   exits.forEach(row => {
     list.appendChild(row);
     row.style.transition = 'opacity 0.3s ease';
@@ -695,12 +719,12 @@ function renderCompare() {
   } else noteEl.textContent = '';
 }
 
-document.querySelectorAll('.toggle-row[data-section]').forEach(row => {
+document.querySelectorAll('[data-section]').forEach(row => {
   const section = row.dataset.section;
-  row.querySelectorAll('.toggle-btn').forEach(btn => {
+  row.querySelectorAll('button').forEach(btn => {
     btn.addEventListener('click', () => {
       const m = btn.dataset.metric;
-      row.querySelectorAll('.toggle-btn').forEach(b => b.classList.toggle('active', b === btn));
+      row.querySelectorAll('button').forEach(b => b.classList.toggle('active', b === btn));
       if (section === 'compare') {
         compareMetric = m;
         renderCompare();

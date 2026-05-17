@@ -208,7 +208,27 @@ a.kv-row:hover .arrow { transform: translate(3px, -3px); color: var(--muted); }
   color: var(--faint); font-size: 0.66rem;
   letter-spacing: 0.03em; font-variant-numeric: tabular-nums;
   white-space: nowrap;
+  display: inline-flex; align-items: baseline; gap: 0.3rem;
 }
+.top-meta .v   { color: var(--faint); transition: color 0.35s ease; }
+.top-meta .v.on { color: var(--text); }
+.top-meta .m-dot { color: var(--faint); }
+
+/* metric toggle (text-style, right-aligned per section) */
+.label-row { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; margin-bottom: 1rem; }
+.label-row .label { margin-bottom: 0; }
+.metric-toggle {
+  display: inline-flex; align-items: baseline; gap: 0.4rem;
+  font-size: 0.66rem; letter-spacing: 0.05em; text-transform: lowercase;
+}
+.metric-toggle .m-btn {
+  background: none; border: 0; padding: 0.15rem 0.15rem;
+  color: var(--faint); font: inherit; cursor: pointer;
+  transition: color 0.2s ease;
+}
+.metric-toggle .m-btn:hover  { color: var(--muted); }
+.metric-toggle .m-btn.active { color: var(--text); }
+.metric-toggle .m-sep { color: var(--faint); }
 
 /* =================== 2025 vs 2026 =================== */
 .toggle-row { display: flex; gap: 0.4rem; margin-bottom: 1.25rem; }
