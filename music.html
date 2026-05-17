@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=19">
+<link rel="stylesheet" href="style.css?v=20">
 <script>const t=localStorage.getItem('theme');if(t)document.documentElement.dataset.theme=t;</script>
 <meta property="og:title" content="music — jxherc">
 <meta property="og:description" content="some music stats">
@@ -142,7 +142,7 @@
           <span class="year-name">2025</span>
           <span class="year-note">closed</span>
         </div>
-        <div class="year-bar-wrap"><div class="year-bar" style="width:0%"></div></div>
+        <div class="year-bar-wrap"><div class="year-bar"></div></div>
         <div class="year-num">—</div>
         <div class="year-unit">streams</div>
 
@@ -171,7 +171,7 @@
           <span class="year-name">2026</span>
           <span class="year-note live-dot-wrap"><span class="live-dot"></span>live</span>
         </div>
-        <div class="year-bar-wrap"><div class="year-bar" style="width:0%"></div></div>
+        <div class="year-bar-wrap"><div class="year-bar"></div></div>
         <div class="year-num">—</div>
         <div class="year-unit">streams</div>
 
@@ -351,10 +351,10 @@ function renderTopRows(containerId, items, kind, metric) {
   function buildRow(it, i, startZero) {
     const shape = kind === 'artist' ? 'thumb-round' : 'thumb-sq';
     const thumbHtml = it.imgUrl
-      ? `<img class="thumb ${shape}" src="${esc(it.imgUrl)}" alt="" loading="lazy" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';"><div class="thumb ${shape} thumb-empty" style="display:none"></div>`
+      ? `<img class="thumb ${shape}" src="${esc(it.imgUrl)}" alt="" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';"><div class="thumb ${shape} thumb-empty" style="display:none"></div>`
       : `<div class="thumb ${shape} thumb-empty"></div>`;
     const sub = it.artistName ? ` <span class="top-sub">· ${esc(it.artistName)}</span>` : '';
-    const pct = startZero ? 0 : Math.max(8, Math.round(val(it) / max * 100));
+    const scale = startZero ? 0 : Math.max(0.08, val(it) / max);
     const minTxt = startZero ? '0 min'   : `${fmtNum(num(it, 'minutes'))} min`;
     const strTxt = startZero ? '0 plays' : `${fmtNum(num(it, 'streams'))} plays`;
     const minOn  = metric === 'minutes' ? ' on' : '';
@@ -364,7 +364,7 @@ function renderTopRows(containerId, items, kind, metric) {
     row.dataset.key = keyOf(it);
     row.innerHTML = `
       <span class="rank">${i + 1}</span>
-      <span class="bar-wrap"><span class="bar" style="width:${pct}%"></span></span>
+      <span class="bar-wrap"><span class="bar" style="transform:scaleX(${scale})"></span></span>
       ${thumbHtml}
       <span class="top-label">${esc(it.name)}${sub}</span>
       <span class="top-meta">
@@ -377,8 +377,8 @@ function renderTopRows(containerId, items, kind, metric) {
 
   function updateRow(row, it, i) {
     row.querySelector('.rank').textContent = i + 1;
-    const pct = Math.max(8, Math.round(val(it) / max * 100));
-    row.querySelector('.bar').style.width = pct + '%';
+    const scale = Math.max(0.08, val(it) / max);
+    row.querySelector('.bar').style.transform = 'scaleX(' + scale + ')';
     const minEl = row.querySelector('.v-min');
     const strEl = row.querySelector('.v-streams');
     tickTo(minEl, num(it, 'minutes'), 900, ' min');
@@ -450,26 +450,37 @@ function renderTopRows(containerId, items, kind, metric) {
     prev = row;
   }
 
-  // FLIP for moves, dash-up for new entries
+  // FLIP — batch ALL reads first, then ALL writes, to avoid layout thrashing
+  const lastView = new Map();
+  newRowsByKey.forEach((row, key) => {
+    lastView.set(key, row.getBoundingClientRect().top);
+  });
+
+  // Single forced reflow to commit any pending styles before we write transforms
+  void list.offsetWidth;
+
   newRowsByKey.forEach((row, key) => {
     const first = firstView.get(key);
-    const last = row.getBoundingClientRect().top;
+    const last = lastView.get(key);
     if (first === undefined) {
       // New entry — dash up from below
       row.style.transition = 'none';
       row.style.transform = 'translateY(18px)';
       row.style.opacity = '0';
-      void row.offsetWidth;
-      row.style.transition = 'transform 0.55s cubic-bezier(0.2,0.7,0.2,1), opacity 0.45s ease';
-      row.style.transform = '';
-      row.style.opacity = '1';
+      // schedule the animate-in on next frame so the initial state paints
+      requestAnimationFrame(() => {
+        row.style.transition = 'transform 0.55s cubic-bezier(0.2,0.7,0.2,1), opacity 0.45s ease';
+        row.style.transform = '';
+        row.style.opacity = '1';
+      });
     } else if (Math.abs(first - last) > 0.5) {
       const delta = first - last;
       row.style.transition = 'none';
       row.style.transform = `translateY(${delta}px)`;
-      void row.offsetWidth;
-      row.style.transition = 'transform 0.55s cubic-bezier(0.2,0.7,0.2,1)';
-      row.style.transform = '';
+      requestAnimationFrame(() => {
+        row.style.transition = 'transform 0.55s cubic-bezier(0.2,0.7,0.2,1)';
+        row.style.transform = '';
+      });
     } else {
       row.style.transform = '';
       row.style.opacity = '';
@@ -507,12 +518,12 @@ function renderSection(section) {
 
 async function loadTopFor(range, prefix) {
   const [tA, tB, alA, alB, arA, arB] = await Promise.all([
-    safeFetch(`${API}/users/${USERS.old}/top/tracks?range=${range}&limit=50`),
-    safeFetch(`${API}/users/${USERS.new}/top/tracks?range=${range}&limit=50`),
-    safeFetch(`${API}/users/${USERS.old}/top/albums?range=${range}&limit=50`),
-    safeFetch(`${API}/users/${USERS.new}/top/albums?range=${range}&limit=50`),
-    safeFetch(`${API}/users/${USERS.old}/top/artists?range=${range}&limit=50`),
-    safeFetch(`${API}/users/${USERS.new}/top/artists?range=${range}&limit=50`),
+    safeFetch(`${API}/users/${USERS.old}/top/tracks?range=${range}&limit=20`),
+    safeFetch(`${API}/users/${USERS.new}/top/tracks?range=${range}&limit=20`),
+    safeFetch(`${API}/users/${USERS.old}/top/albums?range=${range}&limit=20`),
+    safeFetch(`${API}/users/${USERS.new}/top/albums?range=${range}&limit=20`),
+    safeFetch(`${API}/users/${USERS.old}/top/artists?range=${range}&limit=20`),
+    safeFetch(`${API}/users/${USERS.new}/top/artists?range=${range}&limit=20`),
   ]);
   topCache[prefix] = {
     track:  mergeTops(extract(tA),  extract(tB),  'track'),
@@ -620,9 +631,9 @@ async function load2026() {
   };
 
   const [tData, alData, arData] = await Promise.all([
-    safeFetch(`${API}/users/${USERS.new}/top/tracks?after=${Y2026_AFTER}&before=${Y2026_BEFORE}&limit=50`),
-    safeFetch(`${API}/users/${USERS.new}/top/albums?after=${Y2026_AFTER}&before=${Y2026_BEFORE}&limit=50`),
-    safeFetch(`${API}/users/${USERS.new}/top/artists?after=${Y2026_AFTER}&before=${Y2026_BEFORE}&limit=50`),
+    safeFetch(`${API}/users/${USERS.new}/top/tracks?after=${Y2026_AFTER}&before=${Y2026_BEFORE}&limit=20`),
+    safeFetch(`${API}/users/${USERS.new}/top/albums?after=${Y2026_AFTER}&before=${Y2026_BEFORE}&limit=20`),
+    safeFetch(`${API}/users/${USERS.new}/top/artists?after=${Y2026_AFTER}&before=${Y2026_BEFORE}&limit=20`),
   ]);
 
   const liveTrack  = extract(tData).map(x => parseTop(x, 'track'));
@@ -711,8 +722,8 @@ function renderCompare() {
   const card25 = document.getElementById('year-2025');
   const card26 = document.getElementById('year-2026');
 
-  card25.querySelector('.year-bar').style.width = w25 + '%';
-  card26.querySelector('.year-bar').style.width = w26 + '%';
+  card25.querySelector('.year-bar').style.transform = 'scaleX(' + (w25 / 100) + ')';
+  card26.querySelector('.year-bar').style.transform = 'scaleX(' + (w26 / 100) + ')';
   tickTo(card25.querySelector('.year-num'), v25);
   tickTo(card26.querySelector('.year-num'), v26);
   card25.querySelector('.year-unit').textContent = m;
@@ -879,9 +890,14 @@ async function loadAll() {
   tickStamp();
 }
 loadAll();
-setInterval(loadAll, REFRESH_MS);
+let _lastLoadAt = Date.now();
+setInterval(() => { _lastLoadAt = Date.now(); loadAll(); }, REFRESH_MS);
 document.addEventListener('visibilitychange', () => {
-  if (document.visibilityState === 'visible') loadAll();
+  // Throttle: only re-fetch if 60s since last load and tab became visible
+  if (document.visibilityState === 'visible' && Date.now() - _lastLoadAt > 60000) {
+    _lastLoadAt = Date.now();
+    loadAll();
+  }
 });
 
 /* update page stamp to show stats.fm freshness */

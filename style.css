@@ -189,9 +189,11 @@ a.kv-row:hover .arrow { transform: translate(3px, -3px); color: var(--muted); }
 .rank { color: var(--faint); font-size: 0.65rem; font-variant-numeric: tabular-nums; }
 .bar-wrap { width: 52px; height: 3px; background: var(--faint); border-radius: 2px; overflow: hidden; }
 .bar {
-  display: block; height: 100%;
+  display: block; height: 100%; width: 100%;
   background: var(--muted);
-  transition: width 0.8s cubic-bezier(0.2,0.7,0.2,1);
+  transform: scaleX(0); transform-origin: left center;
+  transition: transform 0.55s cubic-bezier(0.2,0.7,0.2,1);
+  will-change: transform;
 }
 .thumb {
   width: 24px; height: 24px;
@@ -295,9 +297,11 @@ a.kv-row:hover .arrow { transform: translate(3px, -3px); color: var(--muted); }
   border-radius: 2px; overflow: hidden;
 }
 .year-bar {
-  display: block; height: 100%;
+  display: block; height: 100%; width: 100%;
   background: var(--muted);
-  transition: width 0.9s cubic-bezier(0.2,0.7,0.2,1), background 0.4s ease;
+  transform: scaleX(0); transform-origin: left center;
+  transition: transform 0.7s cubic-bezier(0.2,0.7,0.2,1), background 0.4s ease;
+  will-change: transform;
 }
 .year-card.winner .year-bar { background: var(--accent); }
 
