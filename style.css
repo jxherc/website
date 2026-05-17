@@ -203,6 +203,8 @@ a.kv-row:hover .arrow { transform: translate(3px, -3px); color: var(--muted); }
 .thumb-round { border-radius: 50%; }
 .thumb-empty { background: #1a1a1a; }
 .top-label { color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+a.top-label { text-decoration: none; border-bottom: 1px solid transparent; transition: border-color 0.2s ease; }
+a.top-label:hover { border-bottom-color: var(--muted); }
 .top-sub { color: var(--muted); font-size: 0.78rem; }
 .top-meta {
   color: var(--faint); font-size: 0.66rem;

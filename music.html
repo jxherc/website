@@ -327,10 +327,8 @@ function renderTopRows(containerId, items, kind) {
       : `<div class="thumb ${shape} thumb-empty"></div>`;
     const sub = it.artistName ? ` <span class="top-sub">· ${esc(it.artistName)}</span>` : '';
     const metaText = it.minutes ? `${fmtNum(it.minutes)} min` : (it.streams ? `${fmtNum(it.streams)} str` : '');
-    const inner = `${esc(it.name)}${sub}`;
-    const label = it.spotifyUrl
-      ? `<a class="top-label" href="${it.spotifyUrl}" target="_blank" rel="noopener">${inner}</a>`
-      : `<span class="top-label">${inner}</span>`;
+    const href = it.spotifyUrl || 'https://stats.fm/jxherc';
+    const label = `<a class="top-label" href="${href}" target="_blank" rel="noopener">${esc(it.name)}${sub}</a>`;
     return `
       <div class="top-row">
         <span class="rank">${i + 1}</span>
