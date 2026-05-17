@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=18">
+<link rel="stylesheet" href="style.css?v=19">
 <script>const t=localStorage.getItem('theme');if(t)document.documentElement.dataset.theme=t;</script>
 <meta property="og:title" content="now — jxherc">
 <meta property="og:description" content="what i'm up to">
@@ -30,35 +30,49 @@
   <section>
     <div class="label">now</div>
     <div class="kv-list">
-      <div class="kv-row"><span class="k">working on</span><span class="v" style="color:var(--muted)" id="working">loading…</span></div>
-      <div class="kv-row"><span class="k">vibe</span><span class="v" style="color:var(--muted)" id="vibe">—</span></div>
-      <div class="kv-row"><span class="k">updated</span><span class="v" style="color:var(--muted)" id="updated">—</span></div>
+      <div class="kv-row"><span class="k">working on</span><span class="v" style="color:var(--muted)" id="doing">loading…</span></div>
+      <div class="kv-row"><span class="k">vibe</span><span class="v" style="color:var(--muted)" id="mood">—</span></div>
+      <div class="kv-row"><span class="k">updated</span><span class="v" style="color:var(--muted)" id="when">—</span></div>
     </div>
   </section>
   <section class="page-edit-stamp" id="edit-stamp">—</section>
 </main>
 <script>
 const API = 'https://api.jxherc.com';
-async function loadStatus() {
+
+async function load() {
   try {
-    const res = await fetch(API + '/status');
-    const data = await res.json();
-    const s = data.status || data;
-    document.getElementById('working').textContent = s.workingOn || '—';
-    document.getElementById('vibe').textContent = s.vibe || '—';
+    const r = await fetch(API + '/status');
+    const raw = await r.json();
+    const s = raw.status || raw;
+    document.getElementById('doing').textContent = s.workingOn || '—';
+    document.getElementById('mood').textContent = s.vibe || '—';
     if (s.updatedAt) {
-      const diff = Math.round((Date.now() - new Date(s.updatedAt)) / 60000);
-      const rel = diff < 1 ? 'just now'
-        : diff < 60 ? diff + 'm ago'
-        : diff < 1440 ? Math.round(diff / 60) + 'h ago'
-        : Math.round(diff / 1440) + 'd ago';
-      document.getElementById('updated').textContent = rel;
+      const mins = Math.round((Date.now() - new Date(s.updatedAt)) / 60000);
+      const ago = mins < 1    ? 'just now'
+        : mins < 60           ? mins + 'm ago'
+        : mins < 1440         ? Math.round(mins / 60) + 'h ago'
+        : Math.round(mins / 1440) + 'd ago';
+      document.getElementById('when').textContent = ago;
     }
-  } catch { document.getElementById('working').textContent = 'failed to load.'; }
+  } catch {
+    document.getElementById('doing').textContent = 'failed to load.';
+  }
 }
-loadStatus();
+load();
+
 fetch('https://api.github.com/repos/jxherc/website/commits?path=now.html&per_page=1')
-  .then(r=>r.json()).then(data=>{const c=data[0]?.commit;if(!c)return;const d=new Date(c.committer?.date||c.author?.date);if(isNaN(d))return;const date=d.toLocaleDateString('en-CA',{month:'short',day:'numeric',year:'numeric'}).toLowerCase();const msg=(c.message||'').split('\n')[0].replace(/\s*https?:\/\/\S+/g,'').trim();document.getElementById('edit-stamp').textContent='page last edited '+date+(msg?' · '+msg:'');}).catch(()=>{});
+  .then(r => r.json())
+  .then(data => {
+    const hit = data[0]?.commit;
+    if (!hit) return;
+    const d = new Date(hit.committer?.date || hit.author?.date);
+    if (isNaN(d)) return;
+    const when = d.toLocaleDateString('en-CA', { month: 'short', day: 'numeric', year: 'numeric' }).toLowerCase();
+    const why = (hit.message || '').split('\n')[0].replace(/\s*https?:\/\/\S+/g, '').trim();
+    document.getElementById('edit-stamp').textContent = 'page last edited ' + when + (why ? ' · ' + why : '');
+  })
+  .catch(() => {});
 </script>
 <script src="theme.js"></script>
 </body>

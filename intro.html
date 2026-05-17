@@ -17,7 +17,6 @@
 </head>
 <body>
 <button class="theme-toggle" id="theme-toggle" aria-label="toggle light mode">◐</button>
-
 <div class="meme-overlay" id="meme-overlay">
   <div class="meme-box">
     <img class="meme-img" src="images/spongebob-eyes.jpg" alt="spongebob my eyes meme" />
@@ -26,10 +25,8 @@
     <button class="meme-cancel" id="meme-cancel">nevermind</button>
   </div>
 </div>
-
 <main>
   <a class="home" href="index.html">jxherc</a>
-
   <section>
     <div class="portrait-large">
       <div class="fallback">—</div>
@@ -38,28 +35,68 @@
            onerror="this.style.display='none';" />
     </div>
   </section>
-
   <section>
     <div class="label">intro</div>
     <div class="prose">
-      <p><strong>tldr</strong> some guy on the internet (i know lmao duh).</p>
-      <p>part time student. the kind that treats school like a part time job and puts the real hours somewhere else entirely. born in shenzhen, somehow ended up in toronto, thinks and talks like he grew up on the internet which is close enough to true. runs shit that don't need to exist (according to his dad lol). listens to music the way people leave lights on, have a listening age of 30 (according to spotify and his english teacher), not really paying attention but it feels wrong when it stops. stays up until the time of night that doesn't have a name anymore. into whatever feels new, websites, ai, anything that hasn't been figured out yet. builds things mostly for himself, doesn't really care if anyone uses them, but if you're here then that's something. everything on this site was made slowly and on purpose. the person behind it is still loading.</p>
+      <p>
+        a child departed one geography.<br>
+        the other never quite received him.<br>
+        distance dilated as he tried.<br>
+        the threshold kept receding.
+      </p>
+      <p>
+        the lamp performs against the dark.<br>
+        absence had gutted.<br>
+        the dark has questions wearing weight.<br>
+        he answers them in cadence.
+      </p>
+      <p>
+        music occupies the perimeter.<br>
+        silence used to tenant here.<br>
+        it vacated one quiet winter.<br>
+        the rooms have grown austere.
+      </p>
+      <p>
+        he constructs what isn't asked of him.<br>
+        calls the constructions void.<br>
+        the void has acquired a gravity.<br>
+        the building keeps him buoyed.
+      </p>
+      <p>
+        the hour misplaces its name.<br>
+        he lingers in the interval.<br>
+        sometimes a presence keeps the vigil.<br>
+        mostly the lamp stands sentinel.
+      </p>
+      <p>
+        the wire raised him with more patience<br>
+        than the dwelling ever could.<br>
+        one of them attended the small hours.<br>
+        one of them never stood.
+      </p>
+      <p>
+        he is still resolving.<br>
+        the loading is unfinished.<br>
+        he advances in fractions.<br>
+        rehearses a smile, diminished.
+      </p>
     </div>
   </section>
-
-  <section class="page-edit-stamp">page last edited apr 24, 2026</section>
+  <section class="page-edit-stamp" id="edit-stamp">—</section>
 </main>
 <script>
-  fetch('https://api.github.com/repos/jxherc/website/commits?path=intro.html&per_page=1')
-    .then(r => r.json()).then(data => {
-      const c = data[0]?.commit;
-      if (!c) return;
-      const d = new Date(c.committer?.date || c.author?.date);
-      if (isNaN(d)) return;
-      const date = d.toLocaleDateString('en-CA', { month: 'short', day: 'numeric', year: 'numeric' }).toLowerCase();
-      const msg  = (c.message || '').split('\n')[0].replace(/\s*https?:\/\/\S+/g, '').trim();
-      document.querySelector('.page-edit-stamp').textContent = 'page last edited ' + date + (msg ? ' · ' + msg : '');
-    }).catch(() => {});
+fetch('https://api.github.com/repos/jxherc/website/commits?path=intro.html&per_page=1')
+  .then(r => r.json())
+  .then(data => {
+    const hit = data[0]?.commit;
+    if (!hit) return;
+    const d = new Date(hit.committer?.date || hit.author?.date);
+    if (isNaN(d)) return;
+    const when = d.toLocaleDateString('en-CA', { month: 'short', day: 'numeric', year: 'numeric' }).toLowerCase();
+    const why = (hit.message || '').split('\n')[0].replace(/\s*https?:\/\/\S+/g, '').trim();
+    document.getElementById('edit-stamp').textContent = 'page last edited ' + when + (why ? ' · ' + why : '');
+  })
+  .catch(() => {});
 </script>
 <script src="theme.js"></script>
 </body>

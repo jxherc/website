@@ -3,12 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>bookmarks</title>
+<title>bookmarks — jxherc</title>
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=18">
+<link rel="stylesheet" href="style.css?v=19">
 <script>const t=localStorage.getItem('theme');if(t)document.documentElement.dataset.theme=t;</script>
 <meta property="og:title" content="bookmarks — jxherc">
 <meta property="og:description" content="links i like">
@@ -29,35 +29,49 @@
   <a class="home" href="index.html">jxherc</a>
   <section>
     <div class="label">bookmarks</div>
-    <div id="bookmarks-list">
-      <div style="color:var(--muted)">loading…</div>
-    </div>
+    <div id="saves"><div style="color:var(--muted)">loading…</div></div>
   </section>
   <section class="page-edit-stamp" id="edit-stamp">—</section>
 </main>
 <script>
 const API = 'https://api.jxherc.com';
-async function loadBookmarks() {
-  const el = document.getElementById('bookmarks-list');
+
+async function load() {
+  const wall = document.getElementById('saves');
   try {
-    const res = await fetch(API + '/bookmarks');
-    const data = await res.json();
-    const bookmarks = data.bookmarks || data || [];
-    if (!bookmarks.length) { el.innerHTML = '<div style="color:var(--muted)">nothing saved yet.</div>'; return; }
-    el.innerHTML = bookmarks.map(b => {
-      const url   = b.url || '#';
-      const label = b.label || url;
-      const meta  = [b.url, b.category, b.date ? new Date(b.date).toLocaleDateString('en-CA', { month: 'short', day: 'numeric', year: 'numeric' }).toLowerCase() : ''].filter(Boolean).join(' · ');
-      return `<a href="${url}" target="_blank" rel="noopener" style="display:block;padding:0.7rem 0;border-bottom:1px solid var(--faint);text-decoration:none;">
-        <div style="color:var(--text);margin-bottom:0.2rem">${label}</div>
-        <div style="color:var(--muted);font-size:0.75rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${meta}</div>
-      </a>`;
+    const r = await fetch(API + '/bookmarks');
+    const raw = await r.json();
+    const saves = raw.bookmarks || raw || [];
+    if (!saves.length) { wall.innerHTML = '<div style="color:var(--muted)">nothing saved yet.</div>'; return; }
+    wall.innerHTML = saves.map(b => {
+      const href = b.url || '#';
+      const name = b.label || href;
+      const crumbs = [b.url, b.category, b.date
+        ? new Date(b.date).toLocaleDateString('en-CA', { month: 'short', day: 'numeric', year: 'numeric' }).toLowerCase()
+        : ''].filter(Boolean).join(' · ');
+      return '<a href="' + href + '" target="_blank" rel="noopener" style="display:block;padding:0.7rem 0;border-bottom:1px solid var(--faint);text-decoration:none;">'
+        + '<div style="color:var(--text);margin-bottom:0.2rem">' + name + '</div>'
+        + '<div style="color:var(--muted);font-size:0.75rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + crumbs + '</div>'
+        + '</a>';
     }).join('');
-  } catch { el.innerHTML = '<div class="kv-row"><span class="v" style="color:var(--muted)">failed to load.</span></div>'; }
+  } catch {
+    wall.innerHTML = '<div style="color:var(--muted)">failed to load.</div>';
+  }
 }
-loadBookmarks();
+load();
+
 fetch('https://api.github.com/repos/jxherc/website/commits?path=bookmarks.html&per_page=1')
-  .then(r=>r.json()).then(data=>{const c=data[0]?.commit;if(!c)return;const d=new Date(c.committer?.date||c.author?.date);if(isNaN(d))return;const date=d.toLocaleDateString('en-CA',{month:'short',day:'numeric',year:'numeric'}).toLowerCase();const msg=(c.message||'').split('\n')[0].replace(/\s*https?:\/\/\S+/g,'').trim();document.getElementById('edit-stamp').textContent='page last edited '+date+(msg?' · '+msg:'');}).catch(()=>{});
+  .then(r => r.json())
+  .then(data => {
+    const hit = data[0]?.commit;
+    if (!hit) return;
+    const d = new Date(hit.committer?.date || hit.author?.date);
+    if (isNaN(d)) return;
+    const when = d.toLocaleDateString('en-CA', { month: 'short', day: 'numeric', year: 'numeric' }).toLowerCase();
+    const why = (hit.message || '').split('\n')[0].replace(/\s*https?:\/\/\S+/g, '').trim();
+    document.getElementById('edit-stamp').textContent = 'page last edited ' + when + (why ? ' · ' + why : '');
+  })
+  .catch(() => {});
 </script>
 <script src="theme.js"></script>
 </body>

@@ -124,33 +124,34 @@
     </div>
   </section>
 
-  <section class="page-edit-stamp">page last edited apr 29, 2026</section>
+  <section class="page-edit-stamp">—</section>
 
 </main>
 
 <script>
   const BIRTH = new Date('2010-01-03T11:30:00Z');
-  const ageEl = document.getElementById('age');
+  const ageSpot = document.getElementById('age');
   function updateAge() {
     const years = (new Date() - BIRTH) / (1000 * 60 * 60 * 24 * 365.25);
-    ageEl.textContent = years.toFixed(8) + ' years';
+    ageSpot.textContent = years.toFixed(8) + ' years';
   }
   updateAge();
   setInterval(updateAge, 40);
 
-  const clockEl = document.getElementById('clock');
+  const clockSpot = document.getElementById('clock');
   function updateClock() {
     const time = new Date().toLocaleTimeString('en-CA', {
       timeZone: 'America/Toronto',
       hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit'
     });
-    clockEl.textContent = time + ' toronto (et)';
+    clockSpot.textContent = time + ' toronto (et)';
   }
   updateClock();
   setInterval(updateClock, 1000);
 
   fetch('https://api.github.com/repos/jxherc/website/commits?path=index.html&per_page=1')
-    .then(r => r.json()).then(data => {
+    .then(r => r.json())
+  .then(data => {
       const c = data[0]?.commit;
       if (!c) return;
       const d = new Date(c.committer?.date || c.author?.date);
