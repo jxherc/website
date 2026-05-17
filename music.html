@@ -315,70 +315,124 @@ function mergeTops(a, b, kind) {
   return Array.from(map.values());
 }
 
-/* render top rows */
+/* render top rows — uses FLIP so rows rise/drop to new positions on metric switch */
 function renderTopRows(containerId, items, kind, metric) {
   const el = document.getElementById(containerId);
   if (!el) return;
   const val = it => Number(it[metric]) || 0;
   const unit = metric === 'minutes' ? 'min' : 'plays';
   const max = val(items[0]) || 1;
+  const keyOf = it => `${it.name}::${it.artistName || ''}`;
 
-  const existing = el.querySelector('.top-list:not(.loading)');
-  const existingRows = existing ? existing.querySelectorAll('.top-row') : null;
+  let list = el.querySelector('.top-list:not(.loading)');
+  const isFirstRender = !list;
 
-  // In-place update when row count matches — gives us bar + number animations
-  if (existingRows && existingRows.length === items.length && items.length > 0) {
-    items.forEach((it, i) => {
-      const row = existingRows[i];
-      const pct = Math.max(8, Math.round(val(it) / max * 100));
-      row.querySelector('.bar').style.width = pct + '%';
-      const sub = it.artistName ? ` <span class="top-sub">· ${esc(it.artistName)}</span>` : '';
-      row.querySelector('.top-label').innerHTML = `${esc(it.name)}${sub}`;
-      const img = row.querySelector('img.thumb');
-      const empty = row.querySelector('.thumb-empty');
-      if (img) {
-        if (it.imgUrl) { img.src = it.imgUrl; img.style.display = ''; if (empty) empty.style.display = 'none'; }
-        else           { img.style.display = 'none'; if (empty) empty.style.display = 'block'; }
-      }
-      tickTo(row.querySelector('.top-meta'), val(it), 900, ' ' + unit);
-    });
-    return;
+  if (isFirstRender) {
+    list = document.createElement('div');
+    list.className = 'top-list';
+    const skel = el.querySelector('.top-list');
+    if (skel) skel.replaceWith(list); else el.appendChild(list);
   }
 
-  // First render: build from scratch with bars starting at 0 then animating up
-  const list = document.createElement('div');
-  list.className = 'top-list';
   if (!items.length) {
     list.innerHTML = '<div class="top-row-empty">no data</div>';
-    el.querySelector('.top-list')?.replaceWith(list);
     return;
   }
-  list.innerHTML = items.map((it, i) => {
+
+  function buildRow(it, i, initialZero) {
     const shape = kind === 'artist' ? 'thumb-round' : 'thumb-sq';
-    const thumb = it.imgUrl
+    const thumbHtml = it.imgUrl
       ? `<img class="thumb ${shape}" src="${esc(it.imgUrl)}" alt="" loading="lazy" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';"><div class="thumb ${shape} thumb-empty" style="display:none"></div>`
       : `<div class="thumb ${shape} thumb-empty"></div>`;
     const sub = it.artistName ? ` <span class="top-sub">· ${esc(it.artistName)}</span>` : '';
-    return `
-      <div class="top-row">
-        <span class="rank">${i + 1}</span>
-        <span class="bar-wrap"><span class="bar" style="width:0%"></span></span>
-        ${thumb}
-        <span class="top-label">${esc(it.name)}${sub}</span>
-        <span class="top-meta">0 ${unit}</span>
-      </div>`;
-  }).join('');
-  el.querySelector('.top-list')?.replaceWith(list);
+    const pct = initialZero ? 0 : Math.max(8, Math.round(val(it) / max * 100));
+    const metaTxt = initialZero ? `0 ${unit}` : `${fmtNum(val(it))} ${unit}`;
+    const row = document.createElement('div');
+    row.className = 'top-row';
+    row.dataset.key = keyOf(it);
+    row.innerHTML = `
+      <span class="rank">${i + 1}</span>
+      <span class="bar-wrap"><span class="bar" style="width:${pct}%"></span></span>
+      ${thumbHtml}
+      <span class="top-label">${esc(it.name)}${sub}</span>
+      <span class="top-meta">${metaTxt}</span>`;
+    return row;
+  }
 
-  // Trigger entrance animation on next frame
-  requestAnimationFrame(() => {
-    const rows = list.querySelectorAll('.top-row');
-    items.forEach((it, i) => {
-      const row = rows[i];
-      const pct = Math.max(8, Math.round(val(it) / max * 100));
+  // First render: stamp rows in, then animate bars + numbers from 0
+  if (isFirstRender) {
+    items.forEach((it, i) => list.appendChild(buildRow(it, i, true)));
+    requestAnimationFrame(() => {
+      list.querySelectorAll('.top-row').forEach((row, i) => {
+        const it = items[i];
+        const pct = Math.max(8, Math.round(val(it) / max * 100));
+        row.querySelector('.bar').style.width = pct + '%';
+        tickTo(row.querySelector('.top-meta'), val(it), 900, ' ' + unit);
+      });
+    });
+    return;
+  }
+
+  // === FLIP for re-renders ===
+  // 1. Snapshot existing row positions (FIRST)
+  const existingMap = new Map();
+  list.querySelectorAll('.top-row').forEach(row => existingMap.set(row.dataset.key, row));
+  const firstTop = new Map();
+  existingMap.forEach((row, key) => firstTop.set(key, row.getBoundingClientRect().top));
+
+  // 2. Build new ordered row list — reuse existing rows where possible
+  const newKeys = new Set();
+  const newRows = items.map((it, i) => {
+    const key = keyOf(it);
+    newKeys.add(key);
+    let row = existingMap.get(key);
+    const pct = Math.max(8, Math.round(val(it) / max * 100));
+    if (row) {
+      row.querySelector('.rank').textContent = i + 1;
       row.querySelector('.bar').style.width = pct + '%';
       tickTo(row.querySelector('.top-meta'), val(it), 900, ' ' + unit);
-    });
+    } else {
+      row = buildRow(it, i, false);
+    }
+    return row;
+  });
+
+  // 3. Rows leaving: fade out and remove (after animation)
+  const exits = [];
+  existingMap.forEach((row, key) => { if (!newKeys.has(key)) exits.push(row); });
+
+  // 4. Reorder DOM — detach all then re-append in new sequence
+  while (list.firstChild) list.removeChild(list.firstChild);
+  newRows.forEach(r => list.appendChild(r));
+
+  // 5. FLIP: measure LAST positions, apply inverse transform, then transition back
+  newRows.forEach(row => {
+    const key = row.dataset.key;
+    const first = firstTop.get(key);
+    const last = row.getBoundingClientRect().top;
+    if (first === undefined) {
+      // New row entering — fade in
+      row.style.opacity = '0';
+      requestAnimationFrame(() => {
+        row.style.transition = 'opacity 0.45s ease';
+        row.style.opacity = '1';
+      });
+    } else if (first !== last) {
+      row.style.transform = `translateY(${first - last}px)`;
+      row.style.transition = 'none';
+      requestAnimationFrame(() => {
+        row.style.transition = 'transform 0.7s cubic-bezier(0.2,0.7,0.2,1)';
+        row.style.transform = '';
+      });
+    }
+  });
+
+  // 6. Append exits at end so they fade out without affecting layout, then remove
+  exits.forEach(row => {
+    list.appendChild(row);
+    row.style.transition = 'opacity 0.3s ease';
+    row.style.opacity = '0';
+    setTimeout(() => row.remove(), 320);
   });
 }
 
