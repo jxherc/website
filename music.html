@@ -381,7 +381,7 @@ async function loadRecent() {
     if (!items.length) throw 0;
     // Use the endTime of the most recent track as the stamp — this is actual stats.fm data freshness
     const lastPlayed = items[0]?.endTime ? new Date(items[0].endTime).getTime() : null;
-    if (lastPlayed) stamps.recent = lastPlayed;
+    if (lastPlayed) fetchAt.recent = lastPlayed;
     tracksEl.innerHTML = items.slice(0, 25).map((item, i) => {
       const track  = esc(item.track?.name || item.name || '');
       const artist = esc(item.track?.artists?.[0]?.name || item.artists?.[0]?.name || '');
@@ -640,8 +640,8 @@ document.getElementById('albums').innerHTML = albums.map(a => `
   </a>
 `).join('');
 
-/* live stamps — only recent has a meaningful data timestamp from stats.fm */
-const stamps = { recent: 0 };
+/* last fetch times */
+const fetchAt = { recent: 0 };
 
 function timeAgo(ms) {
   const diff = Math.max(0, Date.now() - ms);
@@ -655,17 +655,17 @@ function timeAgo(ms) {
   return `${Math.floor(h/24)}d ago`;
 }
 
-function refreshStamps() {
+function bumpStamps() {
   document.querySelectorAll('.live-stamp').forEach(el => {
     const k = el.dataset.stamp;
-    if (!stamps[k]) { el.textContent = ''; return; }
-    el.textContent = `updated ${timeAgo(stamps[k])}`;
+    if (!fetchAt[k]) { el.textContent = ''; return; }
+    el.textContent = `updated ${timeAgo(fetchAt[k])}`;
   });
 }
 
 setInterval(refreshStamps, 1000);
 document.addEventListener('visibilitychange', () => {
-  if (document.visibilityState === 'visible') refreshStamps();
+  if (document.visibilityState === 'visible') bumpStamps();
 });
 window.addEventListener('focus', refreshStamps);
 window.addEventListener('pageshow', refreshStamps);
@@ -678,8 +678,8 @@ async function loadAll() {
     Promise.all([ loadStats('weeks', 'stat-weeks'), loadTopFor('weeks', 'weeks') ]),
     load2026(),
   ]);
-  refreshStamps();
-  updatePageStamp();
+  bumpStamps();
+  tickStamp();
 }
 loadAll();
 setInterval(loadAll, REFRESH_MS);
@@ -688,14 +688,14 @@ document.addEventListener('visibilitychange', () => {
 });
 
 /* update page stamp to show stats.fm freshness */
-function updatePageStamp() {
-  const vals = Object.values(stamps).filter(Boolean);
+function tickStamp() {
+  const vals = Object.values(fetchAt).filter(Boolean);
   if (!vals.length) return;
   const t = Math.min(...vals);
   if (!isFinite(t)) return;
   document.getElementById('edit-stamp').textContent = 'stats.fm · ' + timeAgo(t);
 }
-setInterval(updatePageStamp, 10000);
+setInterval(tickStamp, 10000);
 
 /* now playing */
 async function loadNowPlaying() {
