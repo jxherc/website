@@ -303,7 +303,7 @@ function renderTopRows(containerId, items, kind) {
   list.className = 'top-list';
   if (!items.length) {
     list.innerHTML = '<div class="top-row-empty">no data</div>';
-    el.querySelector('.top-list').replaceWith(list);
+    el?.querySelector('.top-list')?.replaceWith(list);
     return;
   }
   const max = items[0].minutes || items[0].streams || 1;
@@ -324,7 +324,7 @@ function renderTopRows(containerId, items, kind) {
         <span class="top-meta">${metaText}</span>
       </div>`;
   }).join('');
-  el.querySelector('.top-list').replaceWith(list);
+  el?.querySelector('.top-list')?.replaceWith(list);
 }
 
 async function loadTopFor(range, prefix) {
@@ -698,7 +698,7 @@ document.addEventListener('visibilitychange', () => {
 function tickStamp() {
   const vals = Object.values(fetchAt).filter(Boolean);
   if (!vals.length) return;
-  const t = Math.min(...vals);
+  const t = Math.max(...vals);
   if (!isFinite(t)) return;
   document.getElementById('edit-stamp').textContent = 'stats.fm · ' + timeAgo(t);
 }

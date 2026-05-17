@@ -43,6 +43,7 @@ const API = 'https://api.jxherc.com';
 async function load() {
   try {
     const r = await fetch(API + '/status');
+    if (!r.ok) throw 0;
     const raw = await r.json();
     const s = raw.status || raw;
     document.getElementById('doing').textContent = s.workingOn || '—';
