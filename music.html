@@ -50,7 +50,14 @@
 
   <!-- ALL-TIME -->
   <section>
-    <div class="label">all-time top</div>
+    <div class="label-row">
+          <div class="label">all-time top</div>
+          <div class="metric-toggle" data-section="alltime">
+            <button class="m-btn active" data-metric="streams">plays</button>
+            <span class="m-sep">·</span>
+            <button class="m-btn" data-metric="minutes">min</button>
+          </div>
+        </div>
     <div class="stat-line" id="stat-alltime"><span class="stat-dim">loading…</span></div>
 
     <div class="top-category" id="top-songs-alltime">
@@ -70,7 +77,14 @@
 
   <!-- 2026 -->
   <section>
-    <div class="label">2026 top</div>
+    <div class="label-row">
+          <div class="label">2026 top</div>
+          <div class="metric-toggle" data-section="y2026">
+            <button class="m-btn active" data-metric="streams">plays</button>
+            <span class="m-sep">·</span>
+            <button class="m-btn" data-metric="minutes">min</button>
+          </div>
+        </div>
     <div class="stat-line" id="stat-2026"><span class="stat-dim">loading…</span></div>
     <div class="top-category" id="top-songs-2026">
       <div class="cat-label">songs</div>
@@ -88,7 +102,14 @@
 
   <!-- PAST 4 WEEKS -->
   <section>
-    <div class="label">past 4 weeks</div>
+    <div class="label-row">
+          <div class="label">past 4 weeks</div>
+          <div class="metric-toggle" data-section="weeks">
+            <button class="m-btn active" data-metric="streams">plays</button>
+            <span class="m-sep">·</span>
+            <button class="m-btn" data-metric="minutes">min</button>
+          </div>
+        </div>
     <div class="stat-line" id="stat-weeks"><span class="stat-dim">loading…</span></div>
 
     <div class="top-category" id="top-songs-weeks">
@@ -295,17 +316,16 @@ function mergeTops(a, b, kind) {
       prev.streams += it.streams;
       prev.minutes += it.minutes;
       if (!prev.imgUrl && it.imgUrl) prev.imgUrl = it.imgUrl;
+      if (!prev.spotifyUrl && it.spotifyUrl) prev.spotifyUrl = it.spotifyUrl;
     } else {
       map.set(k, { ...it });
     }
   });
-  return Array.from(map.values())
-    .sort((x, y) => (y.minutes || y.streams) - (x.minutes || x.streams))
-    .slice(0, 3);
+  return Array.from(map.values());
 }
 
 /* render top rows */
-function renderTopRows(containerId, items, kind) {
+function renderTopRows(containerId, items, kind, metric) {
   const el = document.getElementById(containerId);
   const list = document.createElement('div');
   list.className = 'top-list';
@@ -314,15 +334,17 @@ function renderTopRows(containerId, items, kind) {
     el?.querySelector('.top-list')?.replaceWith(list);
     return;
   }
-  const max = items[0].minutes || items[0].streams || 1;
+  const val = it => Number(it[metric]) || 0;
+  const unit = metric === 'minutes' ? 'min' : 'plays';
+  const max = val(items[0]) || 1;
   list.innerHTML = items.map((it, i) => {
-    const pct = Math.max(8, Math.round((it.minutes || it.streams) / max * 100));
+    const pct = Math.max(8, Math.round(val(it) / max * 100));
     const shape = kind === 'artist' ? 'thumb-round' : 'thumb-sq';
     const thumb = it.imgUrl
       ? `<img class="thumb ${shape}" src="${esc(it.imgUrl)}" alt="" loading="lazy" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';"><div class="thumb ${shape} thumb-empty" style="display:none"></div>`
       : `<div class="thumb ${shape} thumb-empty"></div>`;
     const sub = it.artistName ? ` <span class="top-sub">· ${esc(it.artistName)}</span>` : '';
-    const metaText = it.minutes ? `${fmtNum(it.minutes)} min` : (it.streams ? `${fmtNum(it.streams)} str` : '');
+    const metaText = `${fmtNum(val(it))} ${unit}`;
     const href = it.spotifyUrl || 'https://stats.fm/jxherc';
     const label = `<a class="top-label" href="${href}" target="_blank" rel="noopener">${esc(it.name)}${sub}</a>`;
     return `
@@ -337,6 +359,25 @@ function renderTopRows(containerId, items, kind) {
   el?.querySelector('.top-list')?.replaceWith(list);
 }
 
+/* top section state + cache */
+const TOP_N = 5;
+const topMetric = { alltime: 'streams', weeks: 'streams', y2026: 'streams' };
+const topCache  = { alltime: null, weeks: null, y2026: null };
+
+function sortAndSlice(items, metric) {
+  return [...items].sort((x, y) => (Number(y[metric]) || 0) - (Number(x[metric]) || 0)).slice(0, TOP_N);
+}
+
+function renderSection(section) {
+  const cached = topCache[section];
+  if (!cached) return;
+  const m = topMetric[section];
+  const suffix = section === 'y2026' ? '2026' : section;
+  renderTopRows(`top-songs-${suffix}`,   sortAndSlice(cached.track,  m), 'track',  m);
+  renderTopRows(`top-albums-${suffix}`,  sortAndSlice(cached.album,  m), 'album',  m);
+  renderTopRows(`top-artists-${suffix}`, sortAndSlice(cached.artist, m), 'artist', m);
+}
+
 async function loadTopFor(range, prefix) {
   const [tA, tB, alA, alB, arA, arB] = await Promise.all([
     safeFetch(`${API}/users/${USERS.old}/top/tracks?range=${range}&limit=50`),
@@ -346,9 +387,12 @@ async function loadTopFor(range, prefix) {
     safeFetch(`${API}/users/${USERS.old}/top/artists?range=${range}&limit=50`),
     safeFetch(`${API}/users/${USERS.new}/top/artists?range=${range}&limit=50`),
   ]);
-  renderTopRows(`top-songs-${prefix}`,   mergeTops(extract(tA),  extract(tB),  'track'),  'track');
-  renderTopRows(`top-albums-${prefix}`,  mergeTops(extract(alA), extract(alB), 'album'),  'album');
-  renderTopRows(`top-artists-${prefix}`, mergeTops(extract(arA), extract(arB), 'artist'), 'artist');
+  topCache[prefix] = {
+    track:  mergeTops(extract(tA),  extract(tB),  'track'),
+    album:  mergeTops(extract(alA), extract(alB), 'album'),
+    artist: mergeTops(extract(arA), extract(arB), 'artist'),
+  };
+  renderSection(prefix);
 }
 
 function writeStatLine(containerId, streams, minutes) {
@@ -477,20 +521,20 @@ async function load2026() {
     } else {
       map.set(fk, frozenItem);
     }
-    return Array.from(map.values())
-      .sort((a,b) => (b.streams || b.minutes) - (a.streams || a.minutes));
+    return Array.from(map.values());
   }
 
   const songs   = combine(liveTrack,  F_2026_JANFEB_TOP.song);
   const albums  = combine(liveAlbum,  F_2026_JANFEB_TOP.album);
   const artists = combine(liveArtist, F_2026_JANFEB_TOP.artist);
 
-  compareData.top2026 = { song: songs[0], album: albums[0], artist: artists[0] };
+  topCache.y2026 = { track: songs, album: albums, artist: artists };
+  const m = topMetric.y2026;
+  const pick = arr => [...arr].sort((a, b) => (Number(b[m]) || 0) - (Number(a[m]) || 0))[0];
+  compareData.top2026 = { song: pick(songs), album: pick(albums), artist: pick(artists) };
   renderCompare();
 
-  renderTopRows('top-songs-2026',   songs.slice(0, 5),   'track');
-  renderTopRows('top-albums-2026',  albums.slice(0, 5),  'album');
-  renderTopRows('top-artists-2026', artists.slice(0, 5), 'artist');
+  renderSection('y2026');
   if (compareData.y2026) writeStatLine('stat-2026', compareData.y2026.streams, compareData.y2026.minutes);
 }
 
@@ -702,6 +746,20 @@ loadAll();
 setInterval(loadAll, REFRESH_MS);
 document.addEventListener('visibilitychange', () => {
   if (document.visibilityState === 'visible') loadAll();
+});
+
+/* metric toggles */
+document.querySelectorAll('.metric-toggle').forEach(group => {
+  const section = group.dataset.section;
+  group.querySelectorAll('.m-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const m = btn.dataset.metric;
+      if (topMetric[section] === m) return;
+      topMetric[section] = m;
+      group.querySelectorAll('.m-btn').forEach(b => b.classList.toggle('active', b === btn));
+      renderSection(section);
+    });
+  });
 });
 
 /* update page stamp to show stats.fm freshness */
