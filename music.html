@@ -39,18 +39,14 @@
       <a class="album" href="https://music.apple.com/ca/artist/daniel-caesar/1092259289" target="_blank" rel="noopener">
         <div class="cover" style="border-radius:50%;overflow:hidden">
           <div class="fallback">dc</div>
-          <img src="https://i.scdn.co/image/ab6761610000517416bc5882c5f21b9b68e46e3b" alt="daniel caesar"
-               onload="this.classList.add('loaded'); this.previousElementSibling.style.display='none';"
-               onerror="this.style.display='none';" />
+          <img id="fav-dc-img" src="" alt="daniel caesar" style="display:none" />
         </div>
         <div class="title" style="text-align:center">daniel caesar</div>
       </a>
       <a class="album" href="https://music.apple.com/ca/artist/joji/1200684021" target="_blank" rel="noopener">
         <div class="cover" style="border-radius:50%;overflow:hidden">
           <div class="fallback">joji</div>
-          <img src="https://i.scdn.co/image/ab67616100005174a66b3a23a9bfdb24d7a8f97c" alt="joji"
-               onload="this.classList.add('loaded'); this.previousElementSibling.style.display='none';"
-               onerror="this.style.display='none';" />
+          <img id="fav-joji-img" src="" alt="joji" style="display:none" />
         </div>
         <div class="title" style="text-align:center">joji</div>
       </a>
@@ -105,9 +101,7 @@
       <a class="album" href="https://music.apple.com/ca/search?term=nujabes+who+knows" target="_blank" rel="noopener">
         <div class="cover">
           <div class="fallback">who knows</div>
-          <img src="https://i.scdn.co/image/ab67616d0000b273fe08a47a0f50d6c3bcf2a394" alt="who knows"
-               onload="this.classList.add('loaded'); this.previousElementSibling.style.display='none';"
-               onerror="this.style.display='none';" />
+          <img id="fav-who-img" src="" alt="who knows" style="display:none" />
         </div>
         <div class="title">who knows</div>
         <div class="artist">nujabes</div>
@@ -977,6 +971,37 @@ document.getElementById('albums').innerHTML = albums.map(a => `
   </a>
 `).join('');
 
+/* fav artist images — fetched from stats.fm or top cache */
+function applyFavImg(id, imgUrl) {
+  const el = document.getElementById(id);
+  if (!el || !imgUrl) return;
+  el.src = imgUrl;
+  el.style.display = '';
+  el.onload = () => { el.classList.add('loaded'); const fb = el.previousElementSibling; if (fb?.classList.contains('fallback')) fb.style.display = 'none'; };
+}
+
+async function loadFavImages() {
+  // artists — pull from alltime cache if available, otherwise search
+  const fillFromCache = () => {
+    const artists = topCache.alltime?.artist || [];
+    const dc   = artists.find(a => a.name?.toLowerCase() === 'daniel caesar');
+    const joji = artists.find(a => a.name?.toLowerCase() === 'joji');
+    if (dc?.imgUrl)   applyFavImg('fav-dc-img',   dc.imgUrl);
+    if (joji?.imgUrl) applyFavImg('fav-joji-img', joji.imgUrl);
+  };
+
+  // try cache first (might already be populated if loadTopFor ran)
+  fillFromCache();
+
+  // also try after a short delay in case cache wasn't ready yet
+  setTimeout(fillFromCache, 2500);
+
+  // nujabes search (not expected in top artists)
+  const nData = await safeFetch(`${API}/search/artists/?query=nujabes&limit=3`);
+  const nImg  = nData?.items?.[0]?.image || nData?.artists?.[0]?.image || '';
+  if (nImg) applyFavImg('fav-who-img', nImg);
+}
+
 /* last fetch times */
 const fetchAt = { recent: 0 };
 
@@ -1009,6 +1034,7 @@ window.addEventListener('pageshow', bumpStamps);
 
 /* load all */
 async function loadAll() {
+  loadFavImages();
   await Promise.all([
     loadRecent(),
     Promise.all([ loadStats('lifetime', 'stat-alltime'), loadTopFor('lifetime', 'alltime') ]),
