@@ -98,23 +98,25 @@
 
     <div class="cat-label" style="margin-top:1rem">songs</div>
     <div class="albums-grid" style="grid-template-columns:repeat(5,1fr)">
-      <a class="album" href="https://music.apple.com/ca/search?term=nujabes+who+knows" target="_blank" rel="noopener">
+      <a class="album" href="https://music.apple.com/ca/search?term=daniel+caesar+who+knows" target="_blank" rel="noopener">
         <div class="cover">
           <div class="fallback">who knows</div>
-          <img id="fav-who-img" src="" alt="who knows" style="display:none" />
+          <img src="images/son-of-spergy.jpg" alt="who knows"
+               onload="this.classList.add('loaded'); this.previousElementSibling.style.display='none';"
+               onerror="this.style.display='none';" />
         </div>
         <div class="title">who knows</div>
-        <div class="artist">nujabes</div>
+        <div class="artist">daniel caesar</div>
       </a>
-      <a class="album" href="https://music.apple.com/ca/search?term=toronto+2014" target="_blank" rel="noopener">
+      <a class="album" href="https://music.apple.com/ca/search?term=daniel+caesar+toronto+2014" target="_blank" rel="noopener">
         <div class="cover">
           <div class="fallback">toronto 2014</div>
-          <img src="images/in-tongues.jpg" alt="toronto 2014"
+          <img src="images/never-enough.jpg" alt="toronto 2014"
                onload="this.classList.add('loaded'); this.previousElementSibling.style.display='none';"
                onerror="this.style.display='none';" />
         </div>
         <div class="title">toronto 2014</div>
-        <div class="artist"></div>
+        <div class="artist">daniel caesar</div>
       </a>
       <a class="album" href="https://music.apple.com/ca/search?term=kanye+west+runaway" target="_blank" rel="noopener">
         <div class="cover">
@@ -129,7 +131,7 @@
       <a class="album" href="https://music.apple.com/ca/search?term=kanye+west+never+see+me+again" target="_blank" rel="noopener">
         <div class="cover">
           <div class="fallback">never see me again</div>
-          <img src="images/graduation.jpg" alt="never see me again"
+          <img src="images/never-see-me-again.jpg" alt="never see me again"
                onload="this.classList.add('loaded'); this.previousElementSibling.style.display='none';"
                onerror="this.style.display='none';" />
         </div>
@@ -139,7 +141,7 @@
       <a class="album" href="https://music.apple.com/ca/search?term=joji+die+for+you" target="_blank" rel="noopener">
         <div class="cover">
           <div class="fallback">die for you</div>
-          <img src="images/in-tongues.jpg" alt="die for you"
+          <img src="images/smithereens.jpg" alt="die for you"
                onload="this.classList.add('loaded'); this.previousElementSibling.style.display='none';"
                onerror="this.style.display='none';" />
         </div>
@@ -912,7 +914,7 @@ const albums = [
   // daniel caesar
   { artist: "daniel caesar",     title: "freudian",                           file: "freudian.jpg",            search: "daniel caesar freudian" },
   { artist: "daniel caesar",     title: "case study 01",                      file: "case-study-01.jpg",       search: "daniel caesar case study 01" },
-  { artist: "daniel caesar",     title: "never enough",                       file: "never-enough.jpg",        search: "daniel caesar never enough",     dot: true },
+  { artist: "daniel caesar",     title: "never enough",                       file: "never-enough.jpg",        search: "daniel caesar never enough",     repeat: true },
   // frank ocean
   { artist: "frank ocean",       title: "blonde",                             file: "blonde.jpg",              search: "frank ocean blonde" },
   // j. cole
@@ -996,10 +998,6 @@ async function loadFavImages() {
   // also try after a short delay in case cache wasn't ready yet
   setTimeout(fillFromCache, 2500);
 
-  // nujabes search (not expected in top artists)
-  const nData = await safeFetch(`${API}/search/artists/?query=nujabes&limit=3`);
-  const nImg  = nData?.items?.[0]?.image || nData?.artists?.[0]?.image || '';
-  if (nImg) applyFavImg('fav-who-img', nImg);
 }
 
 /* last fetch times */
