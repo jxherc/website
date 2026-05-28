@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>faq — jxherc</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css?v=21">
+<script>const t=localStorage.getItem('theme');if(t)document.documentElement.dataset.theme=t;</script>
+<meta property="og:title" content="faq — jxherc">
+<meta property="og:description" content="frequently asked questions">
+<meta property="og:image" content="og-image.png">
+<meta name="twitter:card" content="summary_large_image">
+</head>
+<body>
+<button class="theme-toggle" id="theme-toggle" aria-label="toggle light mode">◐</button>
+<div class="meme-overlay" id="meme-overlay">
+  <div class="meme-box">
+    <img class="meme-img" src="images/spongebob-eyes.jpg" alt="spongebob my eyes meme" />
+    <p class="meme-text">are you absolutely motherfucking sure you wanna switch to light mode</p>
+    <button class="meme-confirm" id="meme-confirm">yes i am sure</button>
+    <button class="meme-cancel" id="meme-cancel">nevermind</button>
+  </div>
+</div>
+<main>
+  <a class="home" href="index.html">jxherc</a>
+  <section>
+    <div class="label">faq</div>
+    <div class="kv-list">
+      <div class="kv-row"><span class="k">age</span><span class="v" id="age-val">—</span></div>
+      <div class="kv-row"><span class="k">from</span><span class="v">shenzhen</span></div>
+      <div class="kv-row"><span class="k">height</span><span class="v">5'4</span></div>
+      <div class="kv-row"><span class="k">what are you</span><span class="v">han chinese</span></div>
+      <div class="kv-row"><span class="k">mbti</span><span class="v">infp-a</span></div>
+      <div class="kv-row"><span class="k">orientation</span><span class="v">straight</span></div>
+      <div class="kv-row"><span class="k">why this site</span><span class="v">personal interest</span></div>
+      <a class="kv-row" href="index.html">
+        <span class="k">setup</span><span class="v">main page</span><span class="arrow">→</span>
+      </a>
+      <a class="kv-row" href="https://jxherc.com/gbp" target="_blank" rel="noopener">
+        <span class="k">contact</span><span class="v">discord</span><span class="arrow">↗</span>
+      </a>
+    </div>
+  </section>
+  <section class="page-edit-stamp" id="edit-stamp">—</section>
+</main>
+<script>
+const BIRTH = new Date('2010-01-03');
+const age = Math.floor((Date.now() - BIRTH) / (365.25 * 24 * 60 * 60 * 1000));
+document.getElementById('age-val').textContent = age;
+
+fetch('https://api.github.com/repos/jxherc/website/commits?path=faq.html&per_page=1')
+  .then(r => r.json())
+  .then(data => {
+    const hit = data[0]?.commit;
+    if (!hit) return;
+    const d = new Date(hit.committer?.date || hit.author?.date);
+    if (isNaN(d)) return;
+    const when = d.toLocaleDateString('en-CA', { month: 'short', day: 'numeric', year: 'numeric' }).toLowerCase();
+    const why = (hit.message || '').split('\n')[0].replace(/\s*https?:\/\/\S+/g, '').trim();
+    document.getElementById('edit-stamp').textContent = 'page last edited ' + when + (why ? ' · ' + why : '');
+  })
+  .catch(() => {});
+</script>
+<script src="theme.js"></script>
+</body>
+</html>
