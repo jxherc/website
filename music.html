@@ -35,7 +35,7 @@
     <div class="label">favourites</div>
 
     <div class="cat-label">artists</div>
-    <div class="albums-grid" style="grid-template-columns:repeat(2,1fr);max-width:50%">
+    <div class="albums-grid" style="grid-template-columns:repeat(4,1fr)">
       <a class="album" href="https://music.apple.com/ca/artist/daniel-caesar/1092259289" target="_blank" rel="noopener">
         <div class="cover" style="border-radius:50%;overflow:hidden">
           <div class="fallback">dc</div>
@@ -49,6 +49,20 @@
           <img id="fav-joji-img" src="" alt="joji" style="display:none" />
         </div>
         <div class="title" style="text-align:center">joji</div>
+      </a>
+      <a class="album" href="https://music.apple.com/ca/artist/tyler-the-creator/420368335" target="_blank" rel="noopener">
+        <div class="cover" style="border-radius:50%;overflow:hidden">
+          <div class="fallback">ttc</div>
+          <img id="fav-tyler-img" src="" alt="tyler, the creator" style="display:none" />
+        </div>
+        <div class="title" style="text-align:center">tyler, the creator</div>
+      </a>
+      <a class="album" href="https://music.apple.com/ca/artist/kanye-west/2715720" target="_blank" rel="noopener">
+        <div class="cover" style="border-radius:50%;overflow:hidden">
+          <div class="fallback">ye</div>
+          <img id="fav-kanye-img" src="" alt="kanye west" style="display:none" />
+        </div>
+        <div class="title" style="text-align:center">kanye west</div>
       </a>
     </div>
 
@@ -986,10 +1000,14 @@ async function loadFavImages() {
   // artists — pull from alltime cache if available, otherwise search
   const fillFromCache = () => {
     const artists = topCache.alltime?.artist || [];
-    const dc   = artists.find(a => a.name?.toLowerCase() === 'daniel caesar');
-    const joji = artists.find(a => a.name?.toLowerCase() === 'joji');
-    if (dc?.imgUrl)   applyFavImg('fav-dc-img',   dc.imgUrl);
-    if (joji?.imgUrl) applyFavImg('fav-joji-img', joji.imgUrl);
+    const dc    = artists.find(a => a.name?.toLowerCase() === 'daniel caesar');
+    const joji  = artists.find(a => a.name?.toLowerCase() === 'joji');
+    const tyler = artists.find(a => a.name?.toLowerCase() === 'tyler, the creator');
+    const kanye = artists.find(a => a.name?.toLowerCase() === 'kanye west');
+    if (dc?.imgUrl)    applyFavImg('fav-dc-img',    dc.imgUrl);
+    if (joji?.imgUrl)  applyFavImg('fav-joji-img',  joji.imgUrl);
+    if (tyler?.imgUrl) applyFavImg('fav-tyler-img', tyler.imgUrl);
+    if (kanye?.imgUrl) applyFavImg('fav-kanye-img', kanye.imgUrl);
   };
 
   // try cache first (might already be populated if loadTopFor ran)
