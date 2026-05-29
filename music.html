@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=19">
+<link rel="stylesheet" href="style.css?v=21">
 <script>const t=localStorage.getItem('theme');if(t)document.documentElement.dataset.theme=t;</script>
 <meta property="og:title" content="music — jxherc">
 <meta property="og:description" content="some music stats">
@@ -30,6 +30,141 @@
 <main>
   <a class="home" href="index.html">jxherc</a>
 
+  <!-- FAVOURITES -->
+  <section>
+    <div class="label">favourites</div>
+
+    <div class="cat-label">artists</div>
+    <div class="albums-grid" style="grid-template-columns:repeat(4,1fr)">
+      <a class="album" href="https://music.apple.com/ca/artist/daniel-caesar/1092259289" target="_blank" rel="noopener">
+        <div class="cover" style="border-radius:50%;overflow:hidden">
+          <div class="fallback">dc</div>
+          <img id="fav-dc-img" src="" alt="daniel caesar" style="display:none" />
+        </div>
+        <div class="title" style="text-align:center">daniel caesar</div>
+      </a>
+      <a class="album" href="https://music.apple.com/ca/artist/joji/1200684021" target="_blank" rel="noopener">
+        <div class="cover" style="border-radius:50%;overflow:hidden">
+          <div class="fallback">joji</div>
+          <img id="fav-joji-img" src="" alt="joji" style="display:none" />
+        </div>
+        <div class="title" style="text-align:center">joji</div>
+      </a>
+      <a class="album" href="https://music.apple.com/ca/artist/tyler-the-creator/420368335" target="_blank" rel="noopener">
+        <div class="cover" style="border-radius:50%;overflow:hidden">
+          <div class="fallback">ttc</div>
+          <img id="fav-tyler-img" src="" alt="tyler, the creator" style="display:none" />
+        </div>
+        <div class="title" style="text-align:center">tyler, the creator</div>
+      </a>
+      <a class="album" href="https://music.apple.com/ca/artist/kanye-west/2715720" target="_blank" rel="noopener">
+        <div class="cover" style="border-radius:50%;overflow:hidden">
+          <div class="fallback">ye</div>
+          <img id="fav-kanye-img" src="" alt="kanye west" style="display:none" />
+        </div>
+        <div class="title" style="text-align:center">kanye west</div>
+      </a>
+    </div>
+
+    <div class="cat-label" style="margin-top:1rem">albums</div>
+    <div class="albums-grid">
+      <a class="album" href="https://music.apple.com/ca/search?term=daniel+caesar+never+enough" target="_blank" rel="noopener">
+        <div class="cover">
+          <div class="fallback">never enough</div>
+          <img src="images/never-enough.jpg" alt="never enough"
+               onload="this.classList.add('loaded'); this.previousElementSibling.style.display='none';"
+               onerror="this.style.display='none';" />
+        </div>
+        <div class="title">never enough</div>
+        <div class="artist">daniel caesar</div>
+      </a>
+      <a class="album" href="https://music.apple.com/ca/search?term=joji+son+of+spergy" target="_blank" rel="noopener">
+        <div class="cover">
+          <div class="fallback">son of spergy</div>
+          <img src="images/son-of-spergy.jpg" alt="son of spergy"
+               onload="this.classList.add('loaded'); this.previousElementSibling.style.display='none';"
+               onerror="this.style.display='none';" />
+        </div>
+        <div class="title">son of spergy</div>
+        <div class="artist">joji</div>
+      </a>
+      <a class="album" href="https://music.apple.com/ca/search?term=joji+piss+in+the+wind" target="_blank" rel="noopener">
+        <div class="cover">
+          <div class="fallback">piss in the wind</div>
+          <img src="images/piss-in-the-wind.jpg" alt="piss in the wind"
+               onload="this.classList.add('loaded'); this.previousElementSibling.style.display='none';"
+               onerror="this.style.display='none';" />
+        </div>
+        <div class="title">piss in the wind</div>
+        <div class="artist">joji</div>
+      </a>
+      <a class="album" href="https://music.apple.com/ca/search?term=joji+smithereens" target="_blank" rel="noopener">
+        <div class="cover">
+          <div class="fallback">smithereens</div>
+          <img src="images/smithereens.jpg" alt="smithereens"
+               onload="this.classList.add('loaded'); this.previousElementSibling.style.display='none';"
+               onerror="this.style.display='none';" />
+        </div>
+        <div class="title">smithereens</div>
+        <div class="artist">joji</div>
+      </a>
+    </div>
+
+    <div class="cat-label" style="margin-top:1rem">songs</div>
+    <div class="albums-grid" style="grid-template-columns:repeat(5,1fr)">
+      <a class="album" href="https://music.apple.com/ca/search?term=daniel+caesar+who+knows" target="_blank" rel="noopener">
+        <div class="cover">
+          <div class="fallback">who knows</div>
+          <img src="images/son-of-spergy.jpg" alt="who knows"
+               onload="this.classList.add('loaded'); this.previousElementSibling.style.display='none';"
+               onerror="this.style.display='none';" />
+        </div>
+        <div class="title">who knows</div>
+        <div class="artist">daniel caesar</div>
+      </a>
+      <a class="album" href="https://music.apple.com/ca/search?term=daniel+caesar+toronto+2014" target="_blank" rel="noopener">
+        <div class="cover">
+          <div class="fallback">toronto 2014</div>
+          <img src="images/never-enough.jpg" alt="toronto 2014"
+               onload="this.classList.add('loaded'); this.previousElementSibling.style.display='none';"
+               onerror="this.style.display='none';" />
+        </div>
+        <div class="title">toronto 2014</div>
+        <div class="artist">daniel caesar</div>
+      </a>
+      <a class="album" href="https://music.apple.com/ca/search?term=kanye+west+runaway" target="_blank" rel="noopener">
+        <div class="cover">
+          <div class="fallback">runaway</div>
+          <img src="images/mbdtf.jpg" alt="runaway"
+               onload="this.classList.add('loaded'); this.previousElementSibling.style.display='none';"
+               onerror="this.style.display='none';" />
+        </div>
+        <div class="title">runaway</div>
+        <div class="artist">kanye west</div>
+      </a>
+      <a class="album" href="https://music.apple.com/ca/search?term=kanye+west+never+see+me+again" target="_blank" rel="noopener">
+        <div class="cover">
+          <div class="fallback">never see me again</div>
+          <img src="images/never-see-me-again.jpg" alt="never see me again"
+               onload="this.classList.add('loaded'); this.previousElementSibling.style.display='none';"
+               onerror="this.style.display='none';" />
+        </div>
+        <div class="title">never see me again</div>
+        <div class="artist">kanye west</div>
+      </a>
+      <a class="album" href="https://music.apple.com/ca/search?term=joji+die+for+you" target="_blank" rel="noopener">
+        <div class="cover">
+          <div class="fallback">die for you</div>
+          <img src="images/smithereens.jpg" alt="die for you"
+               onload="this.classList.add('loaded'); this.previousElementSibling.style.display='none';"
+               onerror="this.style.display='none';" />
+        </div>
+        <div class="title">die for you</div>
+        <div class="artist">joji</div>
+      </a>
+    </div>
+  </section>
+
   <!-- NOW PLAYING -->
   <section id="np-section" style="display:none">
     <div class="label">now playing <span class="live-dot-wrap"><span class="live-dot"></span></span></div>
@@ -50,7 +185,14 @@
 
   <!-- ALL-TIME -->
   <section>
-    <div class="label">all-time top</div>
+    <div class="label-row">
+      <div class="label">all-time top</div>
+      <div class="metric-toggle" data-section="alltime">
+        <button class="m-btn active" data-metric="streams">plays</button>
+        <span class="m-sep">·</span>
+        <button class="m-btn" data-metric="minutes">min</button>
+      </div>
+    </div>
     <div class="stat-line" id="stat-alltime"><span class="stat-dim">loading…</span></div>
 
     <div class="top-category" id="top-songs-alltime">
@@ -67,9 +209,42 @@
     </div>
   </section>
 
+
+  <!-- 2026 -->
+  <section>
+    <div class="label-row">
+      <div class="label">2026 top</div>
+      <div class="metric-toggle" data-section="y2026">
+        <button class="m-btn active" data-metric="streams">plays</button>
+        <span class="m-sep">·</span>
+        <button class="m-btn" data-metric="minutes">min</button>
+      </div>
+    </div>
+    <div class="stat-line" id="stat-2026"><span class="stat-dim">loading…</span></div>
+    <div class="top-category" id="top-songs-2026">
+      <div class="cat-label">songs</div>
+      <div class="top-list loading"><div class="top-row-skel"></div><div class="top-row-skel"></div><div class="top-row-skel"></div></div>
+    </div>
+    <div class="top-category" id="top-albums-2026">
+      <div class="cat-label">albums</div>
+      <div class="top-list loading"><div class="top-row-skel"></div><div class="top-row-skel"></div><div class="top-row-skel"></div></div>
+    </div>
+    <div class="top-category" id="top-artists-2026">
+      <div class="cat-label">artists</div>
+      <div class="top-list loading"><div class="top-row-skel"></div><div class="top-row-skel"></div><div class="top-row-skel"></div></div>
+    </div>
+  </section>
+
   <!-- PAST 4 WEEKS -->
   <section>
-    <div class="label">past 4 weeks</div>
+    <div class="label-row">
+      <div class="label">past 4 weeks</div>
+      <div class="metric-toggle" data-section="weeks">
+        <button class="m-btn active" data-metric="streams">plays</button>
+        <span class="m-sep">·</span>
+        <button class="m-btn" data-metric="minutes">min</button>
+      </div>
+    </div>
     <div class="stat-line" id="stat-weeks"><span class="stat-dim">loading…</span></div>
 
     <div class="top-category" id="top-songs-weeks">
@@ -90,7 +265,7 @@
   <section>
     <div class="label">2025 vs 2026</div>
 
-    <div class="toggle-row">
+    <div class="toggle-row" data-section="compare">
       <button class="toggle-btn active" data-metric="streams">streams</button>
       <button class="toggle-btn" data-metric="minutes">minutes</button>
     </div>
@@ -102,7 +277,7 @@
           <span class="year-name">2025</span>
           <span class="year-note">closed</span>
         </div>
-        <div class="year-bar-wrap"><div class="year-bar" style="width:0%"></div></div>
+        <div class="year-bar-wrap"><div class="year-bar"></div></div>
         <div class="year-num">—</div>
         <div class="year-unit">streams</div>
 
@@ -131,7 +306,7 @@
           <span class="year-name">2026</span>
           <span class="year-note live-dot-wrap"><span class="live-dot"></span>live</span>
         </div>
-        <div class="year-bar-wrap"><div class="year-bar" style="width:0%"></div></div>
+        <div class="year-bar-wrap"><div class="year-bar"></div></div>
         <div class="year-num">—</div>
         <div class="year-unit">streams</div>
 
@@ -184,11 +359,7 @@
   <!-- STATIC ARTIST / ALBUM LISTS -->
   <section>
     <div class="label">artists</div>
-    <div class="two-col" id="artists-en"></div>
-  </section>
-  <section>
-    <div class="label">artists &nbsp;/&nbsp; cn</div>
-    <div class="two-col" id="artists-cn"></div>
+    <div class="two-col" id="artists-list"></div>
   </section>
   <section>
     <div class="label">heavy rotation</div>
@@ -244,7 +415,14 @@ function timeAgoTiny(ms) {
   return `${Math.floor(m/(60*24))}d`;
 }
 async function safeFetch(url) {
-  try { const r = await fetch(url); if (!r.ok) return null; return await r.json(); }
+  try {
+    const ctrl = new AbortController();
+    const tid = setTimeout(() => ctrl.abort(), 8000);
+    const r = await fetch(url, { signal: ctrl.signal });
+    clearTimeout(tid);
+    if (!r.ok) return null;
+    return await r.json();
+  }
   catch (e) { return null; }
 }
 const extract = d => !d ? [] : (Array.isArray(d.items) ? d.items : (Array.isArray(d.data) ? d.data : (Array.isArray(d) ? d : [])));
@@ -252,20 +430,13 @@ const extract = d => !d ? [] : (Array.isArray(d.items) ? d.items : (Array.isArra
 function parseTop(item, kind) {
   const sub = item[kind] || item;
   const name = sub?.name || '';
-  const artistName = (kind === 'track' || kind === 'album')
-    ? (sub?.artists?.[0]?.name || '')
-    : '';
-  let imgUrl = '';
-  if (kind === 'album') {
-    imgUrl = sub?.image || '';
-  } else if (kind === 'track') {
-    imgUrl = sub?.albums?.[0]?.image || '';
-  } else if (kind === 'artist') {
-    imgUrl = sub?.image || '';
-  }
+  const artistName = kind === 'artist' ? '' : (sub?.artists?.[0]?.name || '');
+  const imgUrl = kind === 'track' ? (sub?.albums?.[0]?.image || '') : (sub?.image || '');
+  const sid = sub?.externalIds?.spotify?.[0] || sub?.spotifyIds?.[0] || '';
+  const spotifyUrl = sid ? `https://open.spotify.com/${kind}/${sid}` : '';
   const streams = item.streams ?? item.count ?? 0;
   const minutes = item.playedMs ? Math.round(item.playedMs / 60000) : (item.minutes ?? 0);
-  return { name, artistName, imgUrl, streams, minutes };
+  return { name, artistName, imgUrl, streams, minutes, spotifyUrl };
 }
 
 function mergeTops(a, b, kind) {
@@ -280,58 +451,221 @@ function mergeTops(a, b, kind) {
       prev.streams += it.streams;
       prev.minutes += it.minutes;
       if (!prev.imgUrl && it.imgUrl) prev.imgUrl = it.imgUrl;
+      if (!prev.spotifyUrl && it.spotifyUrl) prev.spotifyUrl = it.spotifyUrl;
     } else {
       map.set(k, { ...it });
     }
   });
-  return Array.from(map.values())
-    .sort((x, y) => (y.minutes || y.streams) - (x.minutes || x.streams))
-    .slice(0, 3);
+  return Array.from(map.values());
 }
 
-/* render top rows */
-function renderTopRows(containerId, items, kind) {
+/* render top rows — FLIP for position swaps, both metrics shown side by side */
+function renderTopRows(containerId, items, kind, metric) {
   const el = document.getElementById(containerId);
-  const list = document.createElement('div');
-  list.className = 'top-list';
+  if (!el) return;
+  const num = (it, m) => Number(it[m]) || 0;
+  const val = it => num(it, metric);
+  const max = val(items[0]) || 1;
+  const keyOf = it => `${it.name}::${it.artistName || ''}`;
+
+  let list = el.querySelector('.top-list:not(.loading)');
+  const isFirstRender = !list;
+
+  if (isFirstRender) {
+    list = document.createElement('div');
+    list.className = 'top-list';
+    const skel = el.querySelector('.top-list');
+    if (skel) skel.replaceWith(list); else el.appendChild(list);
+  }
+
   if (!items.length) {
     list.innerHTML = '<div class="top-row-empty">no data</div>';
-    el.querySelector('.top-list').replaceWith(list);
     return;
   }
-  const max = items[0].minutes || items[0].streams || 1;
-  list.innerHTML = items.map((it, i) => {
-    const pct = Math.max(8, Math.round((it.minutes || it.streams) / max * 100));
+
+  function buildRow(it, i, startZero) {
     const shape = kind === 'artist' ? 'thumb-round' : 'thumb-sq';
-    const thumb = it.imgUrl
-      ? `<img class="thumb ${shape}" src="${esc(it.imgUrl)}" alt="" loading="lazy" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';"><div class="thumb ${shape} thumb-empty" style="display:none"></div>`
+    const thumbHtml = it.imgUrl
+      ? `<img class="thumb ${shape}" src="${esc(it.imgUrl)}" alt="" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';"><div class="thumb ${shape} thumb-empty" style="display:none"></div>`
       : `<div class="thumb ${shape} thumb-empty"></div>`;
     const sub = it.artistName ? ` <span class="top-sub">· ${esc(it.artistName)}</span>` : '';
-    const metaText = it.minutes ? `${fmtNum(it.minutes)} min` : (it.streams ? `${fmtNum(it.streams)} str` : '');
-    return `
-      <div class="top-row">
-        <span class="rank">${i + 1}</span>
-        <span class="bar-wrap"><span class="bar" style="width:${pct}%"></span></span>
-        ${thumb}
-        <span class="top-label">${esc(it.name)}${sub}</span>
-        <span class="top-meta">${metaText}</span>
-      </div>`;
-  }).join('');
-  el.querySelector('.top-list').replaceWith(list);
+    const scale = startZero ? 0 : Math.max(0.08, val(it) / max);
+    const minTxt = startZero ? '0 min'   : `${fmtNum(num(it, 'minutes'))} min`;
+    const strTxt = startZero ? '0 plays' : `${fmtNum(num(it, 'streams'))} plays`;
+    const minOn  = metric === 'minutes' ? ' on' : '';
+    const strOn  = metric === 'streams' ? ' on' : '';
+    const row = document.createElement('div');
+    row.className = 'top-row';
+    row.dataset.key = keyOf(it);
+    row.innerHTML = `
+      <span class="rank">${i + 1}</span>
+      <span class="bar-wrap"><span class="bar" style="transform:scaleX(${scale})"></span></span>
+      ${thumbHtml}
+      <span class="top-label">${esc(it.name)}${sub}</span>
+      <span class="top-meta">
+        <span class="v v-min${minOn}">${minTxt}</span>
+        <span class="m-dot">·</span>
+        <span class="v v-streams${strOn}">${strTxt}</span>
+      </span>`;
+    return row;
+  }
+
+  function updateRow(row, it, i) {
+    row.querySelector('.rank').textContent = i + 1;
+    const scale = Math.max(0.08, val(it) / max);
+    row.querySelector('.bar').style.transform = 'scaleX(' + scale + ')';
+    const minEl = row.querySelector('.v-min');
+    const strEl = row.querySelector('.v-streams');
+    tickTo(minEl, num(it, 'minutes'), 900, ' min');
+    tickTo(strEl, num(it, 'streams'), 900, ' plays');
+    minEl.classList.toggle('on', metric === 'minutes');
+    strEl.classList.toggle('on', metric === 'streams');
+  }
+
+  // First render: stamp rows, then animate from 0
+  if (isFirstRender) {
+    items.forEach((it, i) => list.appendChild(buildRow(it, i, true)));
+    requestAnimationFrame(() => {
+      list.querySelectorAll('.top-row').forEach((row, i) => updateRow(row, items[i], i));
+    });
+    return;
+  }
+
+  // === RE-RENDER — stable layout, no shoving content below ===
+
+  // Map in-flow rows (skip ones already mid-exit from a previous toggle)
+  const existingMap = new Map();
+  list.querySelectorAll('.top-row:not(.exiting)').forEach(row => {
+    existingMap.set(row.dataset.key, row);
+  });
+
+  // Snapshot FIRST viewport positions before any DOM changes
+  const firstView = new Map();
+  existingMap.forEach((row, key) => firstView.set(key, row.getBoundingClientRect().top));
+  const listTop = list.getBoundingClientRect().top;
+
+  // Figure out entries/exits
+  const newKeys = new Set();
+  items.forEach(it => newKeys.add(keyOf(it)));
+  const exits = [];
+  existingMap.forEach((row, key) => { if (!newKeys.has(key)) exits.push(row); });
+
+  // Detach exits from layout flow — they stop affecting siblings below this list
+  if (exits.length > 0) {
+    if (getComputedStyle(list).position === 'static') list.style.position = 'relative';
+    exits.forEach(row => {
+      const offsetTop = firstView.get(row.dataset.key) - listTop;
+      row.classList.add('exiting');
+      row.style.position = 'absolute';
+      row.style.top = offsetTop + 'px';
+      row.style.left = '0';
+      row.style.right = '0';
+    });
+  }
+
+  // Build new / update existing rows
+  const newRowsByKey = new Map();
+  items.forEach((it, i) => {
+    const key = keyOf(it);
+    let row = existingMap.get(key);
+    if (row) updateRow(row, it, i);
+    else     row = buildRow(it, i, false);
+    newRowsByKey.set(key, row);
+  });
+
+  // Reorder DOM via insertBefore — never empties the list, no flicker
+  let prev = null;
+  for (const it of items) {
+    const row = newRowsByKey.get(keyOf(it));
+    let refNode = prev ? prev.nextSibling : list.firstChild;
+    while (refNode && refNode.classList && refNode.classList.contains('exiting')) {
+      refNode = refNode.nextSibling;
+    }
+    if (row !== refNode) list.insertBefore(row, refNode);
+    prev = row;
+  }
+
+  // FLIP — batch ALL reads first, then ALL writes, to avoid layout thrashing
+  const lastView = new Map();
+  newRowsByKey.forEach((row, key) => {
+    lastView.set(key, row.getBoundingClientRect().top);
+  });
+
+  // Single forced reflow to commit any pending styles before we write transforms
+  void list.offsetWidth;
+
+  newRowsByKey.forEach((row, key) => {
+    const first = firstView.get(key);
+    const last = lastView.get(key);
+    if (first === undefined) {
+      // New entry — dash up from below
+      row.style.transition = 'none';
+      row.style.transform = 'translateY(18px)';
+      row.style.opacity = '0';
+      // schedule the animate-in on next frame so the initial state paints
+      requestAnimationFrame(() => {
+        row.style.transition = 'transform 0.55s cubic-bezier(0.2,0.7,0.2,1), opacity 0.45s ease';
+        row.style.transform = '';
+        row.style.opacity = '1';
+      });
+    } else if (Math.abs(first - last) > 0.5) {
+      const delta = first - last;
+      row.style.transition = 'none';
+      row.style.transform = `translateY(${delta}px)`;
+      requestAnimationFrame(() => {
+        row.style.transition = 'transform 0.55s cubic-bezier(0.2,0.7,0.2,1)';
+        row.style.transform = '';
+      });
+    } else {
+      row.style.transform = '';
+      row.style.opacity = '';
+    }
+  });
+
+  // Exits fade out + drift up; they're absolute so no layout shift
+  exits.forEach(row => {
+    void row.offsetWidth;
+    row.style.transition = 'opacity 0.35s ease, transform 0.35s ease';
+    row.style.opacity = '0';
+    row.style.transform = 'translateY(-8px)';
+    setTimeout(() => row.remove(), 380);
+  });
+}
+
+/* top section state + cache */
+const TOP_N = 5;
+const topMetric = { alltime: 'streams', weeks: 'streams', y2026: 'streams' };
+const topCache  = { alltime: null, weeks: null, y2026: null };
+
+function sortAndSlice(items, metric) {
+  return [...items].sort((x, y) => (Number(y[metric]) || 0) - (Number(x[metric]) || 0)).slice(0, TOP_N);
+}
+
+function renderSection(section) {
+  const cached = topCache[section];
+  if (!cached) return;
+  const m = topMetric[section];
+  const suffix = section === 'y2026' ? '2026' : section;
+  renderTopRows(`top-songs-${suffix}`,   sortAndSlice(cached.track,  m), 'track',  m);
+  renderTopRows(`top-albums-${suffix}`,  sortAndSlice(cached.album,  m), 'album',  m);
+  renderTopRows(`top-artists-${suffix}`, sortAndSlice(cached.artist, m), 'artist', m);
 }
 
 async function loadTopFor(range, prefix) {
   const [tA, tB, alA, alB, arA, arB] = await Promise.all([
-    safeFetch(`${API}/users/${USERS.old}/top/tracks?range=${range}&limit=50`),
-    safeFetch(`${API}/users/${USERS.new}/top/tracks?range=${range}&limit=50`),
-    safeFetch(`${API}/users/${USERS.old}/top/albums?range=${range}&limit=50`),
-    safeFetch(`${API}/users/${USERS.new}/top/albums?range=${range}&limit=50`),
-    safeFetch(`${API}/users/${USERS.old}/top/artists?range=${range}&limit=50`),
-    safeFetch(`${API}/users/${USERS.new}/top/artists?range=${range}&limit=50`),
+    safeFetch(`${API}/users/${USERS.old}/top/tracks?range=${range}&limit=20`),
+    safeFetch(`${API}/users/${USERS.new}/top/tracks?range=${range}&limit=20`),
+    safeFetch(`${API}/users/${USERS.old}/top/albums?range=${range}&limit=20`),
+    safeFetch(`${API}/users/${USERS.new}/top/albums?range=${range}&limit=20`),
+    safeFetch(`${API}/users/${USERS.old}/top/artists?range=${range}&limit=20`),
+    safeFetch(`${API}/users/${USERS.new}/top/artists?range=${range}&limit=20`),
   ]);
-  renderTopRows(`top-songs-${prefix}`,   mergeTops(extract(tA),  extract(tB),  'track'),  'track');
-  renderTopRows(`top-albums-${prefix}`,  mergeTops(extract(alA), extract(alB), 'album'),  'album');
-  renderTopRows(`top-artists-${prefix}`, mergeTops(extract(arA), extract(arB), 'artist'), 'artist');
+  topCache[prefix] = {
+    track:  mergeTops(extract(tA),  extract(tB),  'track'),
+    album:  mergeTops(extract(alA), extract(alB), 'album'),
+    artist: mergeTops(extract(arA), extract(arB), 'artist'),
+  };
+  renderSection(prefix);
 }
 
 function writeStatLine(containerId, streams, minutes) {
@@ -381,7 +715,7 @@ async function loadRecent() {
     if (!items.length) throw 0;
     // Use the endTime of the most recent track as the stamp — this is actual stats.fm data freshness
     const lastPlayed = items[0]?.endTime ? new Date(items[0].endTime).getTime() : null;
-    if (lastPlayed) stamps.recent = lastPlayed;
+    if (lastPlayed) fetchAt.recent = lastPlayed;
     tracksEl.innerHTML = items.slice(0, 25).map((item, i) => {
       const track  = esc(item.track?.name || item.name || '');
       const artist = esc(item.track?.artists?.[0]?.name || item.artists?.[0]?.name || '');
@@ -432,9 +766,9 @@ async function load2026() {
   };
 
   const [tData, alData, arData] = await Promise.all([
-    safeFetch(`${API}/users/${USERS.new}/top/tracks?after=${Y2026_AFTER}&before=${Y2026_BEFORE}&limit=5`),
-    safeFetch(`${API}/users/${USERS.new}/top/albums?after=${Y2026_AFTER}&before=${Y2026_BEFORE}&limit=5`),
-    safeFetch(`${API}/users/${USERS.new}/top/artists?after=${Y2026_AFTER}&before=${Y2026_BEFORE}&limit=5`),
+    safeFetch(`${API}/users/${USERS.new}/top/tracks?after=${Y2026_AFTER}&before=${Y2026_BEFORE}&limit=20`),
+    safeFetch(`${API}/users/${USERS.new}/top/albums?after=${Y2026_AFTER}&before=${Y2026_BEFORE}&limit=20`),
+    safeFetch(`${API}/users/${USERS.new}/top/artists?after=${Y2026_AFTER}&before=${Y2026_BEFORE}&limit=20`),
   ]);
 
   const liveTrack  = extract(tData).map(x => parseTop(x, 'track'));
@@ -460,16 +794,21 @@ async function load2026() {
     } else {
       map.set(fk, frozenItem);
     }
-    return Array.from(map.values())
-      .sort((a,b) => (b.streams || b.minutes) - (a.streams || a.minutes));
+    return Array.from(map.values());
   }
 
-  const topSong   = combine(liveTrack,  F_2026_JANFEB_TOP.song  )[0];
-  const topAlbum  = combine(liveAlbum,  F_2026_JANFEB_TOP.album )[0];
-  const topArtist = combine(liveArtist, F_2026_JANFEB_TOP.artist)[0];
+  const songs   = combine(liveTrack,  F_2026_JANFEB_TOP.song);
+  const albums  = combine(liveAlbum,  F_2026_JANFEB_TOP.album);
+  const artists = combine(liveArtist, F_2026_JANFEB_TOP.artist);
 
-  compareData.top2026 = { song: topSong, album: topAlbum, artist: topArtist };
+  topCache.y2026 = { track: songs, album: albums, artist: artists };
+  const m = topMetric.y2026;
+  const pick = arr => [...arr].sort((a, b) => (Number(b[m]) || 0) - (Number(a[m]) || 0))[0];
+  compareData.top2026 = { song: pick(songs), album: pick(albums), artist: pick(artists) };
   renderCompare();
+
+  renderSection('y2026');
+  if (compareData.y2026) writeStatLine('stat-2026', compareData.y2026.streams, compareData.y2026.minutes);
 }
 
 function renderYTRow(rowId, item, kind) {
@@ -488,18 +827,18 @@ function renderYTRow(rowId, item, kind) {
   `;
 }
 
-function tickTo(el, target, duration = 900) {
+function tickTo(el, target, duration = 900, suffix = '') {
   if (!el) return;
   const start = parseInt((el.textContent || '0').replace(/[^\d-]/g, ''), 10) || 0;
   const delta = target - start;
-  if (delta === 0) { el.textContent = fmtNum(target); return; }
+  if (delta === 0) { el.textContent = fmtNum(target) + suffix; return; }
   const t0 = performance.now();
   if (el._tickRaf) cancelAnimationFrame(el._tickRaf);
   function step(now) {
     const p = Math.min(1, (now - t0) / duration);
     const eased = 1 - Math.pow(1 - p, 3);
     const val = Math.round(start + delta * eased);
-    el.textContent = fmtNum(val);
+    el.textContent = fmtNum(val) + suffix;
     if (p < 1) el._tickRaf = requestAnimationFrame(step);
     else       el._tickRaf = null;
   }
@@ -518,8 +857,8 @@ function renderCompare() {
   const card25 = document.getElementById('year-2025');
   const card26 = document.getElementById('year-2026');
 
-  card25.querySelector('.year-bar').style.width = w25 + '%';
-  card26.querySelector('.year-bar').style.width = w26 + '%';
+  card25.querySelector('.year-bar').style.transform = 'scaleX(' + (w25 / 100) + ')';
+  card26.querySelector('.year-bar').style.transform = 'scaleX(' + (w26 / 100) + ')';
   tickTo(card25.querySelector('.year-num'), v25);
   tickTo(card26.querySelector('.year-num'), v26);
   card25.querySelector('.year-unit').textContent = m;
@@ -552,40 +891,44 @@ function renderCompare() {
   } else noteEl.textContent = '';
 }
 
-document.querySelectorAll('.toggle-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    document.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    compareMetric = btn.dataset.metric;
-    renderCompare();
+document.querySelectorAll('[data-section]').forEach(row => {
+  const section = row.dataset.section;
+  row.querySelectorAll('button').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const m = btn.dataset.metric;
+      row.querySelectorAll('button').forEach(b => b.classList.toggle('active', b === btn));
+      if (section === 'compare') {
+        compareMetric = m;
+        renderCompare();
+      } else {
+        if (topMetric[section] === m) return;
+        topMetric[section] = m;
+        renderSection(section);
+      }
+    });
   });
 });
 
 /* static lists */
-const artistsEn = [
-  "21 savage","central cee","clara la san","daniel caesar","frank ocean",
-  "j. cole","joji","kanye west","kendrick lamar","keshi","laufey",
-  "sza","the weeknd","tyler, the creator","yoasobi"
-];
-const artistsCn = [
+const artists = [
+  "joji","kendrick lamar","the weeknd","tyler, the creator","kanye west","j. cole",
+  "central cee","sza","nujabes","21 savage","daniel caesar","keshi",
   { display: "ronghao li", query: "李荣浩" },
-  { display: "gareth.t",    query: "gareth t" },
-  { display: "runze zheng", query: "郑润泽" },
-  { display: "jay chou",    query: "周杰伦" }
+  { display: "gareth.t",   query: "gareth t" }
 ];
-document.getElementById('artists-en').innerHTML = artistsEn.map(a =>
-  `<a href="https://music.apple.com/ca/search?term=${encodeURIComponent(a)}" target="_blank" rel="noopener">${a}</a>`
-).join('');
-document.getElementById('artists-cn').innerHTML = artistsCn.map(a =>
-  `<a href="https://music.apple.com/ca/search?term=${encodeURIComponent(a.query)}" target="_blank" rel="noopener">${a.display}</a>`
-).join('');
+document.getElementById('artists-list').innerHTML = artists.map(a => {
+  const display = typeof a === 'string' ? a : a.display;
+  const query   = typeof a === 'string' ? a : a.query;
+  return `<a href="https://music.apple.com/ca/search?term=${encodeURIComponent(query)}" target="_blank" rel="noopener">${display}</a>`;
+}).join('');
 
 const albums = [
   // central cee
   { artist: "central cee",       title: "can't rush greatness",               file: "cant-rush-greatness.jpg", search: "central cee can't rush greatness" },
   // daniel caesar
   { artist: "daniel caesar",     title: "freudian",                           file: "freudian.jpg",            search: "daniel caesar freudian" },
-  { artist: "daniel caesar",     title: "never enough",                       file: "never-enough.jpg",        search: "daniel caesar never enough" },
+  { artist: "daniel caesar",     title: "case study 01",                      file: "case-study-01.jpg",       search: "daniel caesar case study 01" },
+  { artist: "daniel caesar",     title: "never enough",                       file: "never-enough.jpg",        search: "daniel caesar never enough",     repeat: true },
   // frank ocean
   { artist: "frank ocean",       title: "blonde",                             file: "blonde.jpg",              search: "frank ocean blonde" },
   // j. cole
@@ -609,8 +952,11 @@ const albums = [
   { artist: "kendrick lamar",    title: "gnx",                                file: "gnx.jpg",                 search: "kendrick lamar gnx",                 repeat: true },
   { artist: "kendrick lamar",    title: "mr. morale & the big steppers",      file: "mr-morale.jpg",           search: "kendrick lamar mr morale the big steppers" },
   // keshi
-  { artist: "keshi",             title: "GABRIEL",                            file: "keshi-gabriel.jpg",       search: "keshi GABRIEL" },
-  { artist: "keshi",             title: "requiem (bonus edition)",             file: "keshi-requiem.jpg",        search: "keshi requiem" },
+  { artist: "keshi",            title: "GABRIEL",                            file: "keshi-gabriel.jpg",       search: "keshi GABRIEL" },
+  { artist: "keshi",            title: "requiem (bonus edition)",            file: "keshi-requiem.jpg",        search: "keshi requiem" },
+  // nujabes
+  { artist: "daniel caesar",     title: "pilgrim's paradise",                file: "pilgrims-paradise.jpg",   search: "daniel caesar pilgrim's paradise" },
+  { artist: "nujabes",           title: "luvsic hexalogy",                    file: "luvsic-hexalogy.jpg",     search: "nujabes luvsic hexalogy" },
   // sza
   { artist: "sza",               title: "sos deluxe: lana",                   file: "sos.jpg",                 search: "sza sos deluxe: lana",               repeat: true },
   // the weeknd
@@ -636,13 +982,44 @@ document.getElementById('albums').innerHTML = albums.map(a => `
            onload="this.classList.add('loaded'); this.previousElementSibling.style.display='none';"
            onerror="this.style.display='none';" />
     </div>
-    <div class="title">${a.title}${a.repeat ? '<span class="rpt"></span>' : ''}</div>
+    <div class="title">${a.dot ? '' : a.title}${(a.repeat || a.dot) ? '<span class="rpt"></span>' : ''}</div>
     <div class="artist">${a.artist}</div>
   </a>
 `).join('');
 
-/* live stamps — only recent has a meaningful data timestamp from stats.fm */
-const stamps = { recent: 0 };
+/* fav artist images — fetched from stats.fm or top cache */
+function applyFavImg(id, imgUrl) {
+  const el = document.getElementById(id);
+  if (!el || !imgUrl) return;
+  el.src = imgUrl;
+  el.style.display = '';
+  el.onload = () => { el.classList.add('loaded'); const fb = el.previousElementSibling; if (fb?.classList.contains('fallback')) fb.style.display = 'none'; };
+}
+
+async function loadFavImages() {
+  // artists — pull from alltime cache if available, otherwise search
+  const fillFromCache = () => {
+    const artists = topCache.alltime?.artist || [];
+    const dc    = artists.find(a => a.name?.toLowerCase() === 'daniel caesar');
+    const joji  = artists.find(a => a.name?.toLowerCase() === 'joji');
+    const tyler = artists.find(a => a.name?.toLowerCase() === 'tyler, the creator');
+    const kanye = artists.find(a => a.name?.toLowerCase() === 'kanye west');
+    if (dc?.imgUrl)    applyFavImg('fav-dc-img',    dc.imgUrl);
+    if (joji?.imgUrl)  applyFavImg('fav-joji-img',  joji.imgUrl);
+    if (tyler?.imgUrl) applyFavImg('fav-tyler-img', tyler.imgUrl);
+    if (kanye?.imgUrl) applyFavImg('fav-kanye-img', kanye.imgUrl);
+  };
+
+  // try cache first (might already be populated if loadTopFor ran)
+  fillFromCache();
+
+  // also try after a short delay in case cache wasn't ready yet
+  setTimeout(fillFromCache, 2500);
+
+}
+
+/* last fetch times */
+const fetchAt = { recent: 0 };
 
 function timeAgo(ms) {
   const diff = Math.max(0, Date.now() - ms);
@@ -656,47 +1033,53 @@ function timeAgo(ms) {
   return `${Math.floor(h/24)}d ago`;
 }
 
-function refreshStamps() {
+function bumpStamps() {
   document.querySelectorAll('.live-stamp').forEach(el => {
     const k = el.dataset.stamp;
-    if (!stamps[k]) { el.textContent = ''; return; }
-    el.textContent = `updated ${timeAgo(stamps[k])}`;
+    if (!fetchAt[k]) { el.textContent = ''; return; }
+    el.textContent = `updated ${timeAgo(fetchAt[k])}`;
   });
 }
 
-setInterval(refreshStamps, 1000);
+setInterval(bumpStamps, 1000);
 document.addEventListener('visibilitychange', () => {
-  if (document.visibilityState === 'visible') refreshStamps();
+  if (document.visibilityState === 'visible') bumpStamps();
 });
-window.addEventListener('focus', refreshStamps);
-window.addEventListener('pageshow', refreshStamps);
+window.addEventListener('focus', bumpStamps);
+window.addEventListener('pageshow', bumpStamps);
 
 /* load all */
 async function loadAll() {
+  loadFavImages();
   await Promise.all([
     loadRecent(),
     Promise.all([ loadStats('lifetime', 'stat-alltime'), loadTopFor('lifetime', 'alltime') ]),
     Promise.all([ loadStats('weeks', 'stat-weeks'), loadTopFor('weeks', 'weeks') ]),
     load2026(),
   ]);
-  refreshStamps();
-  updatePageStamp();
+  bumpStamps();
+  tickStamp();
 }
 loadAll();
-setInterval(loadAll, REFRESH_MS);
+let _lastLoadAt = Date.now();
+setInterval(() => { _lastLoadAt = Date.now(); loadAll(); }, REFRESH_MS);
 document.addEventListener('visibilitychange', () => {
-  if (document.visibilityState === 'visible') loadAll();
+  // Throttle: only re-fetch if 60s since last load and tab became visible
+  if (document.visibilityState === 'visible' && Date.now() - _lastLoadAt > 60000) {
+    _lastLoadAt = Date.now();
+    loadAll();
+  }
 });
 
 /* update page stamp to show stats.fm freshness */
-function updatePageStamp() {
-  const vals = Object.values(stamps).filter(Boolean);
+function tickStamp() {
+  const vals = Object.values(fetchAt).filter(Boolean);
   if (!vals.length) return;
-  const t = Math.min(...vals);
+  const t = Math.max(...vals);
   if (!isFinite(t)) return;
   document.getElementById('edit-stamp').textContent = 'stats.fm · ' + timeAgo(t);
 }
-setInterval(updatePageStamp, 10000);
+setInterval(tickStamp, 10000);
 
 /* now playing */
 async function loadNowPlaying() {
