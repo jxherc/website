@@ -926,7 +926,7 @@ document.getElementById('artists-list').innerHTML = artists.map(a => {
 const albums = [
   // central cee
   { artist: "central cee", title: "can't rush greatness", file: "cant-rush-greatness.jpg", search: "central cee can't rush greatness" },
-  // daniel caesar
+  // daniel caesar — newest to oldest
   { artist: "daniel caesar", title: "son of spergy", file: "son-of-spergy.jpg", search: "daniel caesar son of spergy", repeat: true },
   { artist: "daniel caesar", title: "never enough", file: "never-enough.jpg", search: "daniel caesar never enough", repeat: true },
   { artist: "daniel caesar", title: "case study 01", file: "case-study-01.jpg", search: "daniel caesar case study 01" },
@@ -936,44 +936,44 @@ const albums = [
   { artist: "frank ocean", title: "blonde", file: "blonde.jpg", search: "frank ocean blonde" },
   // j. cole
   { artist: "j. cole", title: "4 your eyez only", file: "4-your-eyez-only.jpg", search: "j cole 4 your eyez only", repeat: true },
-  // joji
-  { artist: "joji", title: "in tongues", file: "in-tongues.jpg", search: "joji in tongues" },
-  { artist: "joji", title: "ballads 1", file: "ballads-1.jpg", search: "joji ballads 1" },
-  { artist: "joji", title: "smithereens", file: "smithereens.jpg", search: "joji smithereens", repeat: true },
+  // joji — newest to oldest
   { artist: "joji", title: "piss in the wind", file: "piss-in-the-wind.jpg", search: "joji piss in the wind", repeat: true },
-  // kanye west
-  { artist: "kanye west", title: "the college dropout", file: "college-dropout.jpg", search: "kanye west the college dropout" },
-  { artist: "kanye west", title: "late registration", file: "late-registration.jpg", search: "kanye west late registration" },
-  { artist: "kanye west", title: "graduation", file: "graduation.jpg", search: "kanye west graduation" },
-  { artist: "kanye west", title: "808s & heartbreak", file: "808s-and-heartbreak.jpg", search: "kanye west 808s heartbreak" },
-  { artist: "kanye west", title: "my beautiful dark twisted fantasy", file: "mbdtf.jpg", search: "kanye west my beautiful dark twisted fantasy", repeat: true },
-  { artist: "kanye west", title: "yeezus", file: "yeezus.jpg", search: "kanye west yeezus", repeat: true },
+  { artist: "joji", title: "smithereens", file: "smithereens.jpg", search: "joji smithereens", repeat: true },
+  { artist: "joji", title: "ballads 1", file: "ballads-1.jpg", search: "joji ballads 1" },
+  { artist: "joji", title: "in tongues", file: "in-tongues.jpg", search: "joji in tongues" },
+  // kanye west — newest to oldest
   { artist: "kanye west", title: "the life of pablo", file: "life-of-pablo.jpg", search: "kanye west the life of pablo" },
-  // kendrick lamar
-  { artist: "kendrick lamar", title: "damn.", file: "damn.jpg", search: "kendrick lamar damn", repeat: true },
-  { artist: "kendrick lamar", title: "mr. morale & the big steppers", file: "mr-morale.jpg", search: "kendrick lamar mr morale the big steppers" },
+  { artist: "kanye west", title: "yeezus", file: "yeezus.jpg", search: "kanye west yeezus", repeat: true },
+  { artist: "kanye west", title: "my beautiful dark twisted fantasy", file: "mbdtf.jpg", search: "kanye west my beautiful dark twisted fantasy", repeat: true },
+  { artist: "kanye west", title: "808s & heartbreak", file: "808s-and-heartbreak.jpg", search: "kanye west 808s heartbreak" },
+  { artist: "kanye west", title: "graduation", file: "graduation.jpg", search: "kanye west graduation" },
+  { artist: "kanye west", title: "late registration", file: "late-registration.jpg", search: "kanye west late registration" },
+  { artist: "kanye west", title: "the college dropout", file: "college-dropout.jpg", search: "kanye west the college dropout" },
+  // kendrick lamar — newest to oldest
   { artist: "kendrick lamar", title: "gnx", file: "gnx.jpg", search: "kendrick lamar gnx", repeat: true },
-  // keshi
-  { artist: "keshi", title: "GABRIEL", file: "keshi-gabriel.jpg", search: "keshi GABRIEL" },
+  { artist: "kendrick lamar", title: "mr. morale & the big steppers", file: "mr-morale.jpg", search: "kendrick lamar mr morale the big steppers" },
+  { artist: "kendrick lamar", title: "damn.", file: "damn.jpg", search: "kendrick lamar damn", repeat: true },
+  // keshi — newest to oldest
   { artist: "keshi", title: "requiem (bonus edition)", file: "keshi-requiem.jpg", search: "keshi requiem" },
+  { artist: "keshi", title: "GABRIEL", file: "keshi-gabriel.jpg", search: "keshi GABRIEL" },
   // nujabes
   { artist: "nujabes", title: "luvsic hexalogy", file: "luvsic-hexalogy.jpg", search: "nujabes luvsic hexalogy" },
   // sza
   { artist: "sza", title: "sos deluxe: lana", file: "sos.jpg", search: "sza sos deluxe: lana", repeat: true },
-  // tyler, the creator
-  { artist: "tyler, the creator", title: "flower boy", file: "flower-boy.jpg", search: "tyler the creator flower boy" },
-  { artist: "tyler, the creator", title: "igor", file: "igor.jpg", search: "tyler the creator igor" },
-  { artist: "tyler, the creator", title: "chromakopia", file: "chromakopia.jpg", search: "tyler the creator chromakopia", repeat: true },
+  // tyler, the creator — newest to oldest
   { artist: "tyler, the creator", title: "don't tap the glass", file: "dttg.jpg", search: "tyler the creator don't tap the glass", repeat: true },
-  // the weeknd
-  { artist: "the weeknd", title: "starboy", file: "starboy.jpg", search: "the weeknd starboy" },
-  { artist: "the weeknd", title: "after hours", file: "after-hours.jpg", search: "the weeknd after hours" },
-  { artist: "the weeknd", title: "dawn fm", file: "dawn-fm.jpg", search: "the weeknd dawn fm" },
+  { artist: "tyler, the creator", title: "chromakopia", file: "chromakopia.jpg", search: "tyler the creator chromakopia", repeat: true },
+  { artist: "tyler, the creator", title: "igor", file: "igor.jpg", search: "tyler the creator igor" },
+  { artist: "tyler, the creator", title: "flower boy", file: "flower-boy.jpg", search: "tyler the creator flower boy" },
+  // the weeknd — newest to oldest
   { artist: "the weeknd", title: "hurry up tomorrow", file: "hurry-up-tomorrow.jpg", search: "the weeknd hurry up tomorrow" },
-  // yoasobi
-  { artist: "yoasobi", title: "the book", file: "yoasobi-the-book.jpg", search: "yoasobi the book" },
-  { artist: "yoasobi", title: "the book 2", file: "yoasobi-the-book-2.jpg", search: "yoasobi the book 2" },
+  { artist: "the weeknd", title: "dawn fm", file: "dawn-fm.jpg", search: "the weeknd dawn fm" },
+  { artist: "the weeknd", title: "after hours", file: "after-hours.jpg", search: "the weeknd after hours" },
+  { artist: "the weeknd", title: "starboy", file: "starboy.jpg", search: "the weeknd starboy" },
+  // yoasobi — newest to oldest
   { artist: "yoasobi", title: "the book 3", file: "yoasobi-the-book-3.jpg", search: "yoasobi the book 3" },
+  { artist: "yoasobi", title: "the book 2", file: "yoasobi-the-book-2.jpg", search: "yoasobi the book 2" },
+  { artist: "yoasobi", title: "the book", file: "yoasobi-the-book.jpg", search: "yoasobi the book" },
 ];
 document.getElementById('albums').innerHTML = albums.map(a => `
   <a class="album" href="https://music.apple.com/ca/search?term=${encodeURIComponent(a.search)}" target="_blank" rel="noopener">
