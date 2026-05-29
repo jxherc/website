@@ -29,10 +29,18 @@
   <a class="home" href="index.html">jxherc</a>
   <section>
     <div class="label">about</div>
-    <div class="prose">
-      <p>Learner, hobbyist, son, brother, lyfer.</p>
-      <p>Based in Toronto. Works across software, design, technology, and life. Always thinking, always learning.</p>
-      <p>Currently in high school with a growing interest in computer science and AI. Not many projects yet, still exploring. Knows enough about most sports to hold his own, not enough to brag about it.</p>
+    <div class="intro-block">
+      <div class="prose">
+        <p>Learner, hobbyist, son, brother, lyfer.</p>
+        <p>Based in Toronto. Works across software, design, technology, and life. Always thinking, always learning.</p>
+        <p>Currently in high school with a growing interest in computer science and AI. Not many projects yet, still exploring. Knows enough about most sports to hold his own, not enough to brag about it.</p>
+      </div>
+      <div class="portrait">
+        <div class="fallback">—</div>
+        <img src="images/about.jpg" alt=""
+             onload="this.classList.add('loaded'); this.previousElementSibling.style.display='none';"
+             onerror="this.style.display='none';" />
+      </div>
     </div>
   </section>
   <section class="page-edit-stamp" id="edit-stamp">—</section>
