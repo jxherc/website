@@ -38,8 +38,68 @@
 #box-next { right:1rem; }
 #box-count { position:fixed; bottom:1.2rem; left:50%; transform:translateX(-50%); font-size:0.72rem; color:#888; letter-spacing:0.06em; }
 </style>
+<style>
+#disclaimer {
+  position: fixed; inset: 0; z-index: 99999;
+  background: var(--bg);
+  display: flex; align-items: center; justify-content: center;
+  padding: 2rem;
+}
+#disclaimer.hidden { display: none; }
+.disc-box {
+  max-width: 360px; width: 100%;
+  display: flex; flex-direction: column; gap: 1.4rem;
+}
+.disc-box .disc-label {
+  font-size: 0.7rem; color: var(--muted);
+  letter-spacing: 0.04em; font-weight: 500;
+}
+.disc-box p {
+  font-size: 0.92rem; color: var(--text);
+  line-height: 1.6; letter-spacing: -0.01em;
+}
+.disc-box p span { color: var(--muted); }
+.disc-actions { display: flex; gap: 0.75rem; }
+.disc-enter {
+  font-size: 0.78rem; font-family: inherit;
+  background: none; border: 1px solid var(--faint);
+  color: var(--text); padding: 0.45rem 1rem;
+  border-radius: 3px; cursor: pointer; letter-spacing: 0.02em;
+  transition: border-color 0.2s, color 0.2s;
+}
+.disc-enter:hover { border-color: var(--muted); }
+.disc-back {
+  font-size: 0.78rem; font-family: inherit;
+  background: none; border: none;
+  color: var(--muted); cursor: pointer; letter-spacing: 0.02em;
+  transition: color 0.2s;
+}
+.disc-back:hover { color: var(--text); }
+</style>
 </head>
 <body>
+<div id="disclaimer">
+  <div class="disc-box">
+    <div class="disc-label">heads up</div>
+    <p>this page contains content that's <span>explicit, unhinged, and not for everyone.</span> if that's not your thing, turn back.</p>
+    <div class="disc-actions">
+      <button class="disc-enter" id="disc-enter">i'm good, let me in</button>
+      <button class="disc-back" id="disc-back">go back</button>
+    </div>
+  </div>
+</div>
+<script>
+if (sessionStorage.getItem('shitpost-ok')) {
+  document.getElementById('disclaimer').classList.add('hidden');
+}
+document.getElementById('disc-enter').onclick = () => {
+  sessionStorage.setItem('shitpost-ok', '1');
+  document.getElementById('disclaimer').classList.add('hidden');
+};
+document.getElementById('disc-back').onclick = () => {
+  history.back() || (location.href = 'index.html');
+};
+</script>
 <button class="theme-toggle" id="theme-toggle" aria-label="toggle light mode">◐</button>
 <div class="meme-overlay" id="meme-overlay">
   <div class="meme-box">
