@@ -134,9 +134,9 @@
     const diff = RETURN - new Date();
     const el = document.getElementById('back-note');
     if (!el) return;
-    if (diff <= 0) { el.textContent = 'back in toronto'; return; }
+    if (diff <= 0) { el.textContent = 'back'; return; }
     const days = Math.ceil(diff / 864e5);
-    el.textContent = 'back in toronto in ' + days + (days === 1 ? ' day' : ' days');
+    el.textContent = 'back in ' + days + (days === 1 ? ' day' : ' days');
   }
   updateReturnCountdown();
   setInterval(updateReturnCountdown, 60000);
