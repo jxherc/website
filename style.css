@@ -59,7 +59,7 @@ main { max-width: 560px; margin: 0 auto; display: flex; flex-direction: column; 
 .intro .location { display: block; margin-top: 0.35rem; color: var(--muted); }
 .intro s { color: var(--faint); text-decoration-color: var(--muted); text-decoration-thickness: 1px; }
 .intro .here { color: var(--text); margin-left: 0.25rem; }
-.intro .travel-sub { display: block; font-size: 0.72em; opacity: 0.55; margin-top: 0.15rem; font-style: italic; }
+.intro .loc-aside { font-size: 0.7em; color: var(--faint); font-style: italic; }
 .intro-block { display: flex; gap: 1.5rem; align-items: flex-start; }
 .intro-block .intro { flex: 1; min-width: 0; }
 
