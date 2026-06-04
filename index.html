@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=19">
+<link rel="stylesheet" href="style.css?v=20">
 <script>const t=localStorage.getItem('theme');if(t)document.documentElement.dataset.theme=t;</script>
 <meta property="og:title" content="jxherc">
 <meta property="og:description" content="a website">
@@ -36,7 +36,7 @@
   <section class="intro-block">
     <div class="intro">
       a guy interested in sde and ui/ux.
-      <span class="location">based in <s>shenzhen</s><span class="here">toronto</span>.</span>
+      <span class="location">based in <span class="toronto-travel"><span class="back-note" id="back-note">—</span><s>toronto</s><span class="travel-note">travelling</span></span><span class="here">shenzhen</span>.</span>
     </div>
     <div class="portrait">
       <div class="fallback">—</div>
@@ -129,6 +129,18 @@
 </main>
 
 <script>
+  const RETURN = new Date('2026-08-30T00:00:00-04:00');
+  function updateReturnCountdown() {
+    const diff = RETURN - new Date();
+    const el = document.getElementById('back-note');
+    if (!el) return;
+    if (diff <= 0) { el.textContent = 'back in toronto'; return; }
+    const days = Math.ceil(diff / 864e5);
+    el.textContent = 'back in toronto in ' + days + (days === 1 ? ' day' : ' days');
+  }
+  updateReturnCountdown();
+  setInterval(updateReturnCountdown, 60000);
+
   const BIRTH = new Date('2010-01-03T11:30:00Z');
   const ageSpot = document.getElementById('age');
   function updateAge() {
