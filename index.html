@@ -153,10 +153,10 @@
   const clockSpot = document.getElementById('clock');
   function updateClock() {
     const time = new Date().toLocaleTimeString('en-CA', {
-      timeZone: 'America/Toronto',
+      timeZone: 'Asia/Shanghai',
       hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit'
     });
-    clockSpot.textContent = time + ' toronto (et)';
+    clockSpot.textContent = time + ' beijing (cst)';
   }
   updateClock();
   setInterval(updateClock, 1000);
