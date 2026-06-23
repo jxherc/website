@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>apple music — jxherc admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<script src="https://js-cdn.music.apple.com/musickit/v3/musickit.js" data-web-components async></script>
+</head>
+<body>
+<main>
+  <header style="display:flex;align-items:baseline;justify-content:space-between;">
+    <div class="brand">jxherc <span class="sub">/ apple music</span></div>
+    <a class="btn" href="index.html">back</a>
+  </header>
+
+  <section>
+    <div class="label">connection</div>
+    <p style="color:var(--muted,#888);font-size:.9rem;line-height:1.5;max-width:46ch;">
+      log in with your apple id once to link apple music. the token is stored server-side so
+      the music page can pull your recently played + heavy rotation straight from apple.
+    </p>
+    <div class="stats-row" style="margin:1rem 0;">
+      <div class="stat-card"><div class="num" id="state">—</div><div class="unit">status</div></div>
+    </div>
+    <button class="btn primary" id="connect-btn" disabled>loading musickit…</button>
+    <div id="msg"></div>
+  </section>
+</main>
+
+<script type="module">
+  import { getToken, requireLogin } from './admin.js';
+  requireLogin();
+
+  const API   = 'https://api.jxherc.com';
+  const btn   = document.getElementById('connect-btn');
+  const msg   = document.getElementById('msg');
+  const state = document.getElementById('state');
+
+  function show(text, type = 'ok') {
+    msg.innerHTML = `<div class="msg ${type}">${text}</div>`;
+  }
+
+  async function refreshState() {
+    try {
+      const r = await fetch(`${API}/apple/status`);
+      const s = await r.json();
+      state.textContent = s.connected ? 'linked' : (s.hasKey ? 'not linked' : 'no key');
+    } catch { state.textContent = '?'; }
+  }
+  refreshState();
+
+  let music = null;
+
+  document.addEventListener('musickitloaded', async () => {
+    try {
+      // grab a dev token from our worker (admin-only) to boot musickit
+      const r = await fetch(`${API}/apple/devtoken`, {
+        headers: { Authorization: `Bearer ${getToken()}` }
+      });
+      const d = await r.json();
+      if (!r.ok) throw new Error(d.error || 'no dev token');
+
+      await MusicKit.configure({
+        developerToken: d.token,
+        app: { name: 'jxherc', build: '1.0.0' }
+      });
+      music = MusicKit.getInstance();
+      btn.disabled = false;
+      btn.textContent = music.isAuthorized ? 're-link apple music' : 'connect apple music';
+    } catch (e) {
+      btn.textContent = 'musickit failed';
+      show(e.message, 'err');
+    }
+  });
+
+  btn.addEventListener('click', async () => {
+    if (!music) return;
+    btn.disabled = true;
+    show('opening apple login…');
+    try {
+      const userToken = await music.authorize(); // apple login popup
+      if (!userToken) throw new Error('no token returned');
+
+      const r = await fetch(`${API}/apple/token`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${getToken()}` },
+        body: JSON.stringify({ token: userToken })
+      });
+      const d = await r.json();
+      if (!r.ok) throw new Error(d.error || 'save failed');
+
+      show('linked! the music page will use apple now.', 'ok');
+      btn.textContent = 're-link apple music';
+      refreshState();
+    } catch (e) {
+      show(e.message || 'auth cancelled', 'err');
+    } finally {
+      btn.disabled = false;
+    }
+  });
+</script>
+</body>
+</html>
