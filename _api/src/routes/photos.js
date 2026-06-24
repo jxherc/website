@@ -95,6 +95,18 @@ export async function handlePhotos(request, env, path) {
   const id     = path.split('/')[2] || null;
 
   if (method === 'GET') {
+    // serve a single object: /photos/<key>  (must come before the gallery list,
+    // otherwise this branch swallows it and returns json for the <img> src)
+    if (path.startsWith('/photos/')) {
+      const key = path.slice('/photos/'.length);
+      const obj = await env.PHOTOS_R2.get(key);
+      if (!obj) return new Response('not found', { status: 404 });
+      return new Response(obj.body, {
+        headers: { 'Content-Type': obj.httpMetadata?.contentType || 'image/jpeg' }
+      });
+    }
+
+    // bare /photos → gallery list
     const list = await env.PHOTOS_KV.list({ prefix: 'photo:' });
     const items = await Promise.all(
       list.keys
@@ -137,15 +149,6 @@ export async function handlePhotos(request, env, path) {
     };
     await env.PHOTOS_KV.put(`photo:${ts}`, JSON.stringify(photo));
     return json(photo, 201);
-  }
-
-  if (method === 'GET' && path.startsWith('/photos/')) {
-    const key = path.slice('/photos/'.length);
-    const obj = await env.PHOTOS_R2.get(key);
-    if (!obj) return new Response('not found', { status: 404 });
-    return new Response(obj.body, {
-      headers: { 'Content-Type': obj.httpMetadata?.contentType || 'image/jpeg' }
-    });
   }
 
   if (method === 'DELETE' && id) {
