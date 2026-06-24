@@ -27,7 +27,16 @@ export async function handlePosts(request, env, path) {
       title: String(body.title || '').trim(),
       date: new Date(ts).toISOString(),
     };
-    if (!post.body) return json({ error: 'body required' }, 400);
+
+    // images / via come from the discord bot
+    const imgs = Array.isArray(body.images) ? body.images.map(String).filter(Boolean) : [];
+    if (body.image) post.image = String(body.image);
+    if (imgs.length) post.images = imgs;
+    if (body.via) post.via = String(body.via);
+
+    // allow image-only posts (no text)
+    if (!post.body && !post.image && !imgs.length) return json({ error: 'body or image required' }, 400);
+
     await env.POSTS_KV.put(`post:${ts}`, JSON.stringify(post));
     return json(post, 201);
   }

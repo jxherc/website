@@ -3,6 +3,7 @@ import { handlePosts }     from './routes/posts.js';
 import { handleStatus }    from './routes/status.js';
 import { handleBookmarks } from './routes/bookmarks.js';
 import { handlePhotos }    from './routes/photos.js';
+import { handleUploads }   from './routes/uploads.js';
 import { handleDiscord }   from './routes/discord.js';
 import { handleStats }     from './routes/stats.js';
 import { handleApple }     from './routes/applemusic.js';
@@ -27,6 +28,8 @@ export default {
       response = await handleBookmarks(request, env, path);
     else if (path === '/photos' || path.startsWith('/photos/'))
       response = await handlePhotos(request, env, path);
+    else if (path === '/uploads')
+      response = await handleUploads(request, env);
     else if (path === '/discord' || path.startsWith('/discord/'))
       response = await handleDiscord(request, env);
     else if (path === '/stats.svg')
