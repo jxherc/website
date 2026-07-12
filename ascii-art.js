@@ -30,6 +30,7 @@
   }
 
   async function asciiify(img) {
+    if (img.dataset.ascii === 'off') return;
     const src = img.currentSrc || img.src;
     if (!src || src.startsWith('data:image/') || running.has(img)) return;
     if (img.dataset.asciiSource === src) return;
@@ -104,6 +105,7 @@
 
   function watch(img) {
     if (!(img instanceof HTMLImageElement)) return;
+    if (img.dataset.ascii === 'off') return;
     const src = img.currentSrc || img.src;
     if (!src || src.startsWith('data:image/') || watchedSource.get(img) === src) return;
     watchedSource.set(img, src);

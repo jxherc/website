@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=24">
+<link rel="stylesheet" href="style.css?v=25">
 <script>const t=localStorage.getItem('theme');if(t)document.documentElement.dataset.theme=t;</script>
 <meta property="og:title" content="music — jxherc">
 <meta property="og:description" content="some music stats">
@@ -39,7 +39,7 @@
       <a class="album" href="https://music.apple.com/ca/artist/daniel-caesar/1092259289" target="_blank" rel="noopener">
         <div class="cover">
           <div class="fallback">dc</div>
-          <img id="fav-dc-img" src="images/artist-daniel-caesar.jpg" alt="daniel caesar"
+          <img id="fav-dc-img" class="artist-portrait" data-ascii="off" src="images/artist-daniel-caesar-unified.png" alt="daniel caesar"
                onload="this.classList.add('loaded'); this.dataset.localOk='1'; this.previousElementSibling.style.display='none';"
                onerror="this.style.display='none';" />
         </div>
@@ -48,7 +48,7 @@
       <a class="album" href="https://music.apple.com/ca/artist/joji/1200684021" target="_blank" rel="noopener">
         <div class="cover">
           <div class="fallback">joji</div>
-          <img id="fav-joji-img" src="images/artist-joji.jpg" alt="joji"
+          <img id="fav-joji-img" class="artist-portrait" data-ascii="off" src="images/artist-joji-unified.png" alt="joji"
                onload="this.classList.add('loaded'); this.dataset.localOk='1'; this.previousElementSibling.style.display='none';"
                onerror="this.style.display='none';" />
         </div>
@@ -57,7 +57,7 @@
       <a class="album" href="https://music.apple.com/ca/artist/tyler-the-creator/420368335" target="_blank" rel="noopener">
         <div class="cover">
           <div class="fallback">ttc</div>
-          <img id="fav-tyler-img" src="images/artist-tyler.jpg" alt="tyler, the creator"
+          <img id="fav-tyler-img" class="artist-portrait" data-ascii="off" src="images/artist-tyler-unified.png" alt="tyler, the creator"
                onload="this.classList.add('loaded'); this.dataset.localOk='1'; this.previousElementSibling.style.display='none';"
                onerror="this.style.display='none';" />
         </div>
@@ -66,7 +66,7 @@
       <a class="album" href="https://music.apple.com/ca/artist/kanye-west/2715720" target="_blank" rel="noopener">
         <div class="cover">
           <div class="fallback">ye</div>
-          <img id="fav-kanye-img" src="images/artist-kanye.jpg" alt="kanye west"
+          <img id="fav-kanye-img" class="artist-portrait" data-ascii="off" src="images/artist-kanye-unified.png" alt="kanye west"
                onload="this.classList.add('loaded'); this.dataset.localOk='1'; this.previousElementSibling.style.display='none';"
                onerror="this.style.display='none';" />
         </div>
@@ -1157,6 +1157,6 @@ setInterval(loadNowPlaying, 30000);
 .rpt { display:inline-block; width:4px; height:4px; border-radius:50%; background:var(--muted); margin-left:5px; vertical-align:middle; opacity:0.65; flex-shrink:0; }
 </style>
 <script src="theme.js"></script>
-<script src="ascii-art.js?v=2"></script>
+<script src="ascii-art.js?v=3"></script>
 </body>
 </html>
