@@ -37,12 +37,12 @@ body::after {
 body::before {
   z-index: -2;
   background: url("images/yudho-background.gif") center / cover no-repeat;
-  opacity: 0.78;
-  filter: brightness(0.78) contrast(0.92);
+  opacity: 0.88;
+  filter: brightness(0.88) contrast(0.96);
 }
 body::after {
   z-index: -1;
-  background: rgba(6, 7, 6, 0.56);
+  background: rgba(6, 7, 6, 0.48);
 }
 main { position: relative; z-index: 1; max-width: 560px; margin: 0 auto; display: flex; flex-direction: column; gap: 3rem; }
 
@@ -537,10 +537,10 @@ a:focus-visible, button:focus-visible {
 }
 [data-theme="light"] body { background: transparent; color: var(--text); }
 [data-theme="light"] body::before {
-  opacity: 0.24;
+  opacity: 0.3;
   filter: grayscale(1) contrast(0.72) brightness(1.35);
 }
-[data-theme="light"] body::after { background: rgba(245, 244, 241, 0.9); }
+[data-theme="light"] body::after { background: rgba(245, 244, 241, 0.86); }
 [data-theme="light"] .portrait,
 [data-theme="light"] .portrait-large,
 [data-theme="light"] .cover { background: #e8e6e2; }
