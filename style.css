@@ -243,6 +243,8 @@ a.kv-row:hover .arrow { transform: translate(3px, -3px); color: var(--muted); }
 .thumb-sq { border-radius: 2px; }
 .thumb-round { border-radius: 50%; }
 .thumb-empty { background: #1a1a1a; }
+.ascii-rendered { image-rendering: auto; }
+.ascii-fallback { filter: grayscale(1) contrast(1.35) brightness(0.78); }
 .top-label { color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
 .top-sub { color: var(--muted); font-size: 0.78rem; }
 .top-meta {
