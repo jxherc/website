@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=25">
+<link rel="stylesheet" href="style.css?v=26">
 <script>const t=localStorage.getItem('theme');if(t)document.documentElement.dataset.theme=t;</script>
 <meta property="og:title" content="music — jxherc">
 <meta property="og:description" content="some music stats">
@@ -39,8 +39,8 @@
       <a class="album" href="https://music.apple.com/ca/artist/daniel-caesar/1092259289" target="_blank" rel="noopener">
         <div class="cover">
           <div class="fallback">dc</div>
-          <img id="fav-dc-img" class="artist-portrait" data-ascii="off" src="images/artist-daniel-caesar-unified.png" alt="daniel caesar"
-               onload="this.classList.add('loaded'); this.dataset.localOk='1'; this.previousElementSibling.style.display='none';"
+          <img id="fav-dc-img" src="images/artist-daniel-caesar-unified.png" alt="daniel caesar"
+               onload="this.classList.add('loaded'); this.closest('.cover')?.querySelector('.fallback')?.style.setProperty('display','none');"
                onerror="this.style.display='none';" />
         </div>
         <div class="title" style="text-align:center">daniel caesar</div>
@@ -48,8 +48,8 @@
       <a class="album" href="https://music.apple.com/ca/artist/joji/1200684021" target="_blank" rel="noopener">
         <div class="cover">
           <div class="fallback">joji</div>
-          <img id="fav-joji-img" class="artist-portrait" data-ascii="off" src="images/artist-joji-unified.png" alt="joji"
-               onload="this.classList.add('loaded'); this.dataset.localOk='1'; this.previousElementSibling.style.display='none';"
+          <img id="fav-joji-img" src="images/artist-joji-unified.png" alt="joji"
+               onload="this.classList.add('loaded'); this.closest('.cover')?.querySelector('.fallback')?.style.setProperty('display','none');"
                onerror="this.style.display='none';" />
         </div>
         <div class="title" style="text-align:center">joji</div>
@@ -57,8 +57,8 @@
       <a class="album" href="https://music.apple.com/ca/artist/tyler-the-creator/420368335" target="_blank" rel="noopener">
         <div class="cover">
           <div class="fallback">ttc</div>
-          <img id="fav-tyler-img" class="artist-portrait" data-ascii="off" src="images/artist-tyler-unified.png" alt="tyler, the creator"
-               onload="this.classList.add('loaded'); this.dataset.localOk='1'; this.previousElementSibling.style.display='none';"
+          <img id="fav-tyler-img" src="images/artist-tyler-unified-v2.png" alt="tyler, the creator"
+               onload="this.classList.add('loaded'); this.closest('.cover')?.querySelector('.fallback')?.style.setProperty('display','none');"
                onerror="this.style.display='none';" />
         </div>
         <div class="title" style="text-align:center">tyler, the creator</div>
@@ -66,8 +66,8 @@
       <a class="album" href="https://music.apple.com/ca/artist/kanye-west/2715720" target="_blank" rel="noopener">
         <div class="cover">
           <div class="fallback">ye</div>
-          <img id="fav-kanye-img" class="artist-portrait" data-ascii="off" src="images/artist-kanye-unified.png" alt="kanye west"
-               onload="this.classList.add('loaded'); this.dataset.localOk='1'; this.previousElementSibling.style.display='none';"
+          <img id="fav-kanye-img" src="images/artist-kanye-unified-v2.png" alt="kanye west"
+               onload="this.classList.add('loaded'); this.closest('.cover')?.querySelector('.fallback')?.style.setProperty('display','none');"
                onerror="this.style.display='none';" />
         </div>
         <div class="title" style="text-align:center">kanye west</div>
@@ -80,7 +80,7 @@
         <div class="cover">
           <div class="fallback">never enough</div>
           <img src="images/never-enough.jpg" alt="never enough"
-               onload="this.classList.add('loaded'); this.previousElementSibling.style.display='none';"
+               onload="this.classList.add('loaded'); this.closest('.cover')?.querySelector('.fallback')?.style.setProperty('display','none');"
                onerror="this.style.display='none';" />
         </div>
         <div class="title">never enough</div>
@@ -90,7 +90,7 @@
         <div class="cover">
           <div class="fallback">son of spergy</div>
           <img src="images/son-of-spergy.jpg" alt="son of spergy"
-               onload="this.classList.add('loaded'); this.previousElementSibling.style.display='none';"
+               onload="this.classList.add('loaded'); this.closest('.cover')?.querySelector('.fallback')?.style.setProperty('display','none');"
                onerror="this.style.display='none';" />
         </div>
         <div class="title">son of spergy</div>
@@ -100,7 +100,7 @@
         <div class="cover">
           <div class="fallback">piss in the wind (deluxe)</div>
           <img src="images/piss-in-the-wind-deluxe.jpg" alt="piss in the wind (deluxe)"
-               onload="this.classList.add('loaded'); this.previousElementSibling.style.display='none';"
+               onload="this.classList.add('loaded'); this.closest('.cover')?.querySelector('.fallback')?.style.setProperty('display','none');"
                onerror="this.style.display='none';" />
         </div>
         <div class="title">piss in the wind (deluxe)</div>
@@ -110,7 +110,7 @@
         <div class="cover">
           <div class="fallback">smithereens</div>
           <img src="images/smithereens.jpg" alt="smithereens"
-               onload="this.classList.add('loaded'); this.previousElementSibling.style.display='none';"
+               onload="this.classList.add('loaded'); this.closest('.cover')?.querySelector('.fallback')?.style.setProperty('display','none');"
                onerror="this.style.display='none';" />
         </div>
         <div class="title">smithereens</div>
@@ -124,7 +124,7 @@
         <div class="cover">
           <div class="fallback">who knows</div>
           <img src="images/son-of-spergy.jpg" alt="who knows"
-               onload="this.classList.add('loaded'); this.previousElementSibling.style.display='none';"
+               onload="this.classList.add('loaded'); this.closest('.cover')?.querySelector('.fallback')?.style.setProperty('display','none');"
                onerror="this.style.display='none';" />
         </div>
         <div class="title">who knows</div>
@@ -134,7 +134,7 @@
         <div class="cover">
           <div class="fallback">toronto 2014</div>
           <img src="images/never-enough.jpg" alt="toronto 2014"
-               onload="this.classList.add('loaded'); this.previousElementSibling.style.display='none';"
+               onload="this.classList.add('loaded'); this.closest('.cover')?.querySelector('.fallback')?.style.setProperty('display','none');"
                onerror="this.style.display='none';" />
         </div>
         <div class="title">toronto 2014</div>
@@ -144,7 +144,7 @@
         <div class="cover">
           <div class="fallback">runaway</div>
           <img src="images/mbdtf.jpg" alt="runaway"
-               onload="this.classList.add('loaded'); this.previousElementSibling.style.display='none';"
+               onload="this.classList.add('loaded'); this.closest('.cover')?.querySelector('.fallback')?.style.setProperty('display','none');"
                onerror="this.style.display='none';" />
         </div>
         <div class="title">runaway</div>
@@ -154,7 +154,7 @@
         <div class="cover">
           <div class="fallback">never see me again</div>
           <img src="images/never-see-me-again.jpg" alt="never see me again"
-               onload="this.classList.add('loaded'); this.previousElementSibling.style.display='none';"
+               onload="this.classList.add('loaded'); this.closest('.cover')?.querySelector('.fallback')?.style.setProperty('display','none');"
                onerror="this.style.display='none';" />
         </div>
         <div class="title">never see me again</div>
@@ -164,7 +164,7 @@
         <div class="cover">
           <div class="fallback">die for you</div>
           <img src="images/smithereens.jpg" alt="die for you"
-               onload="this.classList.add('loaded'); this.previousElementSibling.style.display='none';"
+               onload="this.classList.add('loaded'); this.closest('.cover')?.querySelector('.fallback')?.style.setProperty('display','none');"
                onerror="this.style.display='none';" />
         </div>
         <div class="title">die for you</div>
@@ -494,7 +494,7 @@ function renderTopRows(containerId, items, kind, metric) {
   function buildRow(it, i, startZero) {
     const shape = kind === 'artist' ? 'thumb-round' : 'thumb-sq';
     const thumbHtml = it.imgUrl
-      ? `<img class="thumb ${shape}" src="${esc(it.imgUrl)}" alt="" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';"><div class="thumb ${shape} thumb-empty" style="display:none"></div>`
+      ? `<img class="thumb ${shape}" src="${esc(it.imgUrl)}" alt="" onerror="this.style.display='none'; this.closest('.top-row')?.querySelector('.thumb-empty')?.style.setProperty('display','block');"><div class="thumb ${shape} thumb-empty" style="display:none"></div>`
       : `<div class="thumb ${shape} thumb-empty"></div>`;
     const sub = it.artistName ? ` <span class="top-sub">· ${esc(it.artistName)}</span>` : '';
     const scale = startZero ? 0 : Math.max(0.08, val(it) / max);
@@ -1030,45 +1030,13 @@ document.getElementById('albums').innerHTML = albums.map(a => `
     <div class="cover">
       <div class="fallback">${a.title}</div>
       <img src="images/${a.file}" alt="${a.title}" loading="lazy"
-           onload="this.classList.add('loaded'); this.previousElementSibling.style.display='none';"
+           onload="this.classList.add('loaded'); this.closest('.cover')?.querySelector('.fallback')?.style.setProperty('display','none');"
            onerror="this.style.display='none';" />
     </div>
     <div class="title">${a.dot ? '' : a.title}${(a.repeat || a.dot) ? '<span class="rpt"></span>' : ''}</div>
     <div class="artist">${a.artist}</div>
   </a>
 `).join('');
-
-/* fav artist images — fetched from stats.fm or top cache */
-function applyFavImg(id, imgUrl) {
-  const el = document.getElementById(id);
-  if (!el || !imgUrl) return;
-  if (el.dataset.localOk === '1') return; // local file already loaded, don't hit the network
-  el.src = imgUrl;
-  el.style.display = '';
-  el.onload = () => { el.classList.add('loaded'); const fb = el.previousElementSibling; if (fb?.classList.contains('fallback')) fb.style.display = 'none'; };
-}
-
-async function loadFavImages() {
-  // artists — pull from alltime cache if available, otherwise search
-  const fillFromCache = () => {
-    const artists = topCache.alltime?.artist || [];
-    const dc    = artists.find(a => a.name?.toLowerCase() === 'daniel caesar');
-    const joji  = artists.find(a => a.name?.toLowerCase() === 'joji');
-    const tyler = artists.find(a => a.name?.toLowerCase() === 'tyler, the creator');
-    const kanye = artists.find(a => a.name?.toLowerCase() === 'kanye west');
-    if (dc?.imgUrl)    applyFavImg('fav-dc-img',    dc.imgUrl);
-    if (joji?.imgUrl)  applyFavImg('fav-joji-img',  joji.imgUrl);
-    if (tyler?.imgUrl) applyFavImg('fav-tyler-img', tyler.imgUrl);
-    if (kanye?.imgUrl) applyFavImg('fav-kanye-img', kanye.imgUrl);
-  };
-
-  // try cache first (might already be populated if loadTopFor ran)
-  fillFromCache();
-
-  // also try after a short delay in case cache wasn't ready yet
-  setTimeout(fillFromCache, 2500);
-
-}
 
 /* last fetch times */
 const fetchAt = { recent: 0 };
@@ -1102,7 +1070,6 @@ window.addEventListener('pageshow', bumpStamps);
 
 /* load all */
 async function loadAll() {
-  loadFavImages();
   await Promise.all([
     loadRecent(),
     Promise.all([ loadStats('lifetime', 'stat-alltime'), loadTopFor('lifetime', 'alltime') ]),
@@ -1157,6 +1124,6 @@ setInterval(loadNowPlaying, 30000);
 .rpt { display:inline-block; width:4px; height:4px; border-radius:50%; background:var(--muted); margin-left:5px; vertical-align:middle; opacity:0.65; flex-shrink:0; }
 </style>
 <script src="theme.js"></script>
-<script src="ascii-art.js?v=3"></script>
+<script src="ascii-art.js?v=4"></script>
 </body>
 </html>
