@@ -2,6 +2,7 @@
   const ramp = ' .,:;irsXA253hMHGS#9B&@';
   const running = new WeakSet();
   const watchedSource = new WeakMap();
+  let renderIndex = 0;
 
   function loadImage(src) {
     return new Promise((resolve, reject) => {
@@ -71,14 +72,19 @@
           );
           const glyph = ramp[Math.min(ramp.length - 1, Math.floor((luminance / 256) * ramp.length))];
           if (glyph === ' ') continue;
-          const tone = Math.min(240, 86 + Math.round(luminance * 0.62));
-          ctx.fillStyle = `rgb(${tone}, ${Math.min(246, tone + 5)}, ${Math.min(242, tone + 2)})`;
+          const base = 62 + luminance * 0.72;
+          const color = channel => Math.max(0, Math.min(255, Math.round(base + (channel - luminance) * 1.42)));
+          ctx.fillStyle = `rgb(${color(pixels[index])}, ${color(pixels[index + 1])}, ${color(pixels[index + 2])})`;
           ctx.fillText(glyph, x * cellWidth, y * cellHeight);
         }
       }
 
       img.dataset.asciiSource = src;
       img.src = output.toDataURL('image/png');
+      const phase = renderIndex % 12;
+      img.style.setProperty('--ascii-delay', `${-(phase * 0.43).toFixed(2)}s`);
+      img.style.setProperty('--ascii-x', `${phase % 2 ? -1 : 1}px`);
+      renderIndex += 1;
       img.classList.add('ascii-rendered');
     } catch (_) {
       img.classList.add('ascii-fallback');

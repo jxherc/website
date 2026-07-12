@@ -243,8 +243,24 @@ a.kv-row:hover .arrow { transform: translate(3px, -3px); color: var(--muted); }
 .thumb-sq { border-radius: 2px; }
 .thumb-round { border-radius: 50%; }
 .thumb-empty { background: #1a1a1a; }
-.ascii-rendered { image-rendering: auto; }
+.ascii-rendered {
+  image-rendering: auto;
+  transform-origin: center;
+  will-change: transform, filter;
+  animation:
+    ascii-float 5.2s cubic-bezier(0.45, 0, 0.25, 1) var(--ascii-delay, 0s) infinite alternate,
+    ascii-spectrum 9s ease-in-out var(--ascii-delay, 0s) infinite alternate;
+}
+.album:hover .ascii-rendered { animation-duration: 1.8s, 3.6s; }
 .ascii-fallback { filter: grayscale(1) contrast(1.35) brightness(0.78); }
+@keyframes ascii-float {
+  from { transform: translate3d(0, 1px, 0) scale(1); }
+  to { transform: translate3d(var(--ascii-x, 1px), -1px, 0) scale(1.028); }
+}
+@keyframes ascii-spectrum {
+  from { filter: saturate(1.05) brightness(0.96) hue-rotate(-3deg); }
+  to { filter: saturate(1.42) brightness(1.08) hue-rotate(10deg); }
+}
 .top-label { color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
 .top-sub { color: var(--muted); font-size: 0.78rem; }
 .top-meta {
@@ -658,4 +674,5 @@ a:focus-visible, button:focus-visible {
 
 @media (prefers-reduced-motion: reduce) {
   body::before { background-image: url("images/yudho-background-still.png"); }
+  .ascii-rendered { animation: none; transform: none; filter: saturate(1.15); }
 }
