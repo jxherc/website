@@ -1,4 +1,13 @@
 (function () {
+  const credit = document.createElement('a');
+  credit.className = 'background-credit';
+  credit.href = 'https://twitter.com/yudho_xyz';
+  credit.target = '_blank';
+  credit.rel = 'noopener';
+  credit.textContent = 'background by @yudho_xyz';
+  credit.setAttribute('aria-label', 'Background artwork by Yudho on Twitter');
+  document.body.appendChild(credit);
+
   const overlay    = document.getElementById('meme-overlay');
   const confirmBtn = document.getElementById('meme-confirm');
   const cancelBtn  = document.getElementById('meme-cancel');
