@@ -8,7 +8,11 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=26">
+<link rel="stylesheet" href="style.css?v=27">
+<link rel="preconnect" href="https://is1-ssl.mzstatic.com">
+<link rel="preconnect" href="https://i.scdn.co">
+<link rel="preconnect" href="https://api.stats.fm">
+<link rel="dns-prefetch" href="https://is1-ssl.mzstatic.com">
 <script>const t=localStorage.getItem('theme');if(t)document.documentElement.dataset.theme=t;</script>
 <meta property="og:title" content="music — jxherc">
 <meta property="og:description" content="some music stats">
@@ -140,7 +144,6 @@
       <div class="year-card" id="year-2025">
         <div class="year-header">
           <span class="year-name">2025</span>
-          <span class="year-note">closed</span>
         </div>
         <div class="year-bar-wrap"><div class="year-bar"></div></div>
         <div class="year-num">—</div>
@@ -169,7 +172,6 @@
       <div class="year-card" id="year-2026">
         <div class="year-header">
           <span class="year-name">2026</span>
-          <span class="year-note live-dot-wrap"><span class="live-dot"></span>live</span>
         </div>
         <div class="year-bar-wrap"><div class="year-bar"></div></div>
         <div class="year-num">—</div>
@@ -821,13 +823,17 @@ document.getElementById('artists-list').innerHTML = artists.map(a => {
 }).join('');
 
 const albums = [
+  // 21 savage
+  { artist: "21 savage", title: "american dream", file: "american-dream.jpg", search: "21 savage american dream" },
   // 4batz
-  { artist: "4batz", title: "u made me a st4r", file: "u-made-me-a-st4r.jpg", search: "4batz u made me a st4r" },
+  { artist: "4batz", title: "u made me a st4r", file: "u-made-me-a-st4r.jpg", search: "4batz u made me a st4r", repeat: true },
+  // ariana grande
+  { artist: "ariana grande", title: "petal", file: "petal.jpg", search: "ariana grande petal" },
   // central cee
   { artist: "central cee", title: "can't rush greatness", file: "cant-rush-greatness.jpg", search: "central cee can't rush greatness" },
   // daniel caesar — newest to oldest
   { artist: "daniel caesar", title: "son of spergy", file: "son-of-spergy.jpg", search: "daniel caesar son of spergy", repeat: true },
-  { artist: "daniel caesar", title: "never enough", file: "never-enough.jpg", search: "daniel caesar never enough", repeat: true },
+  { artist: "daniel caesar", title: "never enough", file: "never-enough.jpg", search: "daniel caesar never enough" },
   { artist: "daniel caesar", title: "case study 01", file: "case-study-01.jpg", search: "daniel caesar case study 01" },
   { artist: "daniel caesar", title: "freudian", file: "freudian.jpg", search: "daniel caesar freudian" },
   { artist: "daniel caesar", title: "pilgrim's paradise", file: "pilgrims-paradise.jpg", search: "daniel caesar pilgrim's paradise" },
@@ -835,11 +841,13 @@ const albums = [
   { artist: "dhruv", title: "private blizzard", file: "private-blizzard.jpg", search: "dhruv private blizzard" },
   { artist: "dhruv", title: "rapunzel", file: "rapunzel.jpg", search: "dhruv rapunzel" },
   // frank ocean — newest to oldest
-  { artist: "frank ocean", title: "blonde", file: "blonde.jpg", search: "frank ocean blonde" },
+  { artist: "frank ocean", title: "blonde", file: "blonde.jpg", search: "frank ocean blonde", repeat: true },
   { artist: "frank ocean", title: "channel orange", file: "channel-orange.jpg", search: "frank ocean channel orange" },
+  // gareth.t
+  { artist: "gareth.t", title: "sad songs", file: "sad-songs.jpg", search: "gareth t sad songs" },
   // j. cole — newest to oldest
   { artist: "j. cole", title: "the fall off", file: "the-fall-off.jpg", search: "j cole the fall off" },
-  { artist: "j. cole", title: "4 your eyez only", file: "4-your-eyez-only.jpg", search: "j cole 4 your eyez only", repeat: true },
+  { artist: "j. cole", title: "4 your eyez only", file: "4-your-eyez-only.jpg", search: "j cole 4 your eyez only" },
   // joji — newest to oldest
   { artist: "joji", title: "piss in the wind (deluxe)", file: "piss-in-the-wind-deluxe.jpg", search: "joji piss in the wind deluxe", repeat: true },
   { artist: "joji", title: "smithereens", file: "smithereens.jpg", search: "joji smithereens", repeat: true },
@@ -848,8 +856,8 @@ const albums = [
   // kanye west — newest to oldest
   { artist: "kanye west", title: "bully - deluxe", file: "bully-deluxe.jpg", search: "kanye west bully deluxe" },
   { artist: "kanye west", title: "the life of pablo", file: "life-of-pablo.jpg", search: "kanye west the life of pablo" },
-  { artist: "kanye west", title: "yeezus", file: "yeezus.jpg", search: "kanye west yeezus", repeat: true },
-  { artist: "kanye west", title: "my beautiful dark twisted fantasy", file: "mbdtf.jpg", search: "kanye west my beautiful dark twisted fantasy", repeat: true },
+  { artist: "kanye west", title: "yeezus", file: "yeezus.jpg", search: "kanye west yeezus" },
+  { artist: "kanye west", title: "my beautiful dark twisted fantasy", file: "mbdtf.jpg", search: "kanye west my beautiful dark twisted fantasy" },
   { artist: "kanye west", title: "808s & heartbreak", file: "808s-and-heartbreak.jpg", search: "kanye west 808s heartbreak" },
   { artist: "kanye west", title: "graduation", file: "graduation.jpg", search: "kanye west graduation" },
   { artist: "kanye west", title: "late registration", file: "late-registration.jpg", search: "kanye west late registration" },
@@ -857,17 +865,24 @@ const albums = [
   // kendrick lamar — newest to oldest
   { artist: "kendrick lamar", title: "gnx", file: "gnx.jpg", search: "kendrick lamar gnx", repeat: true },
   { artist: "kendrick lamar", title: "mr. morale & the big steppers", file: "mr-morale.jpg", search: "kendrick lamar mr morale the big steppers" },
-  { artist: "kendrick lamar", title: "damn.", file: "damn.jpg", search: "kendrick lamar damn", repeat: true },
+  { artist: "kendrick lamar", title: "damn.", file: "damn.jpg", search: "kendrick lamar damn" },
+  { artist: "kendrick lamar", title: "good kid, m.a.a.d city", file: "good-kid-maad-city.jpg", search: "kendrick lamar good kid maad city" },
   // keshi — newest to oldest
   { artist: "keshi", title: "requiem (bonus edition)", file: "keshi-requiem.jpg", search: "keshi requiem" },
   { artist: "keshi", title: "GABRIEL", file: "keshi-gabriel.jpg", search: "keshi GABRIEL" },
+  // khalil fong
+  { artist: "khalil fong", title: "back to wonderland", file: "back-to-wonderland.jpg", search: "khalil fong back to wonderland" },
   // nujabes — newest to oldest
   { artist: "nujabes", title: "luvsic hexalogy", file: "luvsic-hexalogy.jpg", search: "nujabes luvsic hexalogy" },
   { artist: "nujabes", title: "modal soul", file: "modal-soul.jpg", search: "nujabes modal soul" },
+  // powfu
+  { artist: "powfu", title: "poems of the past", file: "poems-of-the-past.jpg", search: "powfu poems of the past" },
+  // ravyn lenae
+  { artist: "ravyn lenae", title: "blue island", file: "blue-island.jpg", search: "ravyn lenae blue island" },
   // sza
-  { artist: "sza", title: "sos deluxe: lana", file: "sos.jpg", search: "sza sos deluxe: lana", repeat: true },
+  { artist: "sza", title: "sos deluxe: lana", file: "sos.jpg", search: "sza sos deluxe: lana" },
   // tyler, the creator — newest to oldest
-  { artist: "tyler, the creator", title: "don't tap the glass", file: "dttg.jpg", search: "tyler the creator don't tap the glass", repeat: true },
+  { artist: "tyler, the creator", title: "don't tap the glass", file: "dttg.jpg", search: "tyler the creator don't tap the glass" },
   { artist: "tyler, the creator", title: "chromakopia", file: "chromakopia.jpg", search: "tyler the creator chromakopia", repeat: true },
   { artist: "tyler, the creator", title: "igor", file: "igor.jpg", search: "tyler the creator igor" },
   { artist: "tyler, the creator", title: "flower boy", file: "flower-boy.jpg", search: "tyler the creator flower boy" },
@@ -889,7 +904,9 @@ document.getElementById('albums').innerHTML = albums.map(a => `
            onload="this.classList.add('loaded'); this.closest('.cover')?.querySelector('.fallback')?.style.setProperty('display','none');"
            onerror="this.style.display='none';" />
     </div>
-    <div class="title">${a.dot ? '' : a.title}${(a.repeat || a.dot) ? '<span class="rpt"></span>' : ''}</div>
+    <div class="title">${(() => { const w = a.title.split(' '); return a.repeat && w.length > 1
+      ? `${w.slice(0, -1).join(' ')} <span style="white-space:nowrap">${w.at(-1)}<span class="rpt"></span></span>`
+      : `${a.title}${a.repeat ? '<span class="rpt"></span>' : ''}`; })()}</div>
     <div class="artist">${a.artist}</div>
   </a>
 `).join('');
@@ -996,7 +1013,7 @@ loadNowPlaying();
 startTimers();
 </script>
 <style>
-.rpt { display:inline-block; width:4px; height:4px; border-radius:50%; background:var(--muted); margin-left:5px; vertical-align:middle; opacity:0.65; flex-shrink:0; }
+.rpt { display:inline-block; width:5px; height:5px; border-radius:50%; background:var(--accent); flex-shrink:0; }
 </style>
 <script src="theme.js"></script>
 </body>
