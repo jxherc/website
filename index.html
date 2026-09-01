@@ -36,7 +36,7 @@
   <section class="intro-block">
     <div class="intro">
       a guy interested in sde and ui/ux.
-      <span class="location">based in <s>toronto</s><span class="here">shenzhen</span>. <span class="loc-aside">(<span id="back-note">—</span> · travelling)</span></span>
+      <span class="location">based in toronto.</span>
     </div>
     <div class="portrait">
       <div class="fallback">—</div>
@@ -60,41 +60,14 @@
       <span class="title">music</span>
       <span class="enter">→</span>
     </a>
-    <a class="music-card" href="about.html">
-      <span class="title">about</span>
-      <span class="enter">→</span>
-    </a>
     <a class="music-card" href="faq.html">
       <span class="title">faq</span>
-      <span class="enter">→</span>
-    </a>
-    <a class="music-card" href="shitpost.html">
-      <span class="title">shitpost</span>
       <span class="enter">→</span>
     </a>
     <a class="music-card" href="photos.html">
       <span class="title">photos</span>
       <span class="enter">→</span>
     </a>
-    <a class="music-card" href="bookmarks.html">
-      <span class="title">bookmarks</span>
-      <span class="enter">→</span>
-    </a>
-  </section>
-
-  <section>
-    <div class="label">setup</div>
-    <div class="two-col">
-      <div class="item">mac mini<span class="spec">desktop · apple · 2026</span></div>
-      <div class="item">zenbook duo<span class="spec">laptop · asus · 2024</span></div>
-      <div class="item">ipad pro<span class="spec">tablet · apple · 2024</span></div>
-      <div class="item">iphone 16 pro<span class="spec">phone · apple · 2024</span></div>
-      <div class="item">apple watch<span class="spec">watch · apple · 2025</span></div>
-      <div class="item">airpods pro 2<span class="spec">earbuds · apple · 2022</span></div>
-      <div class="item">wh-1000xm4<span class="spec">headphones · sony · 2021</span></div>
-      <div class="item">bridge 75<span class="spec">keyboard · shortcut · 2025</span></div>
-    </div>
-    <div class="note" style="margin-top:0.85rem;">yes i know i am an apple fanboi lol</div>
   </section>
 
   <section>
@@ -129,18 +102,6 @@
 </main>
 
 <script>
-  const RETURN = new Date('2026-08-30T00:00:00-04:00');
-  function updateReturnCountdown() {
-    const diff = RETURN - new Date();
-    const el = document.getElementById('back-note');
-    if (!el) return;
-    if (diff <= 0) { el.textContent = 'back'; return; }
-    const days = Math.ceil(diff / 864e5);
-    el.textContent = 'back in ' + days + (days === 1 ? ' day' : ' days');
-  }
-  updateReturnCountdown();
-  setInterval(updateReturnCountdown, 60000);
-
   const BIRTH = new Date('2010-01-03T11:30:00Z');
   const ageSpot = document.getElementById('age');
   function updateAge() {
@@ -153,10 +114,10 @@
   const clockSpot = document.getElementById('clock');
   function updateClock() {
     const time = new Date().toLocaleTimeString('en-CA', {
-      timeZone: 'Asia/Shanghai',
+      timeZone: 'America/Toronto',
       hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit'
     });
-    clockSpot.textContent = time + ' hongkong (cst)';
+    clockSpot.textContent = time + ' toronto (et)';
   }
   updateClock();
   setInterval(updateClock, 1000);
