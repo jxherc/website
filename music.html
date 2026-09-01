@@ -440,7 +440,8 @@ function parseTop(item, kind) {
   const name = sub?.name || '';
   const artistName = kind === 'artist' ? '' : (sub?.artists?.[0]?.name || item?.artists?.[0]?.name || sub?.artist?.name || '');
   const imgUrl = kind === 'track' ? (sub?.albums?.[0]?.image || '') : (sub?.image || '');
-  const sid = sub?.externalIds?.spotify?.[0] || sub?.spotifyIds?.[0] || '';
+  const rawSid = sub?.externalIds?.spotify?.[0] || sub?.spotifyIds?.[0] || '';
+  const sid = /^[A-Za-z0-9]+$/.test(rawSid) ? rawSid : '';
   const spotifyUrl = sid ? `https://open.spotify.com/${kind}/${sid}` : '';
   const streams = item.streams ?? item.count ?? 0;
   const minutes = item.playedMs ? Math.round(item.playedMs / 60000) : (item.minutes ?? 0);
@@ -682,7 +683,7 @@ async function loadTopFor(range, prefix) {
     safeFetch(`${API}/users/${USERS.new}/top/artists?range=${range}&limit=20`),
   ]);
   // past 4 weeks lives on the active account — if it can't rank, don't pass off the old account's stray plays as "recent"
-  if (prefix === 'weeks' && tB == null && alB == null && arB == null) {
+  if (prefix === 'weeks' && (tB == null || alB == null || arB == null)) {
     topCache[prefix] = null;
     markTopUnavailable(prefix);
     return;
@@ -735,9 +736,7 @@ async function loadRecent() {
   const tracksEl = document.getElementById('tracks');
   const moreBtn  = document.getElementById('more-btn');
   try {
-    const res = await fetch(`${API}/users/${USERS.new}/streams/recent?limit=25`);
-    if (!res.ok) throw 0;
-    const data = await res.json();
+    const data = await safeFetch(`${API}/users/${USERS.new}/streams/recent?limit=25`);
     const items = extract(data);
     if (!items.length) throw 0;
     // Use the endTime of the most recent track as the stamp — this is actual stats.fm data freshness
@@ -746,8 +745,8 @@ async function loadRecent() {
     tracksEl.innerHTML = items.slice(0, 25).map((item, i) => {
       const track  = esc(item.track?.name || item.name || '');
       const artist = esc(item.track?.artists?.[0]?.name || item.artists?.[0]?.name || '');
-      const sid = item.track?.externalIds?.spotify?.[0] || item.track?.spotifyIds?.[0] || item.externalIds?.spotify?.[0];
-      const url = sid ? `https://open.spotify.com/track/${sid}` : 'https://stats.fm/jxherc';
+      const rawSid = item.track?.externalIds?.spotify?.[0] || item.track?.spotifyIds?.[0] || item.externalIds?.spotify?.[0] || '';
+      const url = /^[A-Za-z0-9]+$/.test(rawSid) ? `https://open.spotify.com/track/${rawSid}` : 'https://stats.fm/jxherc';
       const ago = item.endTime ? timeAgoTiny(new Date(item.endTime).getTime()) : '';
       return `<li class="track ${i >= 5 ? 'hidden' : ''}">
         <span class="main">
@@ -862,7 +861,7 @@ function renderYTRow(rowId, item, kind) {
 }
 
 function tickTo(el, target, duration = 900, suffix = '') {
-  if (!el) return;
+  if (!el || !Number.isFinite(target)) return;
   const start = parseInt((el.textContent || '0').replace(/[^\d-]/g, ''), 10) || 0;
   const delta = target - start;
   if (delta === 0) { el.textContent = fmtNum(target) + suffix; return; }
@@ -1069,24 +1068,42 @@ window.addEventListener('focus', bumpStamps);
 window.addEventListener('pageshow', bumpStamps);
 
 /* load all */
+let _loading = false;
+let _lastLoadAt = 0;
 async function loadAll() {
-  await Promise.all([
-    loadRecent(),
-    Promise.all([ loadStats('lifetime', 'stat-alltime'), loadTopFor('lifetime', 'alltime') ]),
-    Promise.all([ loadStats('weeks', 'stat-weeks'), loadTopFor('weeks', 'weeks') ]),
-    load2026(),
-  ]);
-  bumpStamps();
-  tickStamp();
-}
-loadAll();
-let _lastLoadAt = Date.now();
-setInterval(() => { _lastLoadAt = Date.now(); loadAll(); }, REFRESH_MS);
-document.addEventListener('visibilitychange', () => {
-  // Throttle: only re-fetch if 60s since last load and tab became visible
-  if (document.visibilityState === 'visible' && Date.now() - _lastLoadAt > 60000) {
+  if (_loading) return;
+  _loading = true;
+  try {
+    await Promise.all([
+      loadRecent(),
+      Promise.all([ loadStats('lifetime', 'stat-alltime'), loadTopFor('lifetime', 'alltime') ]),
+      Promise.all([ loadStats('weeks', 'stat-weeks'), loadTopFor('weeks', 'weeks') ]),
+      load2026(),
+    ]);
     _lastLoadAt = Date.now();
-    loadAll();
+    bumpStamps();
+    tickStamp();
+  } finally { _loading = false; }
+}
+
+/* refresh timers — paused while the tab is hidden */
+let refreshTimer = null, npTimer = null;
+function startTimers() {
+  if (!refreshTimer) refreshTimer = setInterval(loadAll, REFRESH_MS);
+  if (!npTimer) npTimer = setInterval(loadNowPlaying, 30000);
+}
+function stopTimers() {
+  clearInterval(refreshTimer); refreshTimer = null;
+  clearInterval(npTimer); npTimer = null;
+}
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible') {
+    startTimers();
+    // Throttle: only re-fetch if 60s since last load
+    if (Date.now() - _lastLoadAt > 60000) loadAll();
+    loadNowPlaying();
+  } else {
+    stopTimers();
   }
 });
 
@@ -1117,13 +1134,13 @@ async function loadNowPlaying() {
     npSection.style.display = 'block';
   } catch { document.getElementById('np-section').style.display = 'none'; }
 }
+loadAll();
 loadNowPlaying();
-setInterval(loadNowPlaying, 30000);
+startTimers();
 </script>
 <style>
 .rpt { display:inline-block; width:4px; height:4px; border-radius:50%; background:var(--muted); margin-left:5px; vertical-align:middle; opacity:0.65; flex-shrink:0; }
 </style>
 <script src="theme.js"></script>
-<script src="ascii-art.js?v=4"></script>
 </body>
 </html>
