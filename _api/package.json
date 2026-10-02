@@ -3,13 +3,17 @@
   "version": "1.0.0",
   "private": true,
   "type": "module",
-  "engines": { "node": ">=22.0.0" },
+  "engines": {
+    "node": ">=22.0.0"
+  },
   "scripts": {
     "dev": "wrangler dev --config ./wrangler.toml",
     "deploy": "wrangler deploy --config ./wrangler.toml",
     "test": "node --test test/*.test.mjs ../tests/*.test.mjs"
   },
   "devDependencies": {
+    "esbuild": "^0.28.1",
+    "miniflare": "^5.20261001.0-alpha",
     "wrangler": "^4.146.0"
   }
 }

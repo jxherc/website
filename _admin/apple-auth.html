@@ -21,34 +21,35 @@
     <div class="label">connection</div>
     <p style="color:var(--muted,#888);font-size:.9rem;line-height:1.5;max-width:46ch;">
       log in with your apple id once to link apple music. the token is stored server-side so
-      the music page can pull your recently played + heavy rotation straight from apple.
+      the music page can pull recent tracks straight from apple. this does not supply exact play counts or listening times.
     </p>
     <div class="stats-row" style="margin:1rem 0;">
       <div class="stat-card"><div class="num" id="state">—</div><div class="unit">status</div></div>
     </div>
     <button class="btn primary" id="connect-btn" disabled>loading musickit…</button>
-    <div id="msg"></div>
+    <div id="msg" role="status"></div>
+    <p style="margin-top:1rem;font-size:.8rem"><a href="music.html">manage listening history →</a></p>
   </section>
 </main>
 
 <script type="module">
-  import { getToken, requireLogin } from './admin.js';
+  import { getToken, requireLogin, API } from './admin.js';
   requireLogin();
 
-  const API   = 'https://api.jxherc.com';
   const btn   = document.getElementById('connect-btn');
   const msg   = document.getElementById('msg');
   const state = document.getElementById('state');
 
   function show(text, type = 'ok') {
-    msg.innerHTML = `<div class="msg ${type}">${text}</div>`;
+    msg.replaceChildren();
+    const row = document.createElement('div'); row.className = `msg ${type}`; row.textContent = text; msg.append(row);
   }
 
   async function refreshState() {
     try {
       const r = await fetch(`${API}/apple/status`);
       const s = await r.json();
-      state.textContent = s.connected ? 'linked' : (s.hasKey ? 'not linked' : 'no key');
+      state.textContent = !s.configured ? 'setup needed' : (s.connected ? 'linked' : 'not linked');
     } catch { state.textContent = '?'; }
   }
   refreshState();
@@ -93,7 +94,7 @@
       const d = await r.json();
       if (!r.ok) throw new Error(d.error || 'save failed');
 
-      show('linked. apple recent history is connected; music statistics use stats.fm.', 'ok');
+      show('linked. recent tracks will refresh every five minutes. listening totals come from imported play records.', 'ok');
       btn.textContent = 're-link apple music';
       refreshState();
     } catch (e) {

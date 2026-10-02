@@ -21,8 +21,8 @@
   </div>
 </div>
 
-<script>
-  const API = 'https://api.jxherc.com';
+<script type="module">
+  import { API } from './admin.js';
 
   if (localStorage.getItem('admin_token')) location.href = 'index.html';
 

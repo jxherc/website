@@ -122,7 +122,7 @@ async function routeApple(request, env, path) {
 
   if (method === 'GET' && sub === 'recent') {
     const data = await cached(env, 'apple:cache:recent', 600, async () => {
-      const r = await appleGet(env, '/v1/me/recent/played/tracks?limit=25');
+      const r = await appleGet(env, '/v1/me/recent/played/tracks?types=songs&limit=25');
       return r.error ? r : { items: (r.data || []).map(normTrack) };
     });
     return json(data, data.error ? (data.status || 502) : 200);
@@ -162,8 +162,18 @@ async function routeApple(request, env, path) {
     // bust caches so fresh data shows up right away
     await env.APPLE_KV.delete('apple:cache:recent');
     await env.APPLE_KV.delete('apple:cache:heavy');
+    await env.APPLE_KV.delete('apple:recent:snapshot');
     return json({ ok: true });
   }
 
   return json({ error: 'not found' }, 404);
+}
+
+export async function syncAppleRecent(env) {
+  if (!env.APPLE_KV) throw new Error('apple storage not configured');
+  const data = await appleGet(env, '/v1/me/recent/played/tracks?types=songs&limit=25');
+  if (data.error || !Array.isArray(data.data)) throw new Error('apple recent unavailable');
+  await env.APPLE_KV.put('apple:recent:snapshot', JSON.stringify({
+    items: data.data.map(normTrack), observedAt: Date.now()
+  }));
 }

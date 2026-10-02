@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>music history — admin</title>
+<link rel="stylesheet" href="style.css">
+<style>
+  main { gap:2rem; } p { font-size:.85rem; max-width:60ch; }
+  .field label,.label,.stat-card .unit { color:#aaa; }
+  input[type="file"] { min-height:44px; }
+  .btn { min-height:44px; color:#bbb; }
+  .btn:focus-visible,a:focus-visible { outline:2px solid var(--accent); outline-offset:4px; }
+  .actions { display:flex; gap:.75rem; flex-wrap:wrap; }
+  #feedback { font-size:.85rem; overflow-wrap:anywhere; }
+  @media(max-width:480px) { body { padding:2rem 1rem; } .stats-row { grid-template-columns:1fr; } }
+</style>
+</head>
+<body>
+<main>
+  <header><a class="btn" href="index.html">← admin</a></header>
+  <section>
+    <h1 style="font-size:1.2rem;font-weight:500;margin-bottom:1rem">music history</h1>
+    <p>your listening records live in your own database. the public music page switches over after an import matches its verified totals.</p>
+  </section>
+  <section aria-label="database status">
+    <div class="stats-row">
+      <div class="stat-card"><div class="num" id="plays">—</div><div class="unit">imported listens</div></div>
+      <div class="stat-card"><div class="num" id="minutes">—</div><div class="unit">minutes</div></div>
+      <div class="stat-card"><div class="num" id="state">—</div><div class="unit">website source</div></div>
+    </div>
+    <p id="sources" style="margin-top:1rem"></p>
+  </section>
+  <section>
+    <div class="field">
+      <label for="history">verified history export (.json)</label>
+      <input id="history" type="file" accept="application/json,.json">
+    </div>
+    <p style="margin:.75rem 0">use the stats.fm export tool in the website project. re-importing the same file keeps one copy of each listen. keep the export as your backup.</p>
+    <div class="actions">
+      <button class="btn primary" id="import">import history</button>
+      <button class="btn" id="activate" disabled>use this history on the website</button>
+    </div>
+  </section>
+  <section>
+    <div class="label">apple music</div>
+    <p style="margin-bottom:1rem">recent tracks refresh every five minutes after linking apple music. apple supplies their order, but no individual play times. these refreshes do not increase listening totals.</p>
+    <div class="actions">
+      <a class="btn" href="apple-auth.html">connect apple music</a>
+      <button class="btn" id="sync">refresh recent tracks</button>
+    </div>
+  </section>
+  <p id="feedback" role="status" aria-live="polite"></p>
+</main>
+<script type="module" src="music.js"></script>
+</body>
+</html>

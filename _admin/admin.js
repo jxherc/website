@@ -1,4 +1,4 @@
-const API = 'https://api.jxherc.com';
+export const API = ['localhost','127.0.0.1'].includes(location.hostname) ? 'http://localhost:8787' : 'https://api.jxherc.com';
 
 export function getToken() {
   return localStorage.getItem('admin_token');

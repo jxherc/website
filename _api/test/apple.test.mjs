@@ -92,7 +92,7 @@ test('relink replaces the user token and invalidates both response caches', asyn
     { admin: true, method: 'POST', body: JSON.stringify({ token: 'new' }) });
   assert.deepEqual(result, { status: 200, data: { ok: true } });
   assert.equal(store.values.get('apple:user_token'), 'new');
-  assert.deepEqual(store.deleted, ['apple:cache:recent', 'apple:cache:heavy']);
+  assert.deepEqual(store.deleted, ['apple:cache:recent', 'apple:cache:heavy', 'apple:recent:snapshot']);
   assert.equal(store.values.has('apple:cache:recent'), false);
   assert.equal(store.values.has('apple:cache:heavy'), false);
 });
@@ -158,4 +158,18 @@ test('Apple requests handle missing connection and upstream network failure', as
   t.mock.method(globalThis, 'fetch', async () => { throw new Error('network failure'); });
   assert.deepEqual(await call('/apple/recent', { ...config, APPLE_MUSIC_USER_TOKEN: 'example' }),
     { status: 502, data: { error: 'apple unavailable' } });
+});
+
+test('scheduled recent sync records observations without generating listens', async t => {
+  const { syncAppleRecent } = await import('../src/routes/applemusic.js');
+  const store = kv({ 'apple:user_token': 'fixture' }), env = {...config,APPLE_KV:store};
+  t.mock.method(globalThis,'fetch',async url=>{
+    assert.ok(url.includes('types=songs'));
+    return Response.json({data:[{attributes:{name:'song',artistName:'artist'}}]});
+  });
+  await syncAppleRecent(env);
+  const snapshot = await store.get('apple:recent:snapshot','json');
+  assert.equal(snapshot.items[0].name,'song');assert.equal(snapshot.items[0].endTime,undefined);assert.ok(snapshot.observedAt);
+  t.mock.method(globalThis,'fetch',async()=>new Response('',{status:401}));
+  await assert.rejects(syncAppleRecent(env));assert.deepEqual(await store.get('apple:recent:snapshot','json'),snapshot);
 });

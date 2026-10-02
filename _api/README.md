@@ -82,3 +82,55 @@ npx wrangler deploy
 ## add custom domain
 
 In Cloudflare Workers dashboard → your worker → Settings → Domains → add `api.jxherc.com`
+
+## own music history
+
+The music page uses D1 after a verified import is activated. Until then it keeps both existing
+stats.fm accounts. After a browser learns that history is activated, it remembers that source. Failed requests show an error or previously loaded data;
+they do not substitute stats.fm totals. A browser that has not yet learned the source uses clearly labeled stats.fm data when the own-service status is unreachable. Public routes are `/music/status`, `/music/view?after=…&before=…`
+and `/music/recent`. Date bounds are UTC milliseconds, with an inclusive start and exclusive end.
+Imports use at most 40 records and 42 queries per request to stay below the
+[free-plan D1 query limit](https://developers.cloudflare.com/d1/platform/limits/). Readiness, totals
+and rankings are read in one transactional batch so concurrent imports cannot leak unverified rows.
+Admin-only POST routes are `/music/import/start`, `/music/import`, `/music/activate` and `/music/sync`.
+
+1. Log into Cloudflare from `_api`: `npx wrangler login`. Verify the existing deployed Worker
+   bindings first; this repository's `wrangler.toml` contains placeholders, not production IDs.
+2. Create the database with `npx wrangler d1 create jxherc-music`. Put its returned database ID
+   in the `MUSIC_DB` binding, then run `npx wrangler d1 migrations apply MUSIC_DB --remote`.
+3. Export both public stats.fm accounts from the project root:
+   `node _api/scripts/export-music.mjs /private/path/history.json`.
+   The tool reads individual listens, retains timestamp-boundary ties and verifies each account's
+   record count and total listening milliseconds before writing the file. Keep this private backup
+   outside the published site and git.
+4. Deploy the Worker and website using their existing deployment process. In
+   `admin.jxherc.com/music.html`, import the verified JSON file and review the totals. Click
+   **use this history on the website**. The server enables it only if the entire database matches
+   the count and milliseconds saved by the admin importer before uploading the first batch.
+   Submitting an interrupted import's current totals cannot activate it. Repeating interrupted imports is safe; changed records
+   with an existing ID are rejected rather than overwritten. New records pause previously
+   activated totals until the completed import is verified again. Duplicate retries do not pause them.
+5. Link Apple Music from the admin page using the configuration described above. The five-minute
+   cron saves the recent track list even with the website closed. **It does not create listening
+   events.** Apple's recent-track response supplies order and song metadata, not a full playback
+   log or individual play times. A failed refresh preserves the last successful list and its
+   observation time. Relinking clears the old list.
+
+The export covers what stats.fm currently holds, not proof that the original Apple/Spotify archive
+was complete. Catalog metadata may be missing or reassigned by stats.fm. For unavailable album
+IDs the importer uses the track's returned album; absent catalog entries retain the source track
+name and listening time. Artist rankings credit each returned artist. Recording IDs merge matching
+recordings across accounts and keep distinct recordings separate. Events without recording IDs use
+normalized track and artist names; unavailable metadata can affect album/artist grouping.
+The page reports incomplete catalog details instead of dropping those listens from totals.
+
+Exact automatic play counts across devices need a playback collector or dated source export.
+Neither recent-track polling nor linking Apple Music supplies that. Discord presence and device
+collectors are a separate step. The import endpoint accepts canonical timestamped events with
+source-specific IDs for future collectors. Original-provider archives should be reconciled with
+existing listens before import so the same playback is not counted under two different sources.
+
+For a disposable local database run `npx wrangler d1 migrations apply MUSIC_DB --local`, then
+`npm run dev`. Serve the static site separately on localhost. Admin and music pages use the local
+Worker at port 8787 on localhost; allow the static server's origin in local `ALLOWED_ORIGINS`.
+Use a local test admin login and `.dev.vars` for local secrets. Never publish that file.

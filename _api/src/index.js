@@ -6,10 +6,15 @@ import { handlePhotos }    from './routes/photos.js';
 import { handleUploads }   from './routes/uploads.js';
 import { handleDiscord }   from './routes/discord.js';
 import { handleStats }     from './routes/stats.js';
+import { handleMusic } from './routes/music.js';
+import { syncAppleRecent } from './routes/applemusic.js';
 import { handleApple }     from './routes/applemusic.js';
 import { cors, corsHeaders } from './lib/cors.js';
 
 export default {
+  async scheduled(controller, env, ctx) {
+    ctx.waitUntil(syncAppleRecent(env).catch(() => console.error('apple recent sync failed')));
+  },
   async fetch(request, env) {
     const url    = new URL(request.url);
     const path   = url.pathname;
@@ -34,6 +39,8 @@ export default {
       response = await handleDiscord(request, env);
     else if (path === '/stats.svg')
       response = await handleStats(request, env, path);
+    else if (path === '/music' || path.startsWith('/music/'))
+      response = await handleMusic(request, env, path);
     else if (path === '/apple' || path.startsWith('/apple/'))
       response = await handleApple(request, env, path);
     else

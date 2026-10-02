@@ -30,3 +30,13 @@ bucket_name = "jxherc-photos"
 ALLOWED_ORIGINS = "https://jxherc.com,https://admin.jxherc.com"
 APPLE_KEY_ID = "REPLACE_WITH_APPLE_KEY_ID"
 APPLE_TEAM_ID = "REPLACE_WITH_APPLE_TEAM_ID"
+
+
+[[d1_databases]]
+binding = "MUSIC_DB"
+database_name = "jxherc-music"
+database_id = "REPLACE_WITH_MUSIC_DB_ID"
+migrations_dir = "migrations"
+
+[triggers]
+crons = ["*/5 * * * *"]

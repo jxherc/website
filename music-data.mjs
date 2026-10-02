@@ -84,3 +84,18 @@ export async function loadCombinedStats(api, users, query, fetchJSON) {
     minutes: Math.round(stats.reduce((n, value) => n + value.durationMs, 0) / 60000),
   };
 }
+
+export function ownMusicView(api, query, fetchJSON, cache) {
+  const key = new URLSearchParams(query).toString();
+  if (!cache.has(key)) cache.set(key, (async () => {
+    const data = await fetchJSON(`${api}/music/view?${key}`);
+    if (!Number.isFinite(data?.stats?.streams) || !Number.isFinite(data?.stats?.minutes) ||
+        !['track','album','artist'].every(kind => Array.isArray(data?.tops?.[kind]))) throw new Error('music database unavailable');
+    return data;
+  })());
+  return cache.get(key);
+}
+
+export function usesOwnHistory(status, previouslyOwned = false) {
+  return previouslyOwned || status?.ready === true || status?.owned === true;
+}

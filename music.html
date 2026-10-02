@@ -46,6 +46,7 @@
   <!-- RECENT -->
   <section>
     <div class="label">recent <span class="live-stamp" data-stamp="recent">—</span></div>
+    <p id="recent-source" class="stat-dim" style="font-size:.72rem;margin-bottom:1rem" role="status"></p>
     <ul class="tracks" id="tracks">
       <li class="track"><span class="main" style="color:var(--muted)">loading…</span></li>
     </ul>
@@ -153,17 +154,17 @@
         <div class="year-unit">streams</div>
 
         <div class="year-top">
-          <div class="yt-row">
+          <div class="yt-row" id="y2025-song">
             <span class="yt-k">song</span>
             <img class="yt-thumb thumb-sq" alt="luther" src="https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/54/28/14/54281424-eece-0935-299d-fdd2ab403f92/24UM1IM28978.rgb.jpg/200x200bb.jpg">
             <span class="yt-name">luther (with sza) <span class="yt-sub">· kendrick lamar</span></span>
           </div>
-          <div class="yt-row">
+          <div class="yt-row" id="y2025-album">
             <span class="yt-k">album</span>
             <img class="yt-thumb thumb-sq" alt="gnx" src="https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/54/28/14/54281424-eece-0935-299d-fdd2ab403f92/24UM1IM28978.rgb.jpg/200x200bb.jpg">
             <span class="yt-name">gnx <span class="yt-sub">· kendrick lamar</span></span>
           </div>
-          <div class="yt-row">
+          <div class="yt-row" id="y2025-artist">
             <span class="yt-k">artist</span>
             <img class="yt-thumb thumb-round" alt="kendrick" src="https://i.scdn.co/image/ab6761610000517439ba6dcd4355c03de0b50918">
             <span class="yt-name">kendrick lamar</span>
@@ -244,7 +245,13 @@
 </main>
 
 <script type="module">
-import { loadCombinedStats, loadCombinedTops } from './music-data.mjs';
+import { loadCombinedStats, loadCombinedTops, ownMusicView, usesOwnHistory } from './music-data.mjs';
+const OWN_API = ['localhost','127.0.0.1'].includes(location.hostname) ? 'http://localhost:8787' : 'https://api.jxherc.com';
+let ownHistory = false;
+try { ownHistory = localStorage.getItem('music_owned') === 'true'; } catch {}
+const ownViews = new Map();
+let sourceNote = 'stats.fm';
+
 
 /* config */
 const API = 'https://api.stats.fm/api/v1';
@@ -467,7 +474,7 @@ function renderTopRows(containerId, items, kind, metric) {
 /* top section state + cache */
 const TOP_N = 5;
 const topMetric = { alltime: 'streams', weeks: 'streams', y2026: 'streams' };
-const topCache  = { alltime: null, weeks: null, y2026: null };
+const topCache  = { alltime: null, weeks: null, y2026: null, y2025: null };
 
 function sortAndSlice(items, metric) {
   return [...items].sort((x, y) => (Number(y[metric]) || 0) - (Number(x[metric]) || 0)).slice(0, TOP_N);
@@ -496,13 +503,15 @@ async function loadTopFor(query, section) {
   const suffix = section === 'y2026' ? '2026' : section;
   const notice = document.getElementById(`top-notice-${suffix}`);
   try {
-    topCache[section] = await loadCombinedTops(API, [USERS.old, USERS.new], query, safeFetch);
+    topCache[section] = ownHistory
+      ? (await ownMusicView(OWN_API, query, safeFetch, ownViews)).tops
+      : await loadCombinedTops(API, [USERS.old, USERS.new], query, safeFetch);
     notice.hidden = true;
     renderSection(section);
   } catch {
     notice.textContent = topCache[section]
       ? 'could not refresh rankings; showing previous data'
-      : 'could not load both accounts; retrying';
+      : (ownHistory ? 'could not load listening history; retrying' : 'could not load both accounts; retrying');
     notice.hidden = false;
     if (!topCache[section]) markTopUnavailable(suffix);
   }
@@ -536,7 +545,9 @@ function writeStatLine(containerId, streams, minutes) {
 async function loadStats(query, containerId) {
   const el = document.getElementById(containerId);
   try {
-    const totals = await loadCombinedStats(API, [USERS.old, USERS.new], query, safeFetch);
+    const totals = ownHistory
+      ? (await ownMusicView(OWN_API, query, safeFetch, ownViews)).stats
+      : await loadCombinedStats(API, [USERS.old, USERS.new], query, safeFetch);
     writeStatLine(containerId, totals.streams, totals.minutes);
     if (containerId === 'stat-2026') {
       compareData.y2026 = totals;
@@ -560,22 +571,28 @@ async function loadRecent() {
   const tracksEl = document.getElementById('tracks');
   const moreBtn  = document.getElementById('more-btn');
   try {
-    const data = await safeFetch(`${API}/users/${USERS.new}/streams/recent?limit=25`);
-    const items = extract(data);
+    const data = await safeFetch(`${OWN_API}/music/recent`);
+    const ownRecent = Array.isArray(data?.items);
+    const legacy = ownRecent || ownHistory ? data : await safeFetch(`${API}/users/${USERS.new}/streams/recent?limit=25`);
+    const items = extract(legacy);
+    document.getElementById('recent-source').textContent = ownRecent && data.source === 'apple'
+      ? `apple music · play times unavailable · last checked ${timeAgo(data.observedAt)}` : (ownRecent ? 'imported listening history' : 'stats.fm');
     if (!items.length) throw 0;
     // Use the endTime of the most recent track as the stamp — this is actual stats.fm data freshness
     const lastPlayed = items[0]?.endTime ? new Date(items[0].endTime).getTime() : null;
     if (lastPlayed) fetchAt.recent = lastPlayed;
+    else if (ownRecent && data.observedAt) fetchAt.recent = data.observedAt;
     if (items.length <= 5) recentExpanded = false;
     tracksEl.innerHTML = items.slice(0, 25).map((item, i) => {
       const track  = esc(item.track?.name || item.name || '');
-      const artist = esc(item.track?.artists?.[0]?.name || item.artists?.[0]?.name || '');
+      const artist = esc(item.artist || item.track?.artists?.[0]?.name || item.artists?.[0]?.name || '');
       const rawSid = item.track?.externalIds?.spotify?.[0] || item.track?.spotifyIds?.[0] || item.externalIds?.spotify?.[0] || '';
-      const url = /^[A-Za-z0-9]+$/.test(rawSid) ? `https://open.spotify.com/track/${rawSid}` : 'https://stats.fm/jxherc';
+      const url = ownRecent ? (item.url || `https://music.apple.com/ca/search?term=${encodeURIComponent(item.name || '')}`)
+        : (/^[A-Za-z0-9]+$/.test(rawSid) ? `https://open.spotify.com/track/${rawSid}` : 'https://stats.fm/jxherc');
       const ago = item.endTime ? timeAgoTiny(new Date(item.endTime).getTime()) : '';
       return `<li class="track ${i >= 5 && !recentExpanded ? 'hidden' : ''}">
         <span class="main">
-          <a class="title-link" href="${url}" target="_blank" rel="noopener">${track}</a>
+          <a class="title-link" href="${esc(url)}" target="_blank" rel="noopener">${track}</a>
           ${artist ? `<span class="artist"> — ${artist}</span>` : ''}
         </span>
         ${ago ? `<span class="time">${ago}</span>` : ''}
@@ -595,12 +612,13 @@ async function loadRecent() {
     moreBtn.onclick = null;
     recentExpanded = false;
     fetchAt.recent = 0;
+    document.getElementById('recent-source').textContent = '';
     tracksEl.innerHTML = '<li class="track"><span class="main" style="color:var(--muted)">recent tracks unavailable</span></li>';
   }
 }
 
 /* 2025 vs 2026 */
-const compareData = { y2025: { ...F_2025 }, y2026: null };
+const compareData = { y2025: ownHistory ? null : { ...F_2025 }, y2026: null };
 let compareMetric = 'streams';
 let compareStatsError = false;
 
@@ -644,6 +662,16 @@ function tickTo(el, target, duration = 900, suffix = '') {
 
 function renderCompare() {
   const m = compareMetric;
+  if (ownHistory && !topCache.y2025) {
+    for (const kind of ['song','album','artist']) document.getElementById(`y2025-${kind}`).textContent = `${kind} · unavailable`;
+  }
+  if (ownHistory && topCache.y2025) {
+    for (const [kind,key] of [['song','track'],['album','album'],['artist','artist']]) {
+      const item = sortAndSlice(topCache.y2025[key],m)[0];
+      if (item) renderYTRow(`y2025-${kind}`,item,kind);
+      else document.getElementById(`y2025-${kind}`).textContent = `${kind} · unavailable`;
+    }
+  }
   const pick = kind => topCache.y2026 ? sortAndSlice(topCache.y2026[kind], m)[0] : null;
   const winners = { song: pick('track'), album: pick('album'), artist: pick('artist') };
   for (const [kind, item] of Object.entries(winners)) {
@@ -654,14 +682,14 @@ function renderCompare() {
       el.innerHTML = `<span class="yt-k">${kind}</span><div class="yt-thumb ${shape} thumb-empty"></div><span class="yt-name" style="color:var(--muted)">unavailable</span>`;
     }
   }
-  if (!compareData.y2026) {
-    const card = document.getElementById('year-2026');
-    card.querySelector('.year-num').textContent = 'unavailable';
-    card.querySelector('.year-unit').textContent = '';
-    const old = document.getElementById('year-2025');
-    tickTo(old.querySelector('.year-num'), compareData.y2025[m]);
-    old.querySelector('.year-unit').textContent = m;
-    document.getElementById('compare-note').textContent = '2026 stats unavailable';
+  if (!compareData.y2025 || !compareData.y2026) {
+    for (const year of ['2025','2026']) {
+      const card = document.getElementById(`year-${year}`), data = compareData[`y${year}`];
+      if (data) tickTo(card.querySelector('.year-num'),data[m]);
+      else card.querySelector('.year-num').textContent = 'unavailable';
+      card.querySelector('.year-unit').textContent = data ? m : '';
+    }
+    document.getElementById('compare-note').textContent = 'year comparison unavailable';
     return;
   }
   const v25 = compareData.y2025[m];
@@ -860,6 +888,27 @@ async function loadAll() {
   if (_loading) return;
   _loading = true;
   try {
+    const status = await safeFetch(`${OWN_API}/music/status`);
+    // Once verified, an outage keeps the previous own stats instead of mixing sources.
+    const wasOwned = ownHistory;
+    ownHistory = usesOwnHistory(status, ownHistory);
+    if (ownHistory && !wasOwned) {
+      for (const key of Object.keys(topCache)) topCache[key] = null;
+      compareData.y2025 = null; compareData.y2026 = null;
+      for (const id of ['stat-alltime','stat-2026','stat-weeks']) {
+        document.getElementById(id).innerHTML = '<span class="stat-dim">loading…</span>';
+      }
+    }
+    if (ownHistory) { try { localStorage.setItem('music_owned','true'); } catch {} }
+    sourceNote = ownHistory ? 'own listening history' : (status ? 'stats.fm · migration pending' : 'stats.fm · own history unavailable');
+    if (ownHistory && status?.metadataMissing) sourceNote += ' · some catalog details unavailable';
+    ownViews.clear();
+    if (ownHistory) {
+      try {
+        const old = await ownMusicView(OWN_API,{after:Date.UTC(2025,0,1),before:Date.UTC(2026,0,1)},safeFetch,ownViews);
+        compareData.y2025 = old.stats; topCache.y2025 = old.tops;
+      } catch { sourceNote += ' · could not refresh 2025'; }
+    }
     const now = Date.now();
     const lifetime = { after: 1, before: now };
     const weeks = { after: now - 28 * 24 * 60 * 60 * 1000, before: now };
@@ -900,15 +949,16 @@ document.addEventListener('visibilitychange', () => {
 /* update page stamp to show stats.fm freshness */
 function tickStamp() {
   const vals = Object.values(fetchAt).filter(Boolean);
-  if (!vals.length) return;
+  if (!vals.length) { document.getElementById('edit-stamp').textContent = sourceNote; return; }
   const t = Math.max(...vals);
   if (!isFinite(t)) return;
-  document.getElementById('edit-stamp').textContent = 'stats.fm · ' + timeAgo(t);
+  document.getElementById('edit-stamp').textContent = sourceNote + ' · ' + timeAgo(t);
 }
 setInterval(tickStamp, 10000);
 
 /* now playing */
 async function loadNowPlaying() {
+  if (ownHistory) { document.getElementById('np-section').style.display = 'none'; return; }
   try {
     const res = await safeFetch(`${API}/users/${USERS.new}/currently-playing`);
     const track = res?.item?.track || res?.track || null;
@@ -924,8 +974,7 @@ async function loadNowPlaying() {
     npSection.style.display = 'block';
   } catch { document.getElementById('np-section').style.display = 'none'; }
 }
-loadAll();
-loadNowPlaying();
+loadAll().then(loadNowPlaying);
 startTimers();
 </script>
 <style>

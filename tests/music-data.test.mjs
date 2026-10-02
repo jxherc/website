@@ -56,3 +56,22 @@ test('totals require both accounts, with valid zero distinguished from failure',
   await assert.rejects(loadCombinedStats('', ['a','b'],{},async url=>url.includes('/a/')?{items:{count:116,durationMs:60000}}:null),/unavailable/);
   await assert.rejects(loadCombinedStats('', ['a','b'],{},async()=>({items:{}})),/unavailable/);
 });
+
+test('own music view shares one request and rejects unavailable totals', async () => {
+  const { ownMusicView } = await import('../music-data.mjs');
+  const cache=new Map();let calls=0;
+  const data={stats:{streams:0,minutes:0},tops:{track:[],album:[],artist:[]}};
+  const fetchJSON=async()=>{calls++;return data;};
+  const [a,b]=await Promise.all([ownMusicView('https://fixture.test',{after:1,before:2},fetchJSON,cache),ownMusicView('https://fixture.test',{after:1,before:2},fetchJSON,cache)]);
+  assert.equal(calls,1);assert.deepEqual(a,b);
+  await assert.rejects(ownMusicView('https://fixture.test',{after:2,before:3},async()=>({error:'unavailable'}),cache),/unavailable/);
+});
+
+test('source selection preserves an activated source through outages and paused imports',async()=>{
+  const {usesOwnHistory}=await import('../music-data.mjs');
+  assert.equal(usesOwnHistory(null),false);
+  assert.equal(usesOwnHistory({ready:false,owned:false}),false);
+  assert.equal(usesOwnHistory({ready:true}),true);
+  assert.equal(usesOwnHistory(null,true),true);
+  assert.equal(usesOwnHistory({ready:false,owned:true}),true);
+});

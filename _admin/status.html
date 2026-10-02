@@ -17,8 +17,8 @@
   </header>
 
   <section>
-    <div class="label">currently playing</div>
-    <div id="now-playing" style="font-size:0.82rem;color:var(--muted);font-style:italic;">loading from stats.fm…</div>
+    <div class="label">recently played</div>
+    <div id="now-playing" style="font-size:0.82rem;color:var(--muted);font-style:italic;">loading recent tracks…</div>
   </section>
 
   <section>
@@ -49,18 +49,19 @@
   import { requireLogin, apiFetch, msg } from './admin.js';
   requireLogin();
 
-  const STATS_API = 'https://api.stats.fm/api/v1';
+
 
   async function loadNowPlaying() {
     const el = document.getElementById('now-playing');
     try {
-      const res  = await fetch(`${STATS_API}/users/jxherc/streams/recent?limit=1`);
+      const res = await apiFetch('/music/recent');
+      if (!res.ok) throw new Error('recent tracks unavailable');
       const data = await res.json();
       const item = (data.items || data)[0];
       if (!item) { el.textContent = 'nothing recently'; return; }
-      const track  = item.track?.name || item.name || '—';
-      const artist = item.track?.artists?.[0]?.name || '';
-      el.innerHTML = `<span style="color:var(--text)">${track}</span>${artist ? ` <span style="color:var(--muted)">— ${artist}</span>` : ''}`;
+      const track = item.name || '—';
+      const artist = item.artist || '';
+      el.textContent = `${track}${artist ? ` — ${artist}` : ''}`;
     } catch { el.textContent = 'could not fetch'; }
   }
 
