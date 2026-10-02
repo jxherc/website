@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>photos - admin</title>
+<link rel="stylesheet" href="style.css">
+<style>
+  [hidden] { display: none !important; }
+  :root { --muted: #a0a0a0; }
+  header, .gallery-heading, .actions { display: flex; align-items: center; gap: .75rem; }
+  header { justify-content: space-between; }
+  header a, .btn { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; }
+  h1 { font-size: .875rem; font-weight: 500; }
+  h2 { font-size: .8rem; font-weight: 500; margin-bottom: 1rem; }
+  form { display: flex; flex-direction: column; gap: .75rem; }
+  input { min-height: 44px; }
+  input[type=file] { padding: .5rem; }
+  input[type=file]::file-selector-button { min-height: 44px; margin-right: .75rem; }
+  .gallery-heading { justify-content: space-between; margin-bottom: 1rem; }
+  .gallery-heading h2 { margin: 0; }
+  .feedback { font-size: .8rem; overflow-wrap: anywhere; }
+  .feedback.error { color: #ff7979; }
+  .gallery-status { margin-bottom: 1rem; color: var(--muted); font-size: .8rem; }
+  .photo-grid { align-items: start; }
+  .photo-info { padding: .75rem; display: flex; flex-direction: column; gap: .5rem; min-width: 0; }
+  .photo-caption { font-size: .8rem; overflow-wrap: anywhere; white-space: pre-wrap; }
+  .photo-date { color: var(--muted); font-size: .7rem; }
+  .photo-confirm { font-size: .75rem; }
+  .photo-actions { display: flex; flex-wrap: wrap; gap: .25rem; }
+  .photo-actions .btn { padding: .5rem .6rem; }
+  .photo-card .btn.danger { color: #ff7979; }
+  @media (max-width: 380px) { .photo-grid { grid-template-columns: 1fr; } }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+</head>
+<body>
+<main>
+  <header><a href="index.html">← admin</a><h1>photos</h1></header>
+  <section aria-labelledby="upload-heading">
+    <h2 id="upload-heading">upload photo</h2>
+    <form id="upload-form">
+      <div class="field">
+        <label for="photo-file">image</label>
+        <input id="photo-file" name="file" type="file" accept="image/jpeg,image/png,image/gif,image/webp,image/avif,image/heic,image/heif" required>
+      </div>
+      <div class="field">
+        <label for="photo-caption">caption (optional)</label>
+        <input id="photo-caption" name="caption" type="text">
+      </div>
+      <div class="actions"><button class="btn primary" id="upload-button" type="submit">upload photo</button></div>
+    </form>
+  </section>
+  <p id="feedback" class="feedback" role="status" aria-live="polite"></p>
+  <section aria-labelledby="gallery-heading">
+    <div class="gallery-heading"><h2 id="gallery-heading">all photos</h2><button class="btn" id="refresh-button" type="button">refresh photos</button></div>
+    <p id="gallery-status" class="gallery-status" role="status" aria-live="polite">loading photos…</p>
+    <div id="photos-list" class="photo-grid" aria-busy="true"></div>
+  </section>
+</main>
+<script type="module" src="photos.js"></script>
+</body>
+</html>

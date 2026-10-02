@@ -1,6 +1,6 @@
 import { requireAuth } from '../lib/auth.js';
 import { json } from '../lib/json.js';
-import { normalizeEvent, insertEvent, databaseSummary, musicView } from '../lib/music.js';
+import { normalizeEvent, listeningIdentity, insertEvent, databaseSummary, musicView } from '../lib/music.js';
 import { syncAppleRecent } from './applemusic.js';
 
 export async function handleMusic(request, env, path) {
@@ -19,7 +19,11 @@ export async function handleMusic(request, env, path) {
       await db.prepare("INSERT INTO music_settings(key,value) VALUES('import_target',?) ON CONFLICT(key) DO UPDATE SET value=excluded.value").bind(target).run();
       return json({ok:true});
     }
-    if (request.method === 'GET' && path === '/music/status') return json({...await databaseSummary(db),configured:true});
+    if (request.method === 'GET' && path === '/music/status') {
+      const admin=!!request.headers.get('Authorization');
+      if (admin) { const denied=await requireAuth(request,env);if(denied)return denied; }
+      return json({...await databaseSummary(db,{publishedOnly:!admin}),configured:true});
+    }
     if (request.method === 'GET' && path === '/music/view') {
       const after = Number(url.searchParams.get('after') || 1), before = Number(url.searchParams.get('before') || Date.now());
       if (!Number.isSafeInteger(after) || !Number.isSafeInteger(before) || after < 0 || before <= after) return json({error:'invalid date range'},400);
@@ -46,13 +50,15 @@ export async function handleMusic(request, env, path) {
       let events; try { events = await Promise.all(data.events.map(normalizeEvent)); } catch(e) { return json({error:e.message},400); }
       const ids = new Map();
       for (const e of events) {
-        if (ids.has(e.id) && ids.get(e.id) !== e.fingerprint) return json({error:'conflicting listen ids'},409);
-        ids.set(e.id,e.fingerprint);
+        const identity=listeningIdentity(e);
+        if (ids.has(e.id) && ids.get(e.id) !== identity) return json({error:'conflicting listen ids'},409);
+        ids.set(e.id,identity);
       }
       const keys=[...ids.keys()];
-      const stored=await db.prepare(`SELECT id,fingerprint FROM music_events WHERE id IN (${keys.map(()=>'?').join(',')})`).bind(...keys).all();
-      const existing=new Map(stored.results.map(r=>[r.id,r.fingerprint]));
-      if(events.some(e=>existing.has(e.id) && existing.get(e.id)!==e.fingerprint)) return json({error:'a listen id already has different data'},409);
+      const stored=await db.prepare(`SELECT id,source,played_at,played_ms,name,artist,album,track_key,album_key,metadata_missing,artists FROM music_events WHERE id IN (${keys.map(()=>'?').join(',')})`).bind(...keys).all();
+      const existing=new Map(stored.results.map(r=>[r.id,listeningIdentity({source:r.source,playedAt:r.played_at,playedMs:r.played_ms,name:r.name,artist:r.artist,album:r.album,
+        trackKey:r.track_key,albumKey:r.album_key,metadataMissing:r.metadata_missing,artists:JSON.parse(r.artists)})]));
+      if(events.some(e=>existing.has(e.id) && existing.get(e.id)!==ids.get(e.id))) return json({error:'a listen id already has different data'},409);
       const pause=db.prepare(`UPDATE music_settings SET value='paused' WHERE key='active' AND value='true' AND
         (SELECT COUNT(*) FROM music_events WHERE id IN (${keys.map(()=>'?').join(',')}))<?`).bind(...keys,keys.length);
       let results;
@@ -61,14 +67,26 @@ export async function handleMusic(request, env, path) {
       return json({received:events.length,inserted:results.slice(1).reduce((n,r)=>n+r.meta.changes,0)});
     }
     if (mutation && path === '/music/activate') {
-      const expected = await request.json().catch(()=>null), actual = await databaseSummary(db);
+      const expected = await request.json().catch(()=>null);
       if (!expected || !Number.isSafeInteger(expected.streams) || expected.streams <= 0 || !Number.isSafeInteger(expected.playedMs)) return json({error:'verified expected streams and playedMs required'},400);
-      // Compare and enable inside one SQL statement so an overlapping import cannot invalidate the check.
-      const result = await db.prepare(`INSERT INTO music_settings(key,value) SELECT 'active','true' WHERE
-        (SELECT COUNT(*) FROM music_events)=? AND (SELECT COALESCE(SUM(played_ms),0) FROM music_events)=?
-        AND (SELECT value FROM music_settings WHERE key='import_target')=?
-        ON CONFLICT(key) DO UPDATE SET value='true'`).bind(expected.streams,expected.playedMs,JSON.stringify({streams:expected.streams,playedMs:expected.playedMs})).run();
-      if (!result.meta.changes) return json({error:'history does not match the saved import target',actual:{streams:actual.streams,playedMs:actual.playedMs}},409);
+      // Verify, renew the cache generation and publish in the same transaction.
+      const generation=crypto.randomUUID();
+      const [result] = await db.batch([
+        db.prepare(`INSERT INTO music_settings(key,value) SELECT 'generation',? WHERE
+          (SELECT COUNT(*) FROM music_events)=? AND (SELECT COALESCE(SUM(played_ms),0) FROM music_events)=?
+          AND (SELECT value FROM music_settings WHERE key='import_target')=?
+          ON CONFLICT(key) DO UPDATE SET value=excluded.value`)
+          .bind(generation,expected.streams,expected.playedMs,JSON.stringify({streams:expected.streams,playedMs:expected.playedMs})),
+        db.prepare(`INSERT INTO music_settings(key,value) SELECT 'active','true' WHERE
+          (SELECT value FROM music_settings WHERE key='generation')=?
+          ON CONFLICT(key) DO UPDATE SET value='true'`).bind(generation),
+        // This settings guard is constant across cache rows: successful activation clears every old entry.
+        db.prepare("DELETE FROM music_cache WHERE (SELECT value FROM music_settings WHERE key='generation')=?").bind(generation),
+      ]);
+      if (!result.meta.changes) {
+        const actual=await databaseSummary(db);
+        return json({error:'history does not match the saved import target',actual:{streams:actual.streams,playedMs:actual.playedMs}},409);
+      }
       return json({ok:true});
     }
     if (mutation && path === '/music/sync') { await syncAppleRecent(env); return json({ok:true}); }

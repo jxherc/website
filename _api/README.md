@@ -124,6 +124,23 @@ recordings across accounts and keep distinct recordings separate. Events without
 normalized track and artist names; unavailable metadata can affect album/artist grouping.
 The page reports incomplete catalog details instead of dropping those listens from totals.
 
+Apply both D1 migrations before running the current Worker. Verified summary totals and exact
+range rankings use a persistent D1 cache. Each range key uses its first and last included listen
+timestamps, so a moving `before=Date.now()` reuses the result only when it includes the same
+events; dates are never rounded. Every response checks the live publication state and activation
+generation. New imports pause publication, and activation renews the generation and clears cached
+results atomically. A calculation overlapping either action cannot publish stale results. The
+cache retains the summary and at most 64 range results, avoiding unbounded cached range growth.
+Public inactive status reports readiness and ownership only; authenticated admin status retains
+full import-progress totals. SQL insert/update/delete triggers pause an active history too, so
+direct database maintenance cannot silently leave published caches current. Finish all imports
+before activating through the authenticated `/music/activate` route.
+
+The initial 51,440-listen archive writes over 200,000 indexed D1 rows, exceeding the Free plan's
+100,000-row daily write allowance. Import across quota reset days or use an existing paid plan;
+do not repeatedly retry after a quota error. Cache reuse reduces repeated public reads, while
+cold or distinct ranges still aggregate listening history. Monitor actual D1 row metrics.
+
 Exact automatic play counts across devices need a playback collector or dated source export.
 Neither recent-track polling nor linking Apple Music supplies that. Discord presence and device
 collectors are a separate step. The import endpoint accepts canonical timestamped events with

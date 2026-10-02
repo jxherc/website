@@ -12,14 +12,16 @@ before(async()=>{
   const result=await build({entryPoints:[new URL('../src/index.js',import.meta.url).pathname],bundle:true,write:false,format:'esm',platform:'browser'});
   mf=new Miniflare(convertV4MiniflareOptions({workers:[{modules:true,script:result.outputFiles[0].text,compatibilityDate:'2024-01-01',d1Databases:['MUSIC_DB'],kvNamespaces:['APPLE_KV'],bindings:{TOKEN_SECRET:'test',ALLOWED_ORIGINS:'https://fixture.test'}}]}));
   db=await mf.getD1Database('MUSIC_DB');
-  const schema=await readFile(new URL('../migrations/0001_music.sql',import.meta.url),'utf8');
-  await db.batch(schema.split(';').map(s=>s.trim()).filter(Boolean).map(s=>db.prepare(s)));
+  for(const migration of ['0001_music.sql','0002_music_cache.sql']) {
+    const schema=await readFile(new URL(`../migrations/${migration}`,import.meta.url),'utf8');
+    await db.exec(schema.replace(/\n/g,' '));
+  }
   headers={'Content-Type':'application/json',Authorization:`Bearer ${await makeToken({TOKEN_SECRET:'test'})}`};
 });
 after(async()=>{await mf?.dispose();});
 const listen=(id,name,playedAt,playedMs,artist='artist')=>({id,source:'fixture',name,playedAt,playedMs,artist,album:'album',artists:[{name:artist}],url:'javascript:alert(1)',image:'http://unsafe.test/a'});
 async function call(path,body,authorized=true) {
-  return mf.dispatchFetch(`https://fixture.test${path}`,body===undefined?{}:{method:'POST',headers:authorized?headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+  return mf.dispatchFetch(`https://fixture.test${path}`,body===undefined?{headers:authorized?headers:{}}:{method:'POST',headers:authorized?headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
 }
 test('real D1 import, retry, verification, ranges and rankings',async()=>{
   assert.equal((await call('/music/view')).status,503);
