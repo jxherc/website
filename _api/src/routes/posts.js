@@ -1,18 +1,14 @@
 import { requireAuth } from '../lib/auth.js';
 import { json } from '../lib/json.js';
+import { readCollection, recordId } from '../lib/storage.js';
 
 export async function handlePosts(request, env, path) {
   const method = request.method;
   const id     = path.split('/')[2] || null;
 
   if (method === 'GET') {
-    const list = await env.POSTS_KV.list({ prefix: 'post:' });
-    const posts = await Promise.all(
-      list.keys
-        .sort((a, b) => b.name.localeCompare(a.name))
-        .map(k => env.POSTS_KV.get(k.name, 'json'))
-    );
-    return json(posts.filter(Boolean));
+    const posts = await readCollection(env.POSTS_KV, 'post:');
+    return json(posts.sort((a, b) => b.id.localeCompare(a.id)));
   }
 
   const denied = await requireAuth(request, env);
@@ -22,7 +18,7 @@ export async function handlePosts(request, env, path) {
     const body = await request.json().catch(() => ({}));
     const ts   = Date.now();
     const post = {
-      id:   `${ts}`,
+      id:   recordId(ts),
       body: String(body.body || '').trim(),
       title: String(body.title || '').trim(),
       date: new Date(ts).toISOString(),
@@ -37,7 +33,7 @@ export async function handlePosts(request, env, path) {
     // allow image-only posts (no text)
     if (!post.body && !post.image && !imgs.length) return json({ error: 'body or image required' }, 400);
 
-    await env.POSTS_KV.put(`post:${ts}`, JSON.stringify(post));
+    await env.POSTS_KV.put(`post:${post.id}`, JSON.stringify(post));
     return json(post, 201);
   }
 

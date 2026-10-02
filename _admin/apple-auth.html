@@ -93,7 +93,7 @@
       const d = await r.json();
       if (!r.ok) throw new Error(d.error || 'save failed');
 
-      show('linked! the music page will use apple now.', 'ok');
+      show('linked. apple recent history is connected; music statistics use stats.fm.', 'ok');
       btn.textContent = 're-link apple music';
       refreshState();
     } catch (e) {

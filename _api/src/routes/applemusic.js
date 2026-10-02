@@ -20,26 +20,45 @@ function pemToBuf(pem) {
   return buf.buffer;
 }
 
+function signingConfig(env) {
+  const missing = ['APPLE_KEY_ID', 'APPLE_TEAM_ID'].filter(name =>
+    typeof env[name] !== 'string' || !/^[A-Z0-9]{10}$/.test(env[name])
+  );
+  if (typeof env.APPLE_PRIVATE_KEY !== 'string' || !env.APPLE_PRIVATE_KEY.trim()) {
+    missing.push('APPLE_PRIVATE_KEY');
+  }
+  if (missing.length) {
+    throw Object.assign(new Error(`configure ${missing.join(', ')}`), { status: 503 });
+  }
+}
+
 // cached per-isolate so we're not re-signing on every request
-let _dev = null; // { jwt, exp }
+let _dev = null;
 async function getDevToken(env) {
+  signingConfig(env);
   const now = Math.floor(Date.now() / 1000);
-  if (_dev && _dev.exp - now > 86400) return _dev.jwt;
+  if (_dev && _dev.exp - now > 86400 && _dev.keyId === env.APPLE_KEY_ID &&
+      _dev.teamId === env.APPLE_TEAM_ID && _dev.privateKey === env.APPLE_PRIVATE_KEY) return _dev.jwt;
 
   const exp     = now + 150 * 24 * 60 * 60; // ~150d, under apple's 6mo cap
   const header  = b64url(JSON.stringify({ alg: 'ES256', kid: env.APPLE_KEY_ID }));
   const payload = b64url(JSON.stringify({ iss: env.APPLE_TEAM_ID, iat: now, exp }));
   const data    = `${header}.${payload}`;
 
-  const key = await crypto.subtle.importKey(
-    'pkcs8', pemToBuf(env.APPLE_PRIVATE_KEY),
-    { name: 'ECDSA', namedCurve: 'P-256' }, false, ['sign']
-  );
+  let key;
+  try {
+    key = await crypto.subtle.importKey(
+      'pkcs8', pemToBuf(env.APPLE_PRIVATE_KEY),
+      { name: 'ECDSA', namedCurve: 'P-256' }, false, ['sign']
+    );
+  } catch {
+    throw Object.assign(new Error('invalid APPLE_PRIVATE_KEY'), { status: 503 });
+  }
   // webcrypto ECDSA already returns raw r||s — exactly what JWS wants
   const sig = await crypto.subtle.sign({ name: 'ECDSA', hash: 'SHA-256' }, key, ENC.encode(data));
   const jwt = `${data}.${b64url(new Uint8Array(sig))}`;
 
-  _dev = { jwt, exp };
+  _dev = { jwt, exp, keyId: env.APPLE_KEY_ID, teamId: env.APPLE_TEAM_ID, privateKey: env.APPLE_PRIVATE_KEY };
   return jwt;
 }
 
@@ -49,7 +68,7 @@ async function getUserToken(env) {
 }
 
 async function appleGet(env, endpoint) {
-  if (!env.APPLE_PRIVATE_KEY) return { error: 'no key configured', status: 500 };
+  signingConfig(env);
   const usr = await getUserToken(env);
   if (!usr) return { error: 'not connected', status: 503 };
 
@@ -90,6 +109,14 @@ async function cached(env, key, ttl, fn) {
 }
 
 export async function handleApple(request, env, path) {
+  try {
+    return await routeApple(request, env, path);
+  } catch (error) {
+    return json({ error: error.status === 503 ? error.message : 'apple unavailable' }, error.status === 503 ? 503 : 502);
+  }
+}
+
+async function routeApple(request, env, path) {
   const method = request.method;
   const sub    = path.split('/')[2] || '';
 
@@ -111,14 +138,15 @@ export async function handleApple(request, env, path) {
 
   if (method === 'GET' && sub === 'status') {
     const usr = await getUserToken(env);
-    return json({ connected: !!usr, hasKey: !!env.APPLE_PRIVATE_KEY });
+    let configured = true;
+    try { signingConfig(env); } catch { configured = false; }
+    return json({ connected: !!usr, hasKey: !!env.APPLE_PRIVATE_KEY, configured, canRelink: configured && !!env.APPLE_KV });
   }
 
   // the auth page pulls a dev token to boot MusicKit JS
   if (method === 'GET' && sub === 'devtoken') {
     const denied = await requireAuth(request, env);
     if (denied) return denied;
-    if (!env.APPLE_PRIVATE_KEY) return json({ error: 'no key configured' }, 500);
     return json({ token: await getDevToken(env) });
   }
 
@@ -126,9 +154,10 @@ export async function handleApple(request, env, path) {
   if (method === 'POST' && sub === 'token') {
     const denied = await requireAuth(request, env);
     if (denied) return denied;
-    if (!env.APPLE_KV) return json({ error: 'no kv bound' }, 500);
-    const { token } = await request.json().catch(() => ({}));
-    if (!token) return json({ error: 'missing token' }, 400);
+    if (!env.APPLE_KV) return json({ error: 'configure APPLE_KV' }, 503);
+    const data = await request.json().catch(() => null);
+    const { token } = data || {};
+    if (typeof token !== 'string' || !token || /\s/.test(token)) return json({ error: 'invalid token' }, 400);
     await env.APPLE_KV.put('apple:user_token', token);
     // bust caches so fresh data shows up right away
     await env.APPLE_KV.delete('apple:cache:recent');

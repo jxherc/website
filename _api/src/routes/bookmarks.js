@@ -1,18 +1,14 @@
 import { requireAuth } from '../lib/auth.js';
 import { json } from '../lib/json.js';
+import { readCollection, recordId } from '../lib/storage.js';
 
 export async function handleBookmarks(request, env, path) {
   const method = request.method;
   const id     = path.split('/')[2] || null;
 
   if (method === 'GET') {
-    const list = await env.BOOKMARKS_KV.list({ prefix: 'bm:' });
-    const items = await Promise.all(
-      list.keys
-        .sort((a, b) => b.name.localeCompare(a.name))
-        .map(k => env.BOOKMARKS_KV.get(k.name, 'json'))
-    );
-    return json(items.filter(Boolean));
+    const items = await readCollection(env.BOOKMARKS_KV, 'bm:');
+    return json(items.sort((a, b) => b.id.localeCompare(a.id)));
   }
 
   const denied = await requireAuth(request, env);
@@ -22,7 +18,7 @@ export async function handleBookmarks(request, env, path) {
     const body = await request.json().catch(() => ({}));
     const ts   = Date.now();
     const item = {
-      id:       `${ts}`,
+      id:       recordId(ts),
       url:      String(body.url   || '').trim(),
       label:    String(body.label || '').trim(),
       category: String(body.category || 'link').trim(),
@@ -30,7 +26,7 @@ export async function handleBookmarks(request, env, path) {
       date:     new Date(ts).toISOString(),
     };
     if (!item.url) return json({ error: 'url required' }, 400);
-    await env.BOOKMARKS_KV.put(`bm:${ts}`, JSON.stringify(item));
+    await env.BOOKMARKS_KV.put(`bm:${item.id}`, JSON.stringify(item));
     return json(item, 201);
   }
 

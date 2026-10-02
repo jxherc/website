@@ -63,6 +63,7 @@
       </div>
     </div>
     <div class="stat-line" id="stat-alltime"><span class="stat-dim">loading…</span></div>
+    <div class="stat-dim" id="top-notice-alltime" role="status" hidden></div>
 
     <div class="top-category" id="top-songs-alltime">
       <div class="cat-label">songs</div>
@@ -90,6 +91,7 @@
       </div>
     </div>
     <div class="stat-line" id="stat-2026"><span class="stat-dim">loading…</span></div>
+    <div class="stat-dim" id="top-notice-2026" role="status" hidden></div>
     <div class="top-category" id="top-songs-2026">
       <div class="cat-label">songs</div>
       <div class="top-list loading"><div class="top-row-skel"></div><div class="top-row-skel"></div><div class="top-row-skel"></div></div>
@@ -115,6 +117,7 @@
       </div>
     </div>
     <div class="stat-line" id="stat-weeks"><span class="stat-dim">loading…</span></div>
+    <div class="stat-dim" id="top-notice-weeks" role="status" hidden></div>
 
     <div class="top-category" id="top-songs-weeks">
       <div class="cat-label">songs</div>
@@ -240,15 +243,15 @@
   <section class="page-edit-stamp" id="edit-stamp"></section>
 </main>
 
-<script>
+<script type="module">
+import { loadCombinedStats, loadCombinedTops } from './music-data.mjs';
+
 /* config */
 const API = 'https://api.stats.fm/api/v1';
 const USERS = { old: 'jxherc01', new: 'jxherc' };
 
 /* historical totals */
 const F_2025 = { streams: 15319, minutes: 54766 };
-const F_2026_JANFEB = { streams: 1509, minutes: 5133 };
-
 /* historical top items */
 const F_2025_TOP = {
   song:  { name: "luther (with sza)", artist: "kendrick lamar",
@@ -257,12 +260,6 @@ const F_2025_TOP = {
            img: "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/54/28/14/54281424-eece-0935-299d-fdd2ab403f92/24UM1IM28978.rgb.jpg/200x200bb.jpg" },
   artist:{ name: "kendrick lamar", img: "https://i.scdn.co/image/ab6761610000517439ba6dcd4355c03de0b50918" }
 };
-const F_2026_JANFEB_TOP = {
-  song: { name: "gimme! gimme! gimme! (a man after midnight)", artist: "abba", streams: 9, minutes: 42, img: "" },
-  album:{ name: "ori and the will of the wisps (ost)", artist: "gareth coker", streams: 38, minutes: 114, img: "" },
-  artist:{ name: "the weeknd", streams: 40, minutes: 144, img: "" }
-};
-
 /* 2026 live fetch bounds */
 const Y2026_AFTER = 1767225600000;
 const Y2026_BEFORE = 1798761600000;
@@ -282,56 +279,21 @@ function timeAgoTiny(ms) {
   return `${Math.floor(m/(60*24))}d`;
 }
 async function safeFetch(url) {
+  const ctrl = new AbortController();
+  const tid = setTimeout(() => ctrl.abort(), 8000);
   try {
-    const ctrl = new AbortController();
-    const tid = setTimeout(() => ctrl.abort(), 8000);
     const r = await fetch(url, { signal: ctrl.signal });
-    clearTimeout(tid);
-    if (!r.ok) return null;
-    return await r.json();
-  }
-  catch (e) { return null; }
+    return r.ok ? await r.json() : null;
+  } catch { return null; }
+  finally { clearTimeout(tid); }
 }
 const extract = d => !d ? [] : (Array.isArray(d.items) ? d.items : (Array.isArray(d.data) ? d.data : (Array.isArray(d) ? d : [])));
-
-function parseTop(item, kind) {
-  const sub = item[kind] || item;
-  const name = sub?.name || '';
-  const artistName = kind === 'artist' ? '' : (sub?.artists?.[0]?.name || item?.artists?.[0]?.name || sub?.artist?.name || '');
-  const imgUrl = kind === 'track' ? (sub?.albums?.[0]?.image || '') : (sub?.image || '');
-  const rawSid = sub?.externalIds?.spotify?.[0] || sub?.spotifyIds?.[0] || '';
-  const sid = /^[A-Za-z0-9]+$/.test(rawSid) ? rawSid : '';
-  const spotifyUrl = sid ? `https://open.spotify.com/${kind}/${sid}` : '';
-  const streams = item.streams ?? item.count ?? 0;
-  const minutes = item.playedMs ? Math.round(item.playedMs / 60000) : (item.minutes ?? 0);
-  return { name, artistName, imgUrl, streams, minutes, spotifyUrl };
-}
-
-function mergeTops(a, b, kind) {
-  const map = new Map();
-  const key = x => `${x.name.toLowerCase()}::${x.artistName.toLowerCase()}`;
-  [...a, ...b].forEach(raw => {
-    const it = parseTop(raw, kind);
-    if (!it.name) return;
-    const k = key(it);
-    const prev = map.get(k);
-    if (prev) {
-      prev.streams += it.streams;
-      prev.minutes += it.minutes;
-      if (!prev.imgUrl && it.imgUrl) prev.imgUrl = it.imgUrl;
-      if (!prev.spotifyUrl && it.spotifyUrl) prev.spotifyUrl = it.spotifyUrl;
-    } else {
-      map.set(k, { ...it });
-    }
-  });
-  return Array.from(map.values());
-}
 
 /* render top rows — FLIP for position swaps, both metrics shown side by side */
 function renderTopRows(containerId, items, kind, metric) {
   const el = document.getElementById(containerId);
   if (!el) return;
-  const num = (it, m) => Number(it[m]) || 0;
+  const num = (it, m) => m === 'minutes' ? Math.round(Number(it[m]) || 0) : (Number(it[m]) || 0);
   const val = it => num(it, metric);
   const max = val(items[0]) || 1;
   const keyOf = it => `${it.name}::${it.artistName || ''}`;
@@ -350,6 +312,8 @@ function renderTopRows(containerId, items, kind, metric) {
     list.innerHTML = '<div class="top-row-empty">no data</div>';
     return;
   }
+
+  list.querySelector('.top-row-empty')?.remove();
 
   function buildRow(it, i, startZero) {
     const shape = kind === 'artist' ? 'thumb-round' : 'thumb-sq';
@@ -519,43 +483,34 @@ function renderSection(section) {
   renderTopRows(`top-artists-${suffix}`, sortAndSlice(cached.artist, m), 'artist', m);
 }
 
-// jxherc (apple music) returns "Not implemented" for top lists on stats.fm.
-// show an honest placeholder instead of stale/frozen data.
 function markTopUnavailable(suffix) {
   ['songs','albums','artists'].forEach(k => {
     const el = document.getElementById(`top-${k}-${suffix}`);
-    if (!el) return;
-    let list = el.querySelector('.top-list');
-    if (!list) { list = document.createElement('div'); list.className = 'top-list'; el.appendChild(list); }
+    const list = el.querySelector('.top-list');
     list.classList.remove('loading');
     list.innerHTML = '<div class="top-row-empty">top stats unavailable</div>';
   });
 }
 
-async function loadTopFor(range, prefix) {
-  const [tA, tB, alA, alB, arA, arB] = await Promise.all([
-    safeFetch(`${API}/users/${USERS.old}/top/tracks?range=${range}&limit=20`),
-    safeFetch(`${API}/users/${USERS.new}/top/tracks?range=${range}&limit=20`),
-    safeFetch(`${API}/users/${USERS.old}/top/albums?range=${range}&limit=20`),
-    safeFetch(`${API}/users/${USERS.new}/top/albums?range=${range}&limit=20`),
-    safeFetch(`${API}/users/${USERS.old}/top/artists?range=${range}&limit=20`),
-    safeFetch(`${API}/users/${USERS.new}/top/artists?range=${range}&limit=20`),
-  ]);
-  // past 4 weeks lives on the active account — if it can't rank, don't pass off the old account's stray plays as "recent"
-  if (prefix === 'weeks' && (tB == null || alB == null || arB == null)) {
-    topCache[prefix] = null;
-    markTopUnavailable(prefix);
-    return;
+async function loadTopFor(query, section) {
+  const suffix = section === 'y2026' ? '2026' : section;
+  const notice = document.getElementById(`top-notice-${suffix}`);
+  try {
+    topCache[section] = await loadCombinedTops(API, [USERS.old, USERS.new], query, safeFetch);
+    notice.hidden = true;
+    renderSection(section);
+  } catch {
+    notice.textContent = topCache[section]
+      ? 'could not refresh rankings; showing previous data'
+      : 'could not load both accounts; retrying';
+    notice.hidden = false;
+    if (!topCache[section]) markTopUnavailable(suffix);
   }
-  topCache[prefix] = {
-    track:  mergeTops(extract(tA),  extract(tB),  'track'),
-    album:  mergeTops(extract(alA), extract(alB), 'album'),
-    artist: mergeTops(extract(arA), extract(arB), 'artist'),
-  };
-  renderSection(prefix);
+  if (section === 'y2026') renderCompare();
 }
 
 function writeStatLine(containerId, streams, minutes) {
+  document.getElementById(containerId).querySelector('.stat-error')?.remove();
   const hrs = Math.round(minutes / 60);
   const el = document.getElementById(containerId);
   const existing = el.querySelectorAll('.stat-num');
@@ -578,19 +533,29 @@ function writeStatLine(containerId, streams, minutes) {
   tickTo(fresh[2], minutes);
 }
 
-async function loadStats(range, containerId) {
-  const [a, b] = await Promise.all([
-    safeFetch(`${API}/users/${USERS.old}/streams/stats?range=${range}`),
-    safeFetch(`${API}/users/${USERS.new}/streams/stats?range=${range}`),
-  ]);
-  const sa = a?.items || a || {};
-  const sb = b?.items || b || {};
-  const streams = (sa.count || 0) + (sb.count || 0);
-  const minutes = Math.round(((sa.durationMs || 0) + (sb.durationMs || 0)) / 60000);
-  writeStatLine(containerId, streams, minutes);
+async function loadStats(query, containerId) {
+  const el = document.getElementById(containerId);
+  try {
+    const totals = await loadCombinedStats(API, [USERS.old, USERS.new], query, safeFetch);
+    writeStatLine(containerId, totals.streams, totals.minutes);
+    if (containerId === 'stat-2026') {
+      compareData.y2026 = totals;
+      compareStatsError = false;
+    }
+  } catch {
+    const previous = el.querySelector('.stat-num');
+    el.querySelector('.stat-error')?.remove();
+    const error = '<span class="stat-dim stat-error" role="status">' +
+      (previous ? ' · could not refresh; showing previous data' : 'stats unavailable') + '</span>';
+    if (previous) el.insertAdjacentHTML('beforeend', error);
+    else el.innerHTML = error;
+    if (containerId === 'stat-2026') compareStatsError = true;
+  }
+  if (containerId === 'stat-2026') renderCompare();
 }
 
 /* recent */
+let recentExpanded = false;
 async function loadRecent() {
   const tracksEl = document.getElementById('tracks');
   const moreBtn  = document.getElementById('more-btn');
@@ -601,13 +566,14 @@ async function loadRecent() {
     // Use the endTime of the most recent track as the stamp — this is actual stats.fm data freshness
     const lastPlayed = items[0]?.endTime ? new Date(items[0].endTime).getTime() : null;
     if (lastPlayed) fetchAt.recent = lastPlayed;
+    if (items.length <= 5) recentExpanded = false;
     tracksEl.innerHTML = items.slice(0, 25).map((item, i) => {
       const track  = esc(item.track?.name || item.name || '');
       const artist = esc(item.track?.artists?.[0]?.name || item.artists?.[0]?.name || '');
       const rawSid = item.track?.externalIds?.spotify?.[0] || item.track?.spotifyIds?.[0] || item.externalIds?.spotify?.[0] || '';
       const url = /^[A-Za-z0-9]+$/.test(rawSid) ? `https://open.spotify.com/track/${rawSid}` : 'https://stats.fm/jxherc';
       const ago = item.endTime ? timeAgoTiny(new Date(item.endTime).getTime()) : '';
-      return `<li class="track ${i >= 5 ? 'hidden' : ''}">
+      return `<li class="track ${i >= 5 && !recentExpanded ? 'hidden' : ''}">
         <span class="main">
           <a class="title-link" href="${url}" target="_blank" rel="noopener">${track}</a>
           ${artist ? `<span class="artist"> — ${artist}</span>` : ''}
@@ -615,92 +581,31 @@ async function loadRecent() {
         ${ago ? `<span class="time">${ago}</span>` : ''}
       </li>`;
     }).join('');
-    if (items.length > 5) {
-      moreBtn.hidden = false;
-      let exp = false;
-      moreBtn.onclick = () => {
-        exp = !exp;
-        document.querySelectorAll('.track').forEach((el, i) => {
-          if (i >= 5) el.classList.toggle('hidden', !exp);
-        });
-        moreBtn.textContent = exp ? 'show less' : 'show more';
-      };
-    }
-  } catch (e) {
-    tracksEl.innerHTML = '<li class="track"><span class="main" style="color:var(--muted)">nothing to show here</span></li>';
+    moreBtn.hidden = items.length <= 5;
+    moreBtn.textContent = recentExpanded ? 'show less' : 'show more';
+    moreBtn.onclick = moreBtn.hidden ? null : () => {
+      recentExpanded = !recentExpanded;
+      tracksEl.querySelectorAll('.track').forEach((el, i) => {
+        if (i >= 5) el.classList.toggle('hidden', !recentExpanded);
+      });
+      moreBtn.textContent = recentExpanded ? 'show less' : 'show more';
+    };
+  } catch {
+    moreBtn.hidden = true;
+    moreBtn.onclick = null;
+    recentExpanded = false;
+    fetchAt.recent = 0;
+    tracksEl.innerHTML = '<li class="track"><span class="main" style="color:var(--muted)">recent tracks unavailable</span></li>';
   }
 }
 
 /* 2025 vs 2026 */
-let compareData = {
-  y2025: { ...F_2025 },
-  y2026: null,            // filled in after live fetch
-  top2026: null,
-};
+const compareData = { y2025: { ...F_2025 }, y2026: null };
 let compareMetric = 'streams';
+let compareStatsError = false;
 
-async function load2026() {
-  const liveStats = await safeFetch(`${API}/users/${USERS.new}/streams/stats?after=${Y2026_AFTER}&before=${Y2026_BEFORE}`);
-  const live = liveStats?.items || {};
-  const liveStreams = live.count || 0;
-  const liveMinutes = Math.round((live.durationMs || 0) / 60000);
-
-  compareData.y2026 = {
-    streams: liveStreams + F_2026_JANFEB.streams,
-    minutes: liveMinutes + F_2026_JANFEB.minutes,
-  };
-
-  const [tData, alData, arData] = await Promise.all([
-    safeFetch(`${API}/users/${USERS.new}/top/tracks?after=${Y2026_AFTER}&before=${Y2026_BEFORE}&limit=20`),
-    safeFetch(`${API}/users/${USERS.new}/top/albums?after=${Y2026_AFTER}&before=${Y2026_BEFORE}&limit=20`),
-    safeFetch(`${API}/users/${USERS.new}/top/artists?after=${Y2026_AFTER}&before=${Y2026_BEFORE}&limit=20`),
-  ]);
-
-  const liveTrack  = extract(tData).map(x => parseTop(x, 'track'));
-  const liveAlbum  = extract(alData).map(x => parseTop(x, 'album'));
-  const liveArtist = extract(arData).map(x => parseTop(x, 'artist'));
-
-  function combine(liveList, frozen) {
-    const map = new Map();
-    const key = x => `${x.name.toLowerCase()}::${(x.artistName||'').toLowerCase()}`;
-    liveList.forEach(it => map.set(key(it), { ...it }));
-    const fk = key({ name: frozen.name, artistName: frozen.artist || '' });
-    const prev = map.get(fk);
-    const frozenItem = {
-      name: frozen.name,
-      artistName: frozen.artist || '',
-      streams: frozen.streams || 0,
-      minutes: frozen.minutes || 0,
-      imgUrl: frozen.img || ''
-    };
-    if (prev) {
-      prev.streams += frozenItem.streams;
-      prev.minutes += frozenItem.minutes;
-    } else {
-      map.set(fk, frozenItem);
-    }
-    return Array.from(map.values());
-  }
-
-  // jxherc can't serve 2026 tops (stats.fm "Not implemented") — don't pass off the frozen jan/feb stub as the real top
-  if (tData == null && alData == null && arData == null) {
-    topCache.y2026 = null;
-    compareData.top2026 = null;
-    markTopUnavailable('2026');
-  } else {
-    const songs   = combine(liveTrack,  F_2026_JANFEB_TOP.song);
-    const albums  = combine(liveAlbum,  F_2026_JANFEB_TOP.album);
-    const artists = combine(liveArtist, F_2026_JANFEB_TOP.artist);
-
-    topCache.y2026 = { track: songs, album: albums, artist: artists };
-    const m = topMetric.y2026;
-    const pick = arr => [...arr].sort((a, b) => (Number(b[m]) || 0) - (Number(a[m]) || 0))[0];
-    compareData.top2026 = { song: pick(songs), album: pick(albums), artist: pick(artists) };
-    renderSection('y2026');
-  }
-
-  renderCompare();
-  if (compareData.y2026) writeStatLine('stat-2026', compareData.y2026.streams, compareData.y2026.minutes);
+async function load2026(query) {
+  await Promise.all([loadStats(query, 'stat-2026'), loadTopFor(query, 'y2026')]);
 }
 
 function renderYTRow(rowId, item, kind) {
@@ -738,8 +643,27 @@ function tickTo(el, target, duration = 900, suffix = '') {
 }
 
 function renderCompare() {
-  if (!compareData.y2026) return;
   const m = compareMetric;
+  const pick = kind => topCache.y2026 ? sortAndSlice(topCache.y2026[kind], m)[0] : null;
+  const winners = { song: pick('track'), album: pick('album'), artist: pick('artist') };
+  for (const [kind, item] of Object.entries(winners)) {
+    if (item) renderYTRow(`y2026-${kind}`, item, kind);
+    else {
+      const el = document.getElementById(`y2026-${kind}`);
+      const shape = kind === 'artist' ? 'thumb-round' : 'thumb-sq';
+      el.innerHTML = `<span class="yt-k">${kind}</span><div class="yt-thumb ${shape} thumb-empty"></div><span class="yt-name" style="color:var(--muted)">unavailable</span>`;
+    }
+  }
+  if (!compareData.y2026) {
+    const card = document.getElementById('year-2026');
+    card.querySelector('.year-num').textContent = 'unavailable';
+    card.querySelector('.year-unit').textContent = '';
+    const old = document.getElementById('year-2025');
+    tickTo(old.querySelector('.year-num'), compareData.y2025[m]);
+    old.querySelector('.year-unit').textContent = m;
+    document.getElementById('compare-note').textContent = '2026 stats unavailable';
+    return;
+  }
   const v25 = compareData.y2025[m];
   const v26 = compareData.y2026[m];
   const max = Math.max(v25, v26, 1);
@@ -759,23 +683,11 @@ function renderCompare() {
   card25.classList.toggle('winner', v25 >= v26);
   card26.classList.toggle('winner', v26 >  v25);
 
-  // 2026 top items
-  if (compareData.top2026) {
-    renderYTRow('y2026-song',   compareData.top2026.song,   'song');
-    renderYTRow('y2026-album',  compareData.top2026.album,  'album');
-    renderYTRow('y2026-artist', compareData.top2026.artist, 'artist');
-  } else {
-    ['song','album','artist'].forEach(k => {
-      const el = document.getElementById(`y2026-${k}`);
-      if (!el) return;
-      const shape = k === 'artist' ? 'thumb-round' : 'thumb-sq';
-      el.innerHTML = `<span class="yt-k">${k}</span><div class="yt-thumb ${shape} thumb-empty"></div><span class="yt-name" style="color:var(--muted)">unavailable</span>`;
-    });
-  }
-
   const now = new Date();
   const noteEl = document.getElementById('compare-note');
-  if (now.getFullYear() === 2026) {
+  if (compareStatsError) {
+    noteEl.textContent = 'could not refresh 2026 stats; showing previous data';
+  } else if (now.getFullYear() === 2026) {
     const startY = new Date(Date.UTC(2026, 0, 1));
     const endY   = new Date(Date.UTC(2026, 11, 31, 23, 59, 59));
     const pct = Math.min(1, (now - startY) / (endY - startY));
@@ -948,11 +860,15 @@ async function loadAll() {
   if (_loading) return;
   _loading = true;
   try {
+    const now = Date.now();
+    const lifetime = { after: 1, before: now };
+    const weeks = { after: now - 28 * 24 * 60 * 60 * 1000, before: now };
+    const year = { after: Y2026_AFTER, before: Math.min(now, Y2026_BEFORE) };
     await Promise.all([
       loadRecent(),
-      Promise.all([ loadStats('lifetime', 'stat-alltime'), loadTopFor('lifetime', 'alltime') ]),
-      Promise.all([ loadStats('weeks', 'stat-weeks'), loadTopFor('weeks', 'weeks') ]),
-      load2026(),
+      Promise.all([loadStats(lifetime, 'stat-alltime'), loadTopFor(lifetime, 'alltime')]),
+      Promise.all([loadStats(weeks, 'stat-weeks'), loadTopFor(weeks, 'weeks')]),
+      load2026(year),
     ]);
     _lastLoadAt = Date.now();
     bumpStamps();

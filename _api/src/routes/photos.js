@@ -1,80 +1,109 @@
 import { requireAuth } from '../lib/auth.js';
 import { json } from '../lib/json.js';
+import { readCollection, recordId } from '../lib/storage.js';
+
+function imageType(buffer) {
+  const bytes = new Uint8Array(buffer);
+  const matches = (offset, signature) => signature.every((byte, i) => bytes[offset + i] === byte);
+  if (bytes.length >= 4 && matches(0, [0xff, 0xd8, 0xff])) return 'image/jpeg';
+  if (matches(0, [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a])) return 'image/png';
+  const text = (start, end) => String.fromCharCode(...bytes.slice(start, end));
+  if (['GIF87a', 'GIF89a'].includes(text(0, 6))) return 'image/gif';
+  if (text(0, 4) === 'RIFF' && text(8, 12) === 'WEBP') return 'image/webp';
+  if (bytes.length >= 16 && text(4, 8) === 'ftyp') {
+    const length = new DataView(buffer).getUint32(0);
+    if (length < 16 || length > bytes.length) return '';
+    const brands = [text(8, 12)];
+    for (let offset = 16; offset + 4 <= length; offset += 4) brands.push(text(offset, offset + 4));
+    if (brands.some(brand => ['avif', 'avis'].includes(brand))) return 'image/avif';
+    if (brands.some(brand => ['heic', 'heix', 'hevc', 'hevx'].includes(brand))) return 'image/heic';
+    if (brands.some(brand => ['mif1', 'msf1'].includes(brand))) return 'image/heif';
+  }
+  return '';
+}
 
 function parseExif(buffer) {
   const view = new DataView(buffer);
-  const exif  = {};
-  let offset  = 2;
-
-  if (view.getUint16(0) !== 0xFFD8) return exif;
-
-  while (offset < view.byteLength - 2) {
-    const marker = view.getUint16(offset);
-    offset += 2;
-    if (marker === 0xFFE1) {
-      const segLen = view.getUint16(offset);
-      const seg    = new DataView(buffer, offset + 2, segLen - 2);
-      parseIfd(seg, exif);
-      break;
+  const exif = {};
+  if (view.byteLength < 4 || view.getUint16(0) !== 0xffd8) return exif;
+  let offset = 2;
+  while (offset + 4 <= view.byteLength) {
+    if (view.getUint8(offset) !== 0xff) break;
+    while (offset < view.byteLength && view.getUint8(offset) === 0xff) offset++;
+    if (offset >= view.byteLength) break;
+    const marker = view.getUint8(offset++);
+    if (marker === 0xda || marker === 0xd9) break;
+    if (marker === 0x01 || (marker >= 0xd0 && marker <= 0xd8)) continue;
+    if (offset + 2 > view.byteLength) break;
+    const length = view.getUint16(offset);
+    if (length < 2 || offset + length > view.byteLength) break;
+    if (marker === 0xe1 && length >= 8) {
+      const segment = new DataView(buffer, offset + 2, length - 2);
+      if (segment.getUint32(0) === 0x45786966 && segment.getUint16(4) === 0) {
+        parseIfd(segment, exif);
+        break;
+      }
     }
-    if ((marker & 0xFF00) !== 0xFF00) break;
-    offset += view.getUint16(offset);
+    offset += length;
   }
   return exif;
 }
 
-function parseIfd(seg, exif) {
+function parseIfd(segment, exif) {
   try {
-    const id = seg.getUint32(0);
-    if (id !== 0x45786966) return;
-    const little = seg.getUint16(6) === 0x4949;
-    const get16  = o => seg.getUint16(o, little);
-    const get32  = o => seg.getUint32(o, little);
-    const getString = (o, len) => {
-      let s = '';
-      for (let i = 0; i < len - 1; i++) {
-        const c = seg.getUint8(o + i);
-        if (c === 0) break;
-        s += String.fromCharCode(c);
-      }
-      return s.trim();
-    };
-    const getRational = o => {
-      const n = get32(o), d = get32(o + 4);
-      return d ? n / d : 0;
-    };
-
+    // All TIFF pointers are relative to the byte after Exif\0\0.
+    const origin = 6;
+    if (segment.byteLength < origin + 8) return;
+    const byteOrder = segment.getUint16(origin);
+    if (byteOrder !== 0x4949 && byteOrder !== 0x4d4d) return;
+    const little = byteOrder === 0x4949;
+    const get16 = offset => segment.getUint16(offset, little);
+    const get32 = offset => segment.getUint32(offset, little);
+    if (get16(origin + 2) !== 42) return;
     const tags = {
-      0x010F: 'make',    0x0110: 'model',
-      0x829A: 'exposure', 0x829D: 'fNumber',
-      0x8827: 'iso',      0x920A: 'focalLength',
-      0x9003: 'dateTime',
+      0x010f: 'make', 0x0110: 'model', 0x0132: 'dateTime',
+      0x829a: 'exposure', 0x829d: 'fNumber', 0x8827: 'iso',
+      0x920a: 'focalLength', 0x9003: 'dateTime',
     };
-
-    const ifdOffset = 8 + get32(8);
-    const count     = get16(ifdOffset);
-
-    for (let i = 0; i < count; i++) {
-      const e  = ifdOffset + 2 + i * 12;
-      const tag = get16(e);
-      const typ = get16(e + 2);
-      const cnt = get32(e + 4);
-      const off = e + 8;
-
-      if (!tags[tag]) continue;
-      const name = tags[tag];
-
-      if (typ === 2) {
-        const dataOff = cnt > 4 ? get32(off) + 8 : off;
-        exif[name] = getString(dataOff, cnt);
-      } else if (typ === 3) {
-        exif[name] = get16(off);
-      } else if (typ === 5) {
-        const dataOff = get32(off) + 8;
-        exif[name] = getRational(dataOff);
+    const seen = new Set();
+    const readIfd = (offset, followExif = true) => {
+      if (seen.has(offset) || offset < origin + 8 || offset + 2 > segment.byteLength) return;
+      seen.add(offset);
+      const count = get16(offset);
+      if (offset + 2 + count * 12 > segment.byteLength) return;
+      for (let i = 0; i < count; i++) {
+        const entry = offset + 2 + i * 12;
+        const tag = get16(entry);
+        const type = get16(entry + 2);
+        const size = get32(entry + 4);
+        const value = entry + 8;
+        if (tag === 0x8769 && type === 4 && size === 1 && followExif) {
+          readIfd(origin + get32(value), false);
+          continue;
+        }
+        if (!tags[tag] || !size || (tag === 0x0132 && exif.dateTime)) continue;
+        if (type === 2 && [0x010f, 0x0110, 0x0132, 0x9003].includes(tag)) {
+          const data = size > 4 ? origin + get32(value) : value;
+          if (data < origin || data + size > segment.byteLength) continue;
+          let text = '';
+          for (let n = 0; n < size; n++) {
+            const char = segment.getUint8(data + n);
+            if (!char) break;
+            text += String.fromCharCode(char);
+          }
+          exif[tags[tag]] = text.trim();
+        } else if (type === 3 && size === 1 && tag === 0x8827) {
+          exif[tags[tag]] = get16(value);
+        } else if (type === 5 && size === 1 && [0x829a, 0x829d, 0x920a].includes(tag)) {
+          const data = origin + get32(value);
+          if (data < origin || data + 8 > segment.byteLength) continue;
+          const denominator = get32(data + 4);
+          if (denominator) exif[tags[tag]] = get32(data) / denominator;
+        }
       }
-    }
-  } catch { /* skip malformed EXIF */ }
+    };
+    readIfd(origin + get32(origin + 4));
+  } catch { /* metadata can be malformed even when the image itself is readable */ }
 }
 
 function formatExif(raw) {
@@ -107,13 +136,8 @@ export async function handlePhotos(request, env, path) {
     }
 
     // bare /photos → gallery list
-    const list = await env.PHOTOS_KV.list({ prefix: 'photo:' });
-    const items = await Promise.all(
-      list.keys
-        .sort((a, b) => (a.metadata?.order ?? 999) - (b.metadata?.order ?? 999))
-        .map(k => env.PHOTOS_KV.get(k.name, 'json'))
-    );
-    return json(items.filter(Boolean));
+    const items = await readCollection(env.PHOTOS_KV, 'photo:');
+    return json(items.sort((a, b) => (a.order ?? 999) - (b.order ?? 999)));
   }
 
   const denied = await requireAuth(request, env);
@@ -125,21 +149,26 @@ export async function handlePhotos(request, env, path) {
 
     const file    = formData.get('file');
     const caption = String(formData.get('caption') || '').trim();
-    if (!file) return json({ error: 'file required' }, 400);
+    if (!file || typeof file.arrayBuffer !== 'function' || typeof file.name !== 'string') {
+      return json({ error: 'image file required' }, 400);
+    }
 
     const buf     = await file.arrayBuffer();
+    const contentType = imageType(buf);
+    if (!contentType) return json({ error: 'unsupported or invalid image' }, 400);
     const rawExif = parseExif(buf);
     const exif    = formatExif(rawExif);
 
     const ts  = Date.now();
-    const key = `photo-${ts}-${file.name.replace(/[^a-z0-9._-]/gi, '_')}`;
+    const photoId = recordId(ts);
+    const key = `photo-${photoId}-${file.name.replace(/[^a-z0-9._-]/gi, '_')}`;
 
     await env.PHOTOS_R2.put(key, buf, {
-      httpMetadata: { contentType: file.type || 'image/jpeg' }
+      httpMetadata: { contentType }
     });
 
     const photo = {
-      id:      `${ts}`,
+      id:      photoId,
       key,
       caption,
       exif,
@@ -147,7 +176,7 @@ export async function handlePhotos(request, env, path) {
       order:   ts,
       date:    new Date(ts).toISOString(),
     };
-    await env.PHOTOS_KV.put(`photo:${ts}`, JSON.stringify(photo));
+    await env.PHOTOS_KV.put(`photo:${photoId}`, JSON.stringify(photo));
     return json(photo, 201);
   }
 

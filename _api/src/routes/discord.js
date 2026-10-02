@@ -1,4 +1,5 @@
 import { json } from '../lib/json.js';
+import { recordId } from '../lib/storage.js';
 
 async function verifyDiscordSignature(request, env) {
   const signature = request.headers.get('X-Signature-Ed25519');
@@ -43,13 +44,13 @@ export async function handleDiscord(request, env) {
 
     const ts   = Date.now();
     const post = {
-      id:    `${ts}`,
+      id:    recordId(ts),
       body:  text.trim(),
       title: '',
       date:  new Date(ts).toISOString(),
       via:   'discord',
     };
-    await env.POSTS_KV.put(`post:${ts}`, JSON.stringify(post));
+    await env.POSTS_KV.put(`post:${post.id}`, JSON.stringify(post));
 
     return json({
       type: 4,

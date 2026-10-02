@@ -18,9 +18,15 @@ id = "REPLACE_WITH_BOOKMARKS_KV_ID"
 binding = "PHOTOS_KV"
 id = "REPLACE_WITH_PHOTOS_KV_ID"
 
+[[kv_namespaces]]
+binding = "APPLE_KV"
+id = "REPLACE_WITH_APPLE_KV_ID"
+
 [[r2_buckets]]
 binding = "PHOTOS_R2"
 bucket_name = "jxherc-photos"
 
 [vars]
 ALLOWED_ORIGINS = "https://jxherc.com,https://admin.jxherc.com"
+APPLE_KEY_ID = "REPLACE_WITH_APPLE_KEY_ID"
+APPLE_TEAM_ID = "REPLACE_WITH_APPLE_TEAM_ID"
