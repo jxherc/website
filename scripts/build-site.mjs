@@ -7,8 +7,8 @@ export const siteFiles = [
   '_redirects', 'about.html', 'bookmarks.html', 'faq.html', 'index.html',
   'intro.html', 'music.html', 'now.html', 'photos.html', 'shitpost.html',
   'favicon.svg', 'music-data.mjs', 'og-image.png', 'style.css',
-  'fonts/OFL.txt', 'fonts/ibm-plex-mono-latin.woff2',
-  'fonts/ibm-plex-sans-italic-latin.woff2', 'fonts/ibm-plex-sans-latin.woff2',
+  'fonts/OFL.txt', 'fonts/inter-latin-variable-italic.woff2',
+  'fonts/inter-latin-variable.woff2',
   ...[
     '4-your-eyez-only.jpg', '808s-and-heartbreak.jpg', 'about.png',
     'after-hours.jpg', 'american-dream.jpg', 'back-to-wonderland.jpg',
