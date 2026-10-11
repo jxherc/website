@@ -3,13 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="dark">
 <title>jxherc</title>
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=27">
-<script>const t=localStorage.getItem('theme');if(t)document.documentElement.dataset.theme=t;</script>
+<link rel="preload" href="fonts/ibm-plex-sans-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="fonts/ibm-plex-mono-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="style.css?v=28">
 <meta name="description" content="jxherc — ui/ux sde guy, toronto">
 <meta property="og:title" content="jxherc">
 <meta property="og:description" content="a website">
@@ -17,17 +16,6 @@
 <meta name="twitter:card" content="summary_large_image">
 </head>
 <body>
-<button class="theme-toggle" id="theme-toggle" aria-label="toggle light mode">◐</button>
-
-<div class="meme-overlay" id="meme-overlay">
-  <div class="meme-box" id="meme-box">
-    <img class="meme-img" src="images/spongebob-eyes.jpg" alt="spongebob my eyes meme" />
-    <p class="meme-text">are you absolutely motherfucking sure you wanna switch to light mode</p>
-    <button class="meme-confirm" id="meme-confirm">yes i am sure</button>
-    <button class="meme-cancel" id="meme-cancel">nevermind</button>
-  </div>
-</div>
-
 <main>
 
   <header>
@@ -56,37 +44,28 @@
     </div>
   </section>
 
-  <section class="page-nav">
-    <a class="music-card" href="music.html">
-      <span class="title">music</span>
-      <span class="enter">→</span>
-    </a>
-    <a class="music-card" href="faq.html">
-      <span class="title">faq</span>
-      <span class="enter">→</span>
-    </a>
-    <a class="music-card" href="photos.html">
-      <span class="title">photos</span>
-      <span class="enter">→</span>
-    </a>
-  </section>
+  <nav class="page-nav" aria-label="site">
+    <a href="music.html">music</a>
+    <a href="faq.html">faq</a>
+    <a href="photos.html">photos</a>
+  </nav>
 
   <section>
     <div class="label">socials</div>
     <div class="kv-list">
       <a class="kv-row" href="https://github.com/jxherc" target="_blank" rel="noopener">
-        <span class="k">github</span><span class="v">jxherc</span><span class="arrow">↗</span>
+        <span class="k">github</span><span class="v">jxherc</span>
       </a>
       <a class="kv-row" href="https://instagram.com/houjingxing" target="_blank" rel="noopener">
-        <span class="k">instagram</span><span class="v">@houjingxing</span><span class="arrow">↗</span>
+        <span class="k">instagram</span><span class="v">@houjingxing</span>
       </a>
       <a class="kv-row" href="https://twitter.com/jxherc" target="_blank" rel="noopener">
-        <span class="k">twitter</span><span class="v">@jxherc</span><span class="arrow">↗</span>
+        <span class="k">twitter</span><span class="v">@jxherc</span>
       </a>
     </div>
   </section>
 
-  <section class="page-edit-stamp">—</section>
+  <section class="page-edit-stamp"></section>
 
 </main>
 
@@ -119,10 +98,8 @@
       const d = new Date(c.committer?.date || c.author?.date);
       if (isNaN(d)) return;
       const date = d.toLocaleDateString('en-CA', { month: 'short', day: 'numeric', year: 'numeric' }).toLowerCase();
-      const msg  = (c.message || '').split('\n')[0].replace(/\s*https?:\/\/\S+/g, '').trim();
-      document.querySelector('.page-edit-stamp').textContent = 'page last edited ' + date + (msg ? ' · ' + msg : '');
+      document.querySelector('.page-edit-stamp').textContent = 'updated ' + date;
     }).catch(() => {});
 </script>
-<script src="theme.js"></script>
 </body>
 </html>

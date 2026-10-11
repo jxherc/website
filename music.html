@@ -3,34 +3,22 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="dark">
 <title>music — jxherc</title>
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=27">
+<link rel="preload" href="fonts/ibm-plex-sans-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="fonts/ibm-plex-mono-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="style.css?v=28">
 <link rel="preconnect" href="https://is1-ssl.mzstatic.com">
 <link rel="preconnect" href="https://i.scdn.co">
 <link rel="preconnect" href="https://api.stats.fm">
 <link rel="dns-prefetch" href="https://is1-ssl.mzstatic.com">
-<script>const t=localStorage.getItem('theme');if(t)document.documentElement.dataset.theme=t;</script>
 <meta property="og:title" content="music — jxherc">
 <meta property="og:description" content="some music stats">
 <meta property="og:image" content="og-image.png">
 <meta name="twitter:card" content="summary_large_image">
 </head>
 <body>
-<button class="theme-toggle" id="theme-toggle" aria-label="toggle light mode">◐</button>
-
-<div class="meme-overlay" id="meme-overlay">
-  <div class="meme-box">
-    <img class="meme-img" src="images/spongebob-eyes.jpg" alt="spongebob my eyes meme" />
-    <p class="meme-text">are you absolutely motherfucking sure you wanna switch to light mode</p>
-    <button class="meme-confirm" id="meme-confirm">yes i am sure</button>
-    <button class="meme-cancel" id="meme-cancel">nevermind</button>
-  </div>
-</div>
-
 <main>
   <a class="home" href="index.html">jxherc</a>
 
@@ -977,6 +965,5 @@ startTimers();
 <style>
 .rpt { display:inline-block; width:5px; height:5px; border-radius:50%; background:var(--accent); flex-shrink:0; }
 </style>
-<script src="theme.js"></script>
 </body>
 </html>

@@ -6,7 +6,9 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 export const siteFiles = [
   '_redirects', 'about.html', 'bookmarks.html', 'faq.html', 'index.html',
   'intro.html', 'music.html', 'now.html', 'photos.html', 'shitpost.html',
-  'favicon.svg', 'music-data.mjs', 'og-image.png', 'style.css', 'theme.js',
+  'favicon.svg', 'music-data.mjs', 'og-image.png', 'style.css',
+  'fonts/OFL.txt', 'fonts/ibm-plex-mono-latin.woff2',
+  'fonts/ibm-plex-sans-italic-latin.woff2', 'fonts/ibm-plex-sans-latin.woff2',
   ...[
     '4-your-eyez-only.jpg', '808s-and-heartbreak.jpg', 'about.png',
     'after-hours.jpg', 'american-dream.jpg', 'back-to-wonderland.jpg',
@@ -21,7 +23,7 @@ export const siteFiles = [
     'never-enough.jpg', 'petal.jpg', 'pilgrims-paradise.jpg',
     'piss-in-the-wind-deluxe.jpg', 'poems-of-the-past.jpg',
     'private-blizzard.jpg', 'rapunzel.jpg', 'sad-songs.jpg', 'smithereens.jpg',
-    'son-of-spergy.jpg', 'sos.jpg', 'spongebob-eyes.jpg', 'starboy.jpg',
+    'son-of-spergy.jpg', 'sos.jpg', 'starboy.jpg',
     'the-fall-off.jpg', 'u-made-me-a-st4r.jpg', 'yeezus.jpg',
     'yoasobi-the-book-2.jpg', 'yoasobi-the-book-3.jpg', 'yoasobi-the-book.jpg',
   ].map(name => `images/${name}`),
